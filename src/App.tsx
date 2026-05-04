@@ -1,3 +1,4 @@
+ import AuthCallback from "./pages/AuthCallback";
  import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
  import { ThemeProvider } from "@/components/ThemeProvider";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
@@ -33,7 +34,8 @@ const queryClient = new QueryClient();
            <Route path="/market-analysis" element={<MarketAnalysis />} />
            <Route path="/strategy" element={<Strategy />} />
            <Route path="/reports" element={<Reports />} />
-           <Route path="/settings" element={<Settings />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/auth/callback" element={<AuthCallback />} />
            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
