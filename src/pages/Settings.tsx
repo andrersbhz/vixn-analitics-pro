@@ -181,7 +181,7 @@ const ConnectionItem = ({ conn, onUpdate, onTestSync }: { conn: any, onUpdate: a
           <span className="text-xs text-emerald-600 font-medium">Conectado e validado.</span>
           <Button 
             variant="ghost" 
-            size="xs" 
+            size="sm" 
             className="ml-auto text-[10px] h-6 px-2 bg-emerald-500/10 hover:bg-emerald-500/20"
             onClick={handleTestSync}
             disabled={isTesting}
