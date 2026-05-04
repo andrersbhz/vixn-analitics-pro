@@ -1,5 +1,3 @@
-    AlertCircle,
-    { name: "Diagnóstico", href: "/diagnostics", icon: AlertCircle },
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
  import { 
@@ -17,7 +15,8 @@ import { Link, useLocation } from "react-router-dom";
     Sun,
     Moon,
     Megaphone,
-    Search
+    Search,
+    AlertCircle
  } from "lucide-react";
  import { Button } from "@/components/ui/button";
  import { cn } from "@/lib/utils";
@@ -47,6 +46,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     { name: "Estratégia", href: "/strategy", icon: TrendingUp },
     { name: "Relatórios", href: "/reports", icon: PieChart },
     { name: "Configurações", href: "/settings", icon: Settings },
+    { name: "Diagnóstico", href: "/diagnostics", icon: AlertCircle },
   ];
 
    return (
