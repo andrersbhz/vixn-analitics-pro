@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { AnalyticsCard } from "@/components/analytics/AnalyticsCard";
 import { 
@@ -169,11 +169,16 @@ const AdSenseAnalytics = () => {
        doc.text(`Período: ${dateStr}`, 14, 30);
        doc.text(`Total Acumulado: R$ ${totals.toFixed(2)}`, 14, 37);
  
-       doc.autoTable({
-         head: [['Dia', 'Receita (R$)']],
-         body: revenueData.map(d => [isValid(d.date) ? format(d.date, 'dd/MM/yyyy') : '...', `R$ ${d.revenue.toFixed(2)}`]),
-         startY: 45,
-       });
+        if ((doc as any).autoTable) {
+          (doc as any).autoTable({
+            head: [['Dia', 'Receita (R$)']],
+            body: revenueData.map(d => [isValid(d.date) ? format(d.date, 'dd/MM/yyyy') : '...', `R$ ${d.revenue.toFixed(2)}`]),
+            startY: 45,
+          });
+        } else {
+          console.warn("jsPDF-AutoTable not loaded correctly");
+          doc.text("Erro ao gerar tabela: Recurso não carregado.", 14, 45);
+        }
  
        const pageCount = doc.internal.getNumberOfPages();
        for(let i = 1; i <= pageCount; i++) {
