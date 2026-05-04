@@ -1,4 +1,5 @@
 import DashboardLayout from "@/components/DashboardLayout";
+import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { 
   Card, 
   CardContent, 
@@ -85,8 +86,25 @@ const Index = () => {
                 Análise comparativa de crescimento por plataforma.
               </CardDescription>
             </CardHeader>
-             <CardContent className="h-[300px] flex items-center justify-center border-2 border-dashed border-muted rounded-lg m-6 text-muted-foreground bg-accent/5">
-              Gráfico de Performance em Tempo Real
+            <CardContent className="h-[350px] p-6 pt-2">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={[
+                  { name: 'Seg', yt: 4000, blog: 2400, fb: 2400 },
+                  { name: 'Ter', yt: 3000, blog: 1398, fb: 2210 },
+                  { name: 'Qua', yt: 2000, blog: 9800, fb: 2290 },
+                  { name: 'Qui', yt: 2780, blog: 3908, fb: 2000 },
+                  { name: 'Sex', yt: 1890, blog: 4800, fb: 2181 },
+                  { name: 'Sáb', yt: 2390, blog: 3800, fb: 2500 },
+                  { name: 'Dom', yt: 3490, blog: 4300, fb: 2100 },
+                ]}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted))" />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: 'hsl(var(--muted-foreground))', fontSize: 12}} />
+                  <YAxis hide />
+                  <Tooltip contentStyle={{backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))', borderRadius: '8px', color: 'hsl(var(--foreground))'}} />
+                  <Area type="monotone" dataKey="yt" stackId="1" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.2} />
+                  <Area type="monotone" dataKey="blog" stackId="1" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.2} />
+                </AreaChart>
+              </ResponsiveContainer>
             </CardContent>
           </Card>
 
