@@ -94,6 +94,12 @@
         if (id === 'facebook' && isNaN(Number(conn.config.id))) {
           throw new Error('ID do Facebook Ads deve ser numérico.');
         }
+        if (id === 'adsense') {
+          const adsensePattern = /^pub-\d{16}$/;
+          if (!adsensePattern.test(conn.config.id)) {
+            throw new Error('Formato de ID do AdSense inválido. Deve ser no formato "pub-xxxxxxxxxxxxxxxx" (16 dígitos).');
+          }
+        }
         log += `[SUCESSO] ID validado e sincronizado com os dados do banco.\n`;
       }
 

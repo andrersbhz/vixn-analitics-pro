@@ -21,6 +21,7 @@ import {
   Facebook,
   DollarSign
 } from "lucide-react";
+import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 const StatsCard = ({ title, value, change, trend, icon: Icon }: any) => (
@@ -106,7 +107,9 @@ const Index = () => {
                 icon={Facebook} 
               />
               <StatsCard 
-                title="AdSense" 
+                title={
+                  <Link to="/adsense" className="hover:text-primary transition-colors flex items-center gap-1">AdSense <ArrowUpRight className="h-3 w-3" /></Link>
+                }
                 value={adsenseConn?.isConnected ? "Ativo" : "---"} 
                 change={adsenseConn?.isConnected ? "R$ 0,00" : "0%"} 
                 trend="up" 
