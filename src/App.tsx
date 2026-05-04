@@ -8,6 +8,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
  import YouTubeStats from "./pages/YouTubeStats";
  import BlogAnalytics from "./pages/BlogAnalytics";
  import FacebookPages from "./pages/FacebookPages";
+ import Strategy from "./pages/Strategy";
 
 const queryClient = new QueryClient();
 
@@ -22,6 +23,7 @@ const App = () => (
            <Route path="/youtube" element={<YouTubeStats />} />
            <Route path="/blog" element={<BlogAnalytics />} />
            <Route path="/facebook" element={<FacebookPages />} />
+           <Route path="/strategy" element={<Strategy />} />
            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
