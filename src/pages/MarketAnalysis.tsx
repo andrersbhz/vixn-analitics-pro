@@ -1,11 +1,16 @@
 import { useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { AnalyticsCard } from "@/components/analytics/AnalyticsCard";
-import { Search, Briefcase, TrendingUp, Users, Target, Rocket, Loader2, Sparkles, Globe } from "lucide-react";
+import { Search, Briefcase, TrendingUp, Users, Target, Rocket, Loader2, Sparkles, Globe, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
+import { useConnections } from "@/hooks/use-connections";
+
 const MarketAnalysis = () => {
+  const { connections } = useConnections();
+  const isAnyConnected = connections.some(c => c.isConnected);
+
   const [loading, setLoading] = useState(false);
   const [analyzed, setAnalyzed] = useState(false);
 
@@ -49,6 +54,15 @@ const MarketAnalysis = () => {
             </Button>
           </div>
         </AnalyticsCard>
+
+        {analyzed && !isAnyConnected && (
+           <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-center gap-3">
+             <AlertCircle className="h-5 w-5 text-amber-500" />
+             <p className="text-sm text-amber-600 font-medium">
+               Aviso: Nenhuma plataforma conectada. A análise está sendo feita com base em dados genéricos de mercado.
+             </p>
+           </div>
+        )}
 
         {analyzed && (
           <div className="grid gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">

@@ -1,6 +1,9 @@
 import DashboardLayout from "@/components/DashboardLayout";
 import { AnalyticsCard } from "@/components/analytics/AnalyticsCard";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Cell } from 'recharts';
+import { useConnections } from "@/hooks/use-connections";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 import { 
   Youtube, 
   TrendingUp, 
@@ -11,6 +14,28 @@ import {
 } from "lucide-react";
 
 const YouTubeStats = () => {
+  const { getConnection } = useConnections();
+  const ytConn = getConnection('youtube');
+
+  if (!ytConn?.isConnected) {
+    return (
+      <DashboardLayout>
+        <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
+          <div className="p-4 bg-red-500/10 rounded-full">
+            <Youtube className="h-12 w-12 text-red-500" />
+          </div>
+          <h2 className="text-2xl font-bold">YouTube não conectado</h2>
+          <p className="text-muted-foreground text-center max-w-md">
+            Insira o ID do seu canal nas configurações para sincronizar seus dados reais.
+          </p>
+          <Link to="/settings">
+            <Button>Configurar Canal</Button>
+          </Link>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
   return (
     <DashboardLayout>
       <div className="space-y-8">

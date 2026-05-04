@@ -1,15 +1,73 @@
 import DashboardLayout from "@/components/DashboardLayout";
 import { AnalyticsCard } from "@/components/analytics/AnalyticsCard";
+import { useState, useEffect } from "react";
+import { useConnections } from "@/hooks/use-connections";
+import { fetchWordPressData, WordPressStats } from "@/lib/wordpress";
 import { 
   Globe, 
   Search, 
   Users, 
   MousePointer2, 
   Clock,
-  ArrowUp
+  ArrowUp,
+  ExternalLink,
+  AlertCircle,
+  FileText
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
+import { toast } from "sonner";
 
 const BlogAnalytics = () => {
+  const { getConnection } = useConnections();
+  const wpConn = getConnection('wordpress');
+  const [data, setData] = useState<WordPressStats | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadData = async () => {
+      if (wpConn?.isConnected && wpConn.config.url) {
+        setLoading(true);
+        try {
+          const stats = await fetchWordPressData(
+            wpConn.config.url,
+            wpConn.config.user,
+            wpConn.config.password
+          );
+          setData(stats);
+          setError(null);
+        } catch (err: any) {
+          setError(err.message || "Erro ao carregar dados do WordPress");
+          toast.error("Erro ao sincronizar com o Blog");
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadData();
+  }, [wpConn]);
+
+  if (!wpConn?.isConnected) {
+    return (
+      <DashboardLayout>
+        <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
+          <div className="p-4 bg-accent/50 rounded-full">
+            <Globe className="h-12 w-12 text-muted-foreground" />
+          </div>
+          <h2 className="text-2xl font-bold">Blog não conectado</h2>
+          <p className="text-muted-foreground text-center max-w-md">
+            Conecte seu site WordPress nas configurações para visualizar dados reais e métricas de desempenho.
+          </p>
+          <Link to="/settings">
+            <Button>Ir para Configurações</Button>
+          </Link>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
   return (
     <DashboardLayout>
       <div className="space-y-8">
@@ -24,20 +82,22 @@ const BlogAnalytics = () => {
         </div>
 
         <div className="grid gap-6 md:grid-cols-4">
-          {[
-            { label: "Sessões Ativas", value: "1,240", icon: Users, color: "text-blue-600" },
-            { label: "Cliques (Google)", value: "845", icon: MousePointer2, color: "text-orange-600" },
-            { label: "Tempo Médio", value: "2:45", icon: Clock, color: "text-emerald-600" },
-            { label: "Posição Média", value: "4.2", icon: Search, color: "text-indigo-600" },
+           {[
+            { label: "Total de Posts", value: loading ? "..." : data?.postCount || "0", icon: FileText, color: "text-blue-600" },
+            { label: "Site", value: loading ? "..." : data?.siteName || "N/A", icon: Globe, color: "text-emerald-600" },
+            { label: "Status API", value: error ? "Erro" : "Ativo", icon: AlertCircle, color: error ? "text-rose-600" : "text-emerald-600" },
+            { label: "Última Sinc.", value: "Agora", icon: Clock, color: "text-indigo-600" },
           ].map((stat, i) => (
              <div key={i} className="bg-card p-5 rounded-xl border shadow-sm">
                <div className="flex justify-between items-start mb-4">
                  <div className="p-2 bg-accent/50 rounded-lg">
                    <stat.icon className={stat.color + " h-5 w-5"} />
                  </div>
-                 <div className="flex items-center text-xs font-medium text-emerald-500 bg-emerald-500/10 px-2 py-1 rounded">
-                   <ArrowUp className="h-3 w-3 mr-1" /> 12%
-                 </div>
+                 {!loading && !error && (
+                   <div className="flex items-center text-xs font-medium text-emerald-500 bg-emerald-500/10 px-2 py-1 rounded">
+                     Sincronizado
+                   </div>
+                 )}
                </div>
                <p className="text-sm font-medium text-muted-foreground">{stat.label}</p>
                <p className="text-2xl font-bold text-foreground mt-1">{stat.value}</p>
@@ -46,57 +106,47 @@ const BlogAnalytics = () => {
         </div>
 
         <div className="grid gap-6 lg:grid-cols-3">
-          <AnalyticsCard title="Palavras-chave em Alta" className="lg:col-span-2">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left">
-                <thead>
-                   <tr className="text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
-                    <th className="pb-3 px-2">Palavra-chave</th>
-                    <th className="pb-3 px-2">Cliques</th>
-                    <th className="pb-3 px-2">Impressões</th>
-                    <th className="pb-3 px-2">CTR</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y">
-                  {[
-                    { kw: "estratégias de marketing 2024", clicks: "450", imp: "5.2k", ctr: "8.6%" },
-                    { kw: "como crescer blog rápido", clicks: "320", imp: "4.1k", ctr: "7.8%" },
-                    { kw: "melhores plugins wordpress", clicks: "280", imp: "3.8k", ctr: "7.3%" },
-                    { kw: "seo para youtube guia", clicks: "150", imp: "2.5k", ctr: "6.0%" },
-                  ].map((row, i) => (
-                     <tr key={i} className="text-sm hover:bg-accent/30 transition-colors">
-                       <td className="py-4 px-2 font-medium text-foreground">{row.kw}</td>
-                       <td className="py-4 px-2 text-muted-foreground">{row.clicks}</td>
-                       <td className="py-4 px-2 text-muted-foreground">{row.imp}</td>
-                       <td className="py-4 px-2 font-semibold text-blue-500">{row.ctr}</td>
-                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+          <AnalyticsCard title="Últimas Publicações" className="lg:col-span-2">
+            {loading ? (
+               <div className="py-8 text-center text-muted-foreground">Carregando posts...</div>
+            ) : error ? (
+               <div className="py-8 text-center text-rose-500">{error}</div>
+            ) : data?.latestPosts.length === 0 ? (
+               <div className="py-8 text-center text-muted-foreground">Nenhum post encontrado.</div>
+            ) : (
+              <div className="space-y-4">
+                {data?.latestPosts.map((post) => (
+                  <div key={post.id} className="flex items-center justify-between p-4 border rounded-xl hover:bg-accent/30 transition-all">
+                    <div className="space-y-1">
+                      <h3 className="font-medium text-foreground line-clamp-1" dangerouslySetInnerHTML={{ __html: post.title.rendered }}></h3>
+                      <p className="text-xs text-muted-foreground">
+                        Publicado em: {new Date(post.date).toLocaleDateString('pt-BR')}
+                      </p>
+                    </div>
+                    <a href={post.link} target="_blank" rel="noopener noreferrer">
+                      <Button variant="ghost" size="sm">
+                        <ExternalLink className="h-4 w-4" />
+                      </Button>
+                    </a>
+                  </div>
+                ))}
+              </div>
+            )}
           </AnalyticsCard>
 
-          <AnalyticsCard title="Origens de Tráfego">
-            <div className="space-y-6 mt-2">
-              {[
-                { label: "Orgânico (Google)", value: 65, color: "bg-blue-500" },
-                { label: "Redes Sociais", value: 20, color: "bg-emerald-500" },
-                { label: "Direto", value: 10, color: "bg-orange-500" },
-                { label: "Outros", value: 5, color: "bg-slate-300" },
-              ].map((origin, i) => (
-                <div key={i} className="space-y-2">
-                   <div className="flex justify-between text-sm font-medium">
-                     <span className="text-muted-foreground">{origin.label}</span>
-                     <span className="text-foreground">{origin.value}%</span>
-                   </div>
-                   <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
-                    <div 
-                      className={origin.color + " h-full transition-all duration-500"} 
-                      style={{ width: `${origin.value}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
+          <AnalyticsCard title="Configuração da Conexão">
+            <div className="space-y-4">
+               <div className="p-4 bg-primary/5 rounded-xl border border-primary/10">
+                 <p className="text-sm font-medium text-primary mb-1">Status da URL</p>
+                 <p className="text-xs text-muted-foreground truncate">{wpConn.config.url}</p>
+               </div>
+               <div className="p-4 bg-emerald-500/5 rounded-xl border border-emerald-500/10">
+                 <p className="text-sm font-medium text-emerald-500 mb-1">Usuário Autenticado</p>
+                 <p className="text-xs text-muted-foreground">{wpConn.config.user}</p>
+               </div>
+               <Link to="/settings" className="block w-full">
+                 <Button variant="outline" className="w-full">Alterar Conexão</Button>
+               </Link>
             </div>
           </AnalyticsCard>
         </div>

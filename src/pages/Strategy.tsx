@@ -11,7 +11,35 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
+import { useConnections } from "@/hooks/use-connections";
+import { Link } from "react-router-dom";
+
 const Strategy = () => {
+  const { getConnection } = useConnections();
+  const wpConn = getConnection('wordpress');
+  const ytConn = getConnection('youtube');
+  const fbConn = getConnection('facebook');
+  const isAnyConnected = [wpConn, ytConn, fbConn].some(c => c?.isConnected);
+
+  if (!isAnyConnected) {
+    return (
+      <DashboardLayout>
+        <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4 text-center">
+          <div className="p-4 bg-emerald-500/10 rounded-full">
+            <TrendingUp className="h-12 w-12 text-emerald-500" />
+          </div>
+          <h2 className="text-2xl font-bold">Estratégia requer dados</h2>
+          <p className="text-muted-foreground max-w-md">
+            Conecte suas plataformas para que a IA possa gerar um roadmap real baseado na sua performance atual.
+          </p>
+          <Link to="/settings">
+            <Button>Conectar Agora</Button>
+          </Link>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
   return (
     <DashboardLayout>
       <div className="space-y-8">
