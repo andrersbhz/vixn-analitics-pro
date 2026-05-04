@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+ import { useState, useEffect, useMemo } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { AnalyticsCard } from "@/components/analytics/AnalyticsCard";
 import { 
@@ -15,7 +15,7 @@ import {
   FileText,
   Table
 } from "lucide-react";
-import { 
+ import { 
   ResponsiveContainer, 
   AreaChart, 
   Area, 
@@ -27,6 +27,10 @@ import {
 import { useConnections } from "@/hooks/use-connections";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+ import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+ import { format, subDays, isAfter, isBefore, startOfDay, endOfDay } from "date-fns";
+ import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import jsPDF from "jspdf";
@@ -38,27 +42,61 @@ const AdSenseAnalytics = () => {
   const adsenseConn = getConnection('adsense');
   const { testSync } = useConnections();
   const [period, setPeriod] = useState("7d");
+  const [dateRange, setDateRange] = useState<{ from: Date; to: Date }>({
+    from: subDays(new Date(), 6),
+    to: new Date(),
+  });
   const [isSyncing, setIsSyncing] = useState(false);
+  const [syncLogs, setSyncLogs] = useState<string[]>([]);
 
   // Mock data for AdSense revenue
-  const revenueData = [
-    { name: 'Seg', revenue: 45.20 },
-    { name: 'Ter', revenue: 52.15 },
-    { name: 'Qua', revenue: 48.90 },
-    { name: 'Qui', revenue: 61.30 },
-    { name: 'Sex', revenue: 55.40 },
-    { name: 'Sáb', revenue: 38.20 },
-    { name: 'Dom', revenue: 42.10 },
-  ];
+  const allData = useMemo(() => {
+    const days = [];
+    const now = new Date();
+    for (let i = 90; i >= 0; i--) {
+      const date = subDays(now, i);
+      days.push({
+        date,
+        name: format(date, 'eee', { locale: ptBR }),
+        revenue: Math.random() * 50 + 20,
+      });
+    }
+    return days;
+  }, []);
+
+  const revenueData = useMemo(() => {
+    let start: Date;
+    let end = endOfDay(new Date());
+
+    if (period === '7d') start = startOfDay(subDays(new Date(), 6));
+    else if (period === '30d') start = startOfDay(subDays(new Date(), 29));
+    else if (period === '90d') start = startOfDay(subDays(new Date(), 89));
+    else {
+      start = startOfDay(dateRange.from);
+      end = endOfDay(dateRange.to);
+    }
+
+    return allData.filter(d => 
+      (isAfter(d.date, start) || d.date.getTime() === start.getTime()) && 
+      (isBefore(d.date, end) || d.date.getTime() === end.getTime())
+    );
+  }, [period, dateRange, allData]);
+
+  const totals = useMemo(() => {
+    return revenueData.reduce((acc, curr) => acc + curr.revenue, 0);
+  }, [revenueData]);
 
   const handleSyncNow = async () => {
     setIsSyncing(true);
+    setSyncLogs(prev => [`[${new Date().toLocaleTimeString()}] Iniciando sincronização...`, ...prev]);
     toast.info("Iniciando sincronização com Google AdSense...");
     try {
       const result = await testSync('adsense');
       if (result.success) {
+        setSyncLogs(prev => [`[${new Date().toLocaleTimeString()}] SUCESSO: Dados atualizados.`, ...prev]);
         toast.success("Sincronização concluída com sucesso!");
       } else {
+        setSyncLogs(prev => [`[${new Date().toLocaleTimeString()}] ERRO: ${result.log}`, ...prev]);
         toast.error("Erro na sincronização. Verifique os logs.");
       }
     } finally {
@@ -71,7 +109,7 @@ const AdSenseAnalytics = () => {
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.setAttribute('download', `adsense-report-${period}.csv`);
+    link.setAttribute('download', `adsense-report-${format(dateRange.from, 'yyyy-MM-dd')}-to-${format(dateRange.to, 'yyyy-MM-dd')}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -80,12 +118,30 @@ const AdSenseAnalytics = () => {
 
   const exportToPDF = () => {
     const doc = new jsPDF() as any;
-    doc.text("Relatório de Receita Google AdSense", 14, 15);
+    const dateStr = `${format(revenueData[0]?.date || new Date(), 'dd/MM/yyyy')} até ${format(revenueData[revenueData.length-1]?.date || new Date(), 'dd/MM/yyyy')}`;
+    
+    // Header
+    doc.setFontSize(18);
+    doc.text("Relatório de Receita Google AdSense", 14, 22);
+    doc.setFontSize(11);
+    doc.setTextColor(100);
+    doc.text(`Período: ${dateStr}`, 14, 30);
+    doc.text(`Total Acumulado: R$ ${totals.toFixed(2)}`, 14, 37);
+
     doc.autoTable({
       head: [['Dia', 'Receita (R$)']],
-      body: revenueData.map(d => [d.name, `R$ ${d.revenue.toFixed(2)}`]),
-      startY: 20,
+      body: revenueData.map(d => [format(d.date, 'dd/MM/yyyy'), `R$ ${d.revenue.toFixed(2)}`]),
+      startY: 45,
     });
+
+    // Footer
+    const pageCount = doc.internal.getNumberOfPages();
+    for(let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(10);
+        doc.text(`Gerado em: ${format(new Date(), 'dd/MM/yyyy HH:mm:ss')}`, 14, doc.internal.pageSize.height - 10);
+    }
+
     doc.save(`adsense-report-${period}.pdf`);
     toast.success("PDF exportado com sucesso!");
   };
