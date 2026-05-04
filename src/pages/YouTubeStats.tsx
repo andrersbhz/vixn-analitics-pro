@@ -14,13 +14,13 @@ const YouTubeStats = () => {
     <DashboardLayout>
       <div className="space-y-8">
         <div className="flex items-center gap-3">
-          <div className="p-3 bg-red-100 rounded-xl">
-            <Youtube className="h-8 w-8 text-red-600" />
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold text-slate-900">YouTube Stats</h1>
-            <p className="text-slate-500 mt-1">Análise detalhada do seu canal e vídeos.</p>
-          </div>
+           <div className="p-3 bg-red-500/10 rounded-xl">
+             <Youtube className="h-8 w-8 text-red-500" />
+           </div>
+           <div>
+             <h1 className="text-3xl font-bold text-foreground">YouTube Stats</h1>
+             <p className="text-muted-foreground mt-1">Análise detalhada do seu canal e vídeos.</p>
+           </div>
         </div>
 
         <div className="grid gap-6 md:grid-cols-3">
@@ -29,15 +29,15 @@ const YouTubeStats = () => {
             { label: "Engajamento", value: "12.4%", icon: ThumbsUp, color: "text-emerald-600" },
             { label: "Compartilhamentos", value: "842", icon: Share2, color: "text-purple-600" },
           ].map((stat, i) => (
-            <div key={i} className="bg-white p-6 rounded-xl border flex items-center gap-4 shadow-sm">
-              <div className="p-3 bg-slate-50 rounded-lg">
-                <stat.icon className={stat.color + " h-6 w-6"} />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-slate-500">{stat.label}</p>
-                <p className="text-2xl font-bold text-slate-900">{stat.value}</p>
-              </div>
-            </div>
+             <div key={i} className="bg-card p-6 rounded-xl border flex items-center gap-4 shadow-sm">
+               <div className="p-3 bg-accent/50 rounded-lg">
+                 <stat.icon className={stat.color + " h-6 w-6"} />
+               </div>
+               <div>
+                 <p className="text-sm font-medium text-muted-foreground">{stat.label}</p>
+                 <p className="text-2xl font-bold text-foreground">{stat.value}</p>
+               </div>
+             </div>
           ))}
         </div>
 
@@ -50,16 +50,16 @@ const YouTubeStats = () => {
                 { title: "Setup de Iluminação Barato", views: "28.5k", watchTime: "1.4k hrs", ctr: "8.7%" },
               ].map((video, i) => (
                 <div key={i} className="flex items-center justify-between group cursor-pointer border-b pb-4 last:border-0 last:pb-0">
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-slate-900 truncate group-hover:text-primary transition-colors">{video.title}</p>
-                    <div className="flex gap-4 mt-1 text-xs text-slate-500">
-                      <span>{video.views} visualizações</span>
-                      <span>{video.watchTime} tempo de exibição</span>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm font-semibold text-emerald-600">{video.ctr} CTR</p>
-                  </div>
+                   <div className="flex-1 min-w-0">
+                     <p className="font-medium text-foreground truncate group-hover:text-primary transition-colors">{video.title}</p>
+                     <div className="flex gap-4 mt-1 text-xs text-muted-foreground">
+                       <span>{video.views} visualizações</span>
+                       <span>{video.watchTime} tempo de exibição</span>
+                     </div>
+                   </div>
+                   <div className="text-right">
+                     <p className="text-sm font-semibold text-emerald-500">{video.ctr} CTR</p>
+                   </div>
                 </div>
               ))}
             </div>
@@ -73,10 +73,10 @@ const YouTubeStats = () => {
                 "Responda aos comentários mais curtidos do vídeo mais recente.",
                 "Analise o pico de retenção aos 2:15 do último vídeo."
               ].map((tip, i) => (
-                <div key={i} className="flex gap-3 p-3 bg-slate-50 rounded-lg border border-slate-100">
-                  <TrendingUp className="h-5 w-5 text-primary shrink-0" />
-                  <p className="text-sm text-slate-700">{tip}</p>
-                </div>
+               <div key={i} className="flex gap-3 p-3 bg-accent/50 rounded-lg border border-border">
+                 <TrendingUp className="h-5 w-5 text-primary shrink-0" />
+                 <p className="text-sm text-foreground">{tip}</p>
+               </div>
               ))}
             </div>
           </AnalyticsCard>

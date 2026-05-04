@@ -14,13 +14,13 @@ const BlogAnalytics = () => {
     <DashboardLayout>
       <div className="space-y-8">
         <div className="flex items-center gap-3">
-          <div className="p-3 bg-blue-100 rounded-xl">
-            <Globe className="h-8 w-8 text-blue-600" />
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold text-slate-900">Blog Analytics</h1>
-            <p className="text-slate-500 mt-1">Monitore o desempenho do seu site ou WordPress.</p>
-          </div>
+           <div className="p-3 bg-blue-500/10 rounded-xl">
+             <Globe className="h-8 w-8 text-blue-500" />
+           </div>
+           <div>
+             <h1 className="text-3xl font-bold text-foreground">Blog Analytics</h1>
+             <p className="text-muted-foreground mt-1">Monitore o desempenho do seu site ou WordPress.</p>
+           </div>
         </div>
 
         <div className="grid gap-6 md:grid-cols-4">
@@ -30,18 +30,18 @@ const BlogAnalytics = () => {
             { label: "Tempo Médio", value: "2:45", icon: Clock, color: "text-emerald-600" },
             { label: "Posição Média", value: "4.2", icon: Search, color: "text-indigo-600" },
           ].map((stat, i) => (
-            <div key={i} className="bg-white p-5 rounded-xl border shadow-sm">
-              <div className="flex justify-between items-start mb-4">
-                <div className="p-2 bg-slate-50 rounded-lg">
-                  <stat.icon className={stat.color + " h-5 w-5"} />
-                </div>
-                <div className="flex items-center text-xs font-medium text-emerald-600 bg-emerald-50 px-2 py-1 rounded">
-                  <ArrowUp className="h-3 w-3 mr-1" /> 12%
-                </div>
-              </div>
-              <p className="text-sm font-medium text-slate-500">{stat.label}</p>
-              <p className="text-2xl font-bold text-slate-900 mt-1">{stat.value}</p>
-            </div>
+             <div key={i} className="bg-card p-5 rounded-xl border shadow-sm">
+               <div className="flex justify-between items-start mb-4">
+                 <div className="p-2 bg-accent/50 rounded-lg">
+                   <stat.icon className={stat.color + " h-5 w-5"} />
+                 </div>
+                 <div className="flex items-center text-xs font-medium text-emerald-500 bg-emerald-500/10 px-2 py-1 rounded">
+                   <ArrowUp className="h-3 w-3 mr-1" /> 12%
+                 </div>
+               </div>
+               <p className="text-sm font-medium text-muted-foreground">{stat.label}</p>
+               <p className="text-2xl font-bold text-foreground mt-1">{stat.value}</p>
+             </div>
           ))}
         </div>
 
@@ -50,7 +50,7 @@ const BlogAnalytics = () => {
             <div className="overflow-x-auto">
               <table className="w-full text-left">
                 <thead>
-                  <tr className="text-xs font-semibold text-slate-500 uppercase tracking-wider border-b">
+                   <tr className="text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b">
                     <th className="pb-3 px-2">Palavra-chave</th>
                     <th className="pb-3 px-2">Cliques</th>
                     <th className="pb-3 px-2">Impressões</th>
@@ -64,12 +64,12 @@ const BlogAnalytics = () => {
                     { kw: "melhores plugins wordpress", clicks: "280", imp: "3.8k", ctr: "7.3%" },
                     { kw: "seo para youtube guia", clicks: "150", imp: "2.5k", ctr: "6.0%" },
                   ].map((row, i) => (
-                    <tr key={i} className="text-sm hover:bg-slate-50 transition-colors">
-                      <td className="py-4 px-2 font-medium text-slate-700">{row.kw}</td>
-                      <td className="py-4 px-2 text-slate-600">{row.clicks}</td>
-                      <td className="py-4 px-2 text-slate-600">{row.imp}</td>
-                      <td className="py-4 px-2 font-semibold text-blue-600">{row.ctr}</td>
-                    </tr>
+                     <tr key={i} className="text-sm hover:bg-accent/30 transition-colors">
+                       <td className="py-4 px-2 font-medium text-foreground">{row.kw}</td>
+                       <td className="py-4 px-2 text-muted-foreground">{row.clicks}</td>
+                       <td className="py-4 px-2 text-muted-foreground">{row.imp}</td>
+                       <td className="py-4 px-2 font-semibold text-blue-500">{row.ctr}</td>
+                     </tr>
                   ))}
                 </tbody>
               </table>
@@ -85,11 +85,11 @@ const BlogAnalytics = () => {
                 { label: "Outros", value: 5, color: "bg-slate-300" },
               ].map((origin, i) => (
                 <div key={i} className="space-y-2">
-                  <div className="flex justify-between text-sm font-medium">
-                    <span className="text-slate-600">{origin.label}</span>
-                    <span className="text-slate-900">{origin.value}%</span>
-                  </div>
-                  <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                   <div className="flex justify-between text-sm font-medium">
+                     <span className="text-muted-foreground">{origin.label}</span>
+                     <span className="text-foreground">{origin.value}%</span>
+                   </div>
+                   <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
                     <div 
                       className={origin.color + " h-full transition-all duration-500"} 
                       style={{ width: `${origin.value}%` }}

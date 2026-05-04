@@ -16,13 +16,13 @@ const Settings = () => {
     <DashboardLayout>
       <div className="space-y-8">
         <div className="flex items-center gap-3">
-          <div className="p-3 bg-slate-100 rounded-xl">
-            <SettingsIcon className="h-8 w-8 text-slate-600" />
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold text-slate-900">Configurações</h1>
-            <p className="text-slate-500 mt-1">Gerencie sua conta e conexões de plataforma.</p>
-          </div>
+           <div className="p-3 bg-accent/50 rounded-xl">
+             <SettingsIcon className="h-8 w-8 text-muted-foreground" />
+           </div>
+           <div>
+             <h1 className="text-3xl font-bold text-foreground">Configurações</h1>
+             <p className="text-muted-foreground mt-1">Gerencie sua conta e conexões de plataforma.</p>
+           </div>
         </div>
 
         <div className="grid gap-8 lg:grid-cols-4">
@@ -37,8 +37,8 @@ const Settings = () => {
             ].map((item, i) => (
               <button 
                 key={i} 
-                className={`w-full flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${item.active ? "bg-primary text-white" : "text-slate-600 hover:bg-slate-100"}`}
-              >
+               className={`w-full flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${item.active ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
+             >
                 <item.icon className="h-4 w-4" />
                 {item.label}
               </button>
@@ -48,14 +48,14 @@ const Settings = () => {
           <div className="lg:col-span-3 space-y-6">
             <AnalyticsCard title="Informações Pessoais">
               <div className="space-y-4 max-w-xl">
-                <div className="grid gap-2">
-                  <label className="text-sm font-medium text-slate-700">Nome Completo</label>
-                  <input type="text" className="w-full p-2 border rounded-md" defaultValue="Admin User" />
-                </div>
-                <div className="grid gap-2">
-                  <label className="text-sm font-medium text-slate-700">Email</label>
-                  <input type="email" className="w-full p-2 border rounded-md" defaultValue="admin@growthsuite.pro" />
-                </div>
+                 <div className="grid gap-2">
+                   <label className="text-sm font-medium text-foreground">Nome Completo</label>
+                   <input type="text" className="w-full p-2 border rounded-md bg-background text-foreground" defaultValue="Admin User" />
+                 </div>
+                 <div className="grid gap-2">
+                   <label className="text-sm font-medium text-foreground">Email</label>
+                   <input type="email" className="w-full p-2 border rounded-md bg-background text-foreground" defaultValue="admin@growthsuite.pro" />
+                 </div>
                 <Button className="mt-2">Salvar Alterações</Button>
               </div>
             </AnalyticsCard>
@@ -67,19 +67,19 @@ const Settings = () => {
                   { name: "WordPress", status: "Conectado", date: "Há 1 mês", icon: "🌐" },
                   { name: "Facebook", status: "Conectado", date: "Há 3 meses", icon: "🔵" },
                 ].map((conn, i) => (
-                  <div key={i} className="flex items-center justify-between p-4 border rounded-xl hover:bg-slate-50 transition-colors">
-                    <div className="flex items-center gap-4">
-                      <span className="text-2xl">{conn.icon}</span>
-                      <div>
-                        <p className="font-bold text-slate-900">{conn.name}</p>
-                        <p className="text-xs text-slate-500">Sincronizado {conn.date}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className="text-xs font-medium text-emerald-600 bg-emerald-50 px-2 py-1 rounded">{conn.status}</span>
-                      <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700 hover:bg-red-50">Desconectar</Button>
-                    </div>
-                  </div>
+                   <div key={i} className="flex items-center justify-between p-4 border rounded-xl hover:bg-accent/30 transition-colors">
+                     <div className="flex items-center gap-4">
+                       <span className="text-2xl">{conn.icon}</span>
+                       <div>
+                         <p className="font-bold text-foreground">{conn.name}</p>
+                         <p className="text-xs text-muted-foreground">Sincronizado {conn.date}</p>
+                       </div>
+                     </div>
+                     <div className="flex items-center gap-3">
+                       <span className="text-xs font-medium text-emerald-500 bg-emerald-500/10 px-2 py-1 rounded">{conn.status}</span>
+                       <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive hover:bg-destructive/10">Desconectar</Button>
+                     </div>
+                   </div>
                 ))}
                 <Button variant="outline" className="w-full border-dashed">
                   + Conectar Nova Plataforma
