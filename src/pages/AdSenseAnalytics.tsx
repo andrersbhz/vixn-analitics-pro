@@ -321,7 +321,9 @@ const AdSenseAnalytics = () => {
                     </div>
                     <span className="text-xs font-bold text-primary">
                       {adsenseConn?.next_sync_at 
-                        ? formatDistanceToNow(new Date(adsenseConn.next_sync_at), { locale: ptBR, addSuffix: true })
+                        ? (isValid(new Date(adsenseConn.next_sync_at)) 
+                            ? formatDistanceToNow(new Date(adsenseConn.next_sync_at), { locale: ptBR, addSuffix: true })
+                            : 'Data inválida')
                         : 'Não agendada'}
                     </span>
                   </div>
