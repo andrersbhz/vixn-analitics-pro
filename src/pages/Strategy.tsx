@@ -4,9 +4,10 @@ import {
   TrendingUp, 
   CheckCircle2, 
   Circle, 
-  Target, 
-  Zap,
-  ArrowRight
+   Target, 
+   Zap,
+   ArrowRight,
+   Youtube
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
