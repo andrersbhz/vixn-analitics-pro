@@ -40,6 +40,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     { name: "Blog Analytics", href: "/blog", icon: Globe },
     { name: "Facebook Pages", href: "/facebook", icon: Facebook },
     { name: "Facebook Ads", href: "/facebook-ads", icon: Megaphone },
+    { name: "AdSense", href: "/adsense", icon: PieChart },
     { name: "Estudo de Mercado", href: "/market-analysis", icon: Search },
     { name: "Estratégia", href: "/strategy", icon: TrendingUp },
     { name: "Relatórios", href: "/reports", icon: PieChart },
