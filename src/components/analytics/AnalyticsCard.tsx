@@ -1,0 +1,19 @@
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
+
+interface AnalyticsCardProps {
+  title: string;
+  children: React.ReactNode;
+  className?: string;
+}
+
+export const AnalyticsCard = ({ title, children, className }: AnalyticsCardProps) => (
+  <Card className={cn("overflow-hidden", className)}>
+    <CardHeader className="border-b bg-slate-50/50 py-4 px-6">
+      <CardTitle className="text-lg font-semibold text-slate-800">{title}</CardTitle>
+    </CardHeader>
+    <CardContent className="p-6">
+      {children}
+    </CardContent>
+  </Card>
+);
