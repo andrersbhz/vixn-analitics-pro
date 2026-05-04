@@ -1,6 +1,5 @@
-import Diagnostics from "./pages/Diagnostics";
-            <Route path="/diagnostics" element={<Diagnostics />} />
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import Diagnostics from "./pages/Diagnostics";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "./components/ui/sonner";
@@ -40,6 +39,7 @@ const App = () => (
             <Route path="/reports" element={<Reports />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/auth/callback" element={<AuthCallback />} />
+            <Route path="/diagnostics" element={<Diagnostics />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
