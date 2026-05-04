@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+ import { useState, useEffect, useMemo } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { AnalyticsCard } from "@/components/analytics/AnalyticsCard";
 import { 
@@ -15,7 +15,7 @@ import {
   FileText,
   Table
 } from "lucide-react";
-import { 
+ import { 
   ResponsiveContainer, 
   AreaChart, 
   Area, 
@@ -27,6 +27,10 @@ import {
 import { useConnections } from "@/hooks/use-connections";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+ import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+ import { format, subDays, isAfter, isBefore, startOfDay, endOfDay } from "date-fns";
+ import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import jsPDF from "jspdf";
@@ -38,27 +42,61 @@ const AdSenseAnalytics = () => {
   const adsenseConn = getConnection('adsense');
   const { testSync } = useConnections();
   const [period, setPeriod] = useState("7d");
+  const [dateRange, setDateRange] = useState<{ from: Date; to: Date }>({
+    from: subDays(new Date(), 6),
+    to: new Date(),
+  });
   const [isSyncing, setIsSyncing] = useState(false);
+  const [syncLogs, setSyncLogs] = useState<string[]>([]);
 
   // Mock data for AdSense revenue
-  const revenueData = [
-    { name: 'Seg', revenue: 45.20 },
-    { name: 'Ter', revenue: 52.15 },
-    { name: 'Qua', revenue: 48.90 },
-    { name: 'Qui', revenue: 61.30 },
-    { name: 'Sex', revenue: 55.40 },
-    { name: 'Sáb', revenue: 38.20 },
-    { name: 'Dom', revenue: 42.10 },
-  ];
+  const allData = useMemo(() => {
+    const days = [];
+    const now = new Date();
+    for (let i = 90; i >= 0; i--) {
+      const date = subDays(now, i);
+      days.push({
+        date,
+        name: format(date, 'eee', { locale: ptBR }),
+        revenue: Math.random() * 50 + 20,
+      });
+    }
+    return days;
+  }, []);
+
+  const revenueData = useMemo(() => {
+    let start: Date;
+    let end = endOfDay(new Date());
+
+    if (period === '7d') start = startOfDay(subDays(new Date(), 6));
+    else if (period === '30d') start = startOfDay(subDays(new Date(), 29));
+    else if (period === '90d') start = startOfDay(subDays(new Date(), 89));
+    else {
+      start = startOfDay(dateRange.from);
+      end = endOfDay(dateRange.to);
+    }
+
+    return allData.filter(d => 
+      (isAfter(d.date, start) || d.date.getTime() === start.getTime()) && 
+      (isBefore(d.date, end) || d.date.getTime() === end.getTime())
+    );
+  }, [period, dateRange, allData]);
+
+  const totals = useMemo(() => {
+    return revenueData.reduce((acc, curr) => acc + curr.revenue, 0);
+  }, [revenueData]);
 
   const handleSyncNow = async () => {
     setIsSyncing(true);
+    setSyncLogs(prev => [`[${new Date().toLocaleTimeString()}] Iniciando sincronização...`, ...prev]);
     toast.info("Iniciando sincronização com Google AdSense...");
     try {
       const result = await testSync('adsense');
       if (result.success) {
+        setSyncLogs(prev => [`[${new Date().toLocaleTimeString()}] SUCESSO: Dados atualizados.`, ...prev]);
         toast.success("Sincronização concluída com sucesso!");
       } else {
+        setSyncLogs(prev => [`[${new Date().toLocaleTimeString()}] ERRO: ${result.log}`, ...prev]);
         toast.error("Erro na sincronização. Verifique os logs.");
       }
     } finally {
@@ -71,7 +109,7 @@ const AdSenseAnalytics = () => {
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.setAttribute('download', `adsense-report-${period}.csv`);
+    link.setAttribute('download', `adsense-report-${format(dateRange.from, 'yyyy-MM-dd')}-to-${format(dateRange.to, 'yyyy-MM-dd')}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -80,12 +118,30 @@ const AdSenseAnalytics = () => {
 
   const exportToPDF = () => {
     const doc = new jsPDF() as any;
-    doc.text("Relatório de Receita Google AdSense", 14, 15);
+    const dateStr = `${format(revenueData[0]?.date || new Date(), 'dd/MM/yyyy')} até ${format(revenueData[revenueData.length-1]?.date || new Date(), 'dd/MM/yyyy')}`;
+    
+    // Header
+    doc.setFontSize(18);
+    doc.text("Relatório de Receita Google AdSense", 14, 22);
+    doc.setFontSize(11);
+    doc.setTextColor(100);
+    doc.text(`Período: ${dateStr}`, 14, 30);
+    doc.text(`Total Acumulado: R$ ${totals.toFixed(2)}`, 14, 37);
+
     doc.autoTable({
       head: [['Dia', 'Receita (R$)']],
-      body: revenueData.map(d => [d.name, `R$ ${d.revenue.toFixed(2)}`]),
-      startY: 20,
+      body: revenueData.map(d => [format(d.date, 'dd/MM/yyyy'), `R$ ${d.revenue.toFixed(2)}`]),
+      startY: 45,
     });
+
+    // Footer
+    const pageCount = doc.internal.getNumberOfPages();
+    for(let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(10);
+        doc.text(`Gerado em: ${format(new Date(), 'dd/MM/yyyy HH:mm:ss')}`, 14, doc.internal.pageSize.height - 10);
+    }
+
     doc.save(`adsense-report-${period}.pdf`);
     toast.success("PDF exportado com sucesso!");
   };
@@ -122,20 +178,47 @@ const AdSenseAnalytics = () => {
               <p className="text-muted-foreground mt-1">Visão detalhada de ganhos e performance de monetização.</p>
             </div>
           </div>
-          <div className="flex bg-card border rounded-lg p-1">
-            {["7d", "30d", "90d"].map((p) => (
-              <button
-                key={p}
-                onClick={() => setPeriod(p)}
-                className={cn(
-                  "px-4 py-1.5 text-sm font-medium rounded-md transition-all",
-                  period === p ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                {p.toUpperCase()}
-              </button>
-            ))}
-          </div>
+           <div className="flex items-center gap-2">
+             <div className="flex bg-card border rounded-lg p-1">
+               {["7d", "30d", "90d", "custom"].map((p) => (
+                 <button
+                   key={p}
+                   onClick={() => setPeriod(p)}
+                   className={cn(
+                     "px-4 py-1.5 text-sm font-medium rounded-md transition-all",
+                     period === p ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                   )}
+                 >
+                   {p === 'custom' ? 'Personalizado' : p.toUpperCase()}
+                 </button>
+               ))}
+             </div>
+             
+             {period === 'custom' && (
+               <Popover>
+                 <PopoverTrigger asChild>
+                   <Button variant="outline" size="sm" className="gap-2">
+                     <Calendar className="h-4 w-4" />
+                     {format(dateRange.from, "dd/MM/yyyy")} - {format(dateRange.to, "dd/MM/yyyy")}
+                   </Button>
+                 </PopoverTrigger>
+                 <PopoverContent className="w-auto p-0" align="end">
+                   <CalendarComponent
+                     initialFocus
+                     mode="range"
+                     defaultMonth={dateRange.from}
+                     selected={{ from: dateRange.from, to: dateRange.to }}
+                     onSelect={(range: any) => {
+                       if (range?.from && range?.to) {
+                         setDateRange({ from: range.from, to: range.to });
+                       }
+                     }}
+                     numberOfMonths={2}
+                   />
+                 </PopoverContent>
+               </Popover>
+             )}
+           </div>
         </div>
         
         <div className="flex justify-end gap-2">
@@ -213,38 +296,63 @@ const AdSenseAnalytics = () => {
           </AnalyticsCard>
 
           <div className="space-y-6">
-            <AnalyticsCard title="Sincronização Automática">
+            <AnalyticsCard title="Sincronização">
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-3 bg-primary/5 rounded-lg border border-primary/10">
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-primary" />
-                    <span className="text-sm font-medium">Intervalo</span>
+                <div className="flex flex-col gap-2 p-3 bg-primary/5 rounded-lg border border-primary/10">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-4 w-4 text-primary" />
+                      <span className="text-sm font-medium">Próxima Sincronização</span>
+                    </div>
+                    <span className="text-xs font-bold text-primary">em 42 min</span>
                   </div>
-                  <select className="bg-transparent text-sm font-bold focus:outline-none">
-                    <option>15 min</option>
-                    <option selected>1 hora</option>
-                    <option>6 horas</option>
-                    <option>24 horas</option>
-                  </select>
+                  <div className="flex items-center justify-between text-xs text-muted-foreground border-t border-primary/10 pt-2 mt-1">
+                    <span>Intervalo:</span>
+                    <select className="bg-transparent font-bold focus:outline-none text-foreground cursor-pointer">
+                      <option>15 min</option>
+                      <option selected>1 hora</option>
+                      <option>6 horas</option>
+                      <option>24 horas</option>
+                    </select>
+                  </div>
                 </div>
+
+                {syncLogs.length > 0 && (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
+                      <RefreshCw className={cn("h-4 w-4", isSyncing && "animate-spin")} />
+                      Status em Tempo Real
+                    </div>
+                    <div className="max-h-[150px] overflow-y-auto space-y-2 pr-1 scrollbar-thin scrollbar-thumb-muted">
+                      {syncLogs.map((log, i) => (
+                        <div key={i} className={cn(
+                          "text-[10px] font-mono p-2 rounded border-l-2 leading-tight",
+                          log.includes('ERRO') ? "bg-rose-500/5 border-rose-500 text-rose-600" : "bg-emerald-500/5 border-emerald-500 text-emerald-600"
+                        )}>
+                          {log}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 
-                <div className="space-y-3">
+                <div className="space-y-3 pt-2">
                   <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
                     <History className="h-4 w-4" />
-                    Histórico de Atualizações
+                    Histórico Recente
                   </div>
                   <div className="space-y-2">
                     {[
-                      { time: "Há 45 min", status: "Sucesso", detail: "24 novos registros" },
-                      { time: "Há 2 horas", status: "Sucesso", detail: "Sincronização completa" },
-                      { time: "Ontem, 23:15", status: "Aviso", detail: "Latência na API Google" },
+                      { time: "Hoje, 14:20", status: "Sucesso", detail: "Sincronização completa" },
+                      { time: "Hoje, 13:20", status: "Sucesso", detail: "15 novos registros" },
+                      { time: "Hoje, 12:20", status: "Erro", detail: "Falha de conexão temporária" },
                     ].map((log, i) => (
-                      <div key={i} className="text-xs p-2 border-l-2 border-primary/30 bg-accent/30 rounded-r-md">
-                        <div className="flex justify-between font-medium">
+                      <div key={i} className="text-[11px] p-2 border border-border bg-card rounded-md">
+                        <div className="flex justify-between font-bold">
                           <span>{log.time}</span>
-                          <span className={log.status === 'Sucesso' ? 'text-emerald-500' : 'text-amber-500'}>{log.status}</span>
+                          <span className={log.status === 'Sucesso' ? 'text-emerald-500' : 'text-rose-500'}>{log.status}</span>
                         </div>
-                        <p className="text-muted-foreground mt-0.5">{log.detail}</p>
+                        <p className="text-muted-foreground mt-0.5 truncate">{log.detail}</p>
                       </div>
                     ))}
                   </div>
