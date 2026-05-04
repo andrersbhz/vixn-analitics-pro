@@ -26,7 +26,7 @@ interface DashboardLayoutProps {
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
    const [sidebarOpen, setSidebarOpen] = useState(false);
    const location = useLocation();
-   const { theme, setTheme, resolvedTheme } = useTheme();
+    const { setTheme, resolvedTheme } = useTheme();
    const [mounted, setMounted] = useState(false);
    useEffect(() => {
      setMounted(true);
@@ -120,7 +120,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
                 className="h-8 w-8 rounded-lg bg-accent/50 text-muted-foreground hover:text-foreground transition-all duration-200 active:scale-95"
               >
-                {mounted && (resolvedTheme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />)}
+                 {mounted ? (resolvedTheme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />) : <Sun className="h-4 w-4" />}
              </Button>
            </div>
            <div className="flex items-center gap-3 px-4 py-3">
@@ -150,7 +150,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
                 className="h-9 w-9 text-muted-foreground transition-all duration-200 active:scale-95"
               >
-                {mounted && (resolvedTheme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />)}
+                 {mounted ? (resolvedTheme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />) : <Sun className="h-5 w-5" />}
              </Button>
              <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(true)}>
                <Menu className="h-6 w-6" />
