@@ -134,47 +134,61 @@ const AdSenseAnalytics = () => {
     }
   };
 
-  const exportToCSV = () => {
-    const csv = Papa.unparse(revenueData.map(d => ({ 'Dia': format(d.date, 'dd/MM/yyyy'), 'Receita (R$)': d.revenue.toFixed(2) })));
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.setAttribute('download', `adsense-report-${format(dateRange.from, 'yyyy-MM-dd')}-to-${format(dateRange.to, 'yyyy-MM-dd')}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    toast.success("CSV exportado com sucesso!");
-  };
+   const exportToCSV = () => {
+     try {
+       const csv = Papa.unparse(revenueData.map(d => ({ 
+         'Dia': isValid(d.date) ? format(d.date, 'dd/MM/yyyy') : 'Inválido', 
+         'Receita (R$)': d.revenue.toFixed(2) 
+       })));
+       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+       const link = document.createElement('a');
+       link.href = URL.createObjectURL(blob);
+       const fileName = `adsense-report-${dateRange?.from && isValid(dateRange.from) ? format(dateRange.from, 'yyyy-MM-dd') : 'export'}.csv`;
+       link.setAttribute('download', fileName);
+       document.body.appendChild(link);
+       link.click();
+       document.body.removeChild(link);
+       toast.success("CSV exportado com sucesso!");
+     } catch (error) {
+       console.error("CSV Export Error:", error);
+       toast.error("Erro ao exportar CSV");
+     }
+   };
 
-  const exportToPDF = () => {
-    const doc = new jsPDF() as any;
-    const start = revenueData[0]?.date || new Date();
-    const end = revenueData[revenueData.length-1]?.date || new Date();
-    const dateStr = `${format(start, 'dd/MM/yyyy')} até ${format(end, 'dd/MM/yyyy')}`;
-    
-    doc.setFontSize(18);
-    doc.text("Relatório de Receita Google AdSense", 14, 22);
-    doc.setFontSize(11);
-    doc.setTextColor(100);
-    doc.text(`Período: ${dateStr}`, 14, 30);
-    doc.text(`Total Acumulado: R$ ${totals.toFixed(2)}`, 14, 37);
-
-    doc.autoTable({
-      head: [['Dia', 'Receita (R$)']],
-      body: revenueData.map(d => [format(d.date, 'dd/MM/yyyy'), `R$ ${d.revenue.toFixed(2)}`]),
-      startY: 45,
-    });
-
-    const pageCount = doc.internal.getNumberOfPages();
-    for(let i = 1; i <= pageCount; i++) {
-        doc.setPage(i);
-        doc.setFontSize(10);
-        doc.text(`Gerado em: ${format(new Date(), 'dd/MM/yyyy HH:mm:ss')}`, 14, doc.internal.pageSize.height - 10);
-    }
-
-    doc.save(`adsense-report-${period}-${format(new Date(), 'yyyyMMddHHmmss')}.pdf`);
-    toast.success("PDF exportado com sucesso!");
-  };
+   const exportToPDF = () => {
+     try {
+       const doc = new jsPDF() as any;
+       const start = revenueData[0]?.date || new Date();
+       const end = revenueData[revenueData.length-1]?.date || new Date();
+       const dateStr = `${isValid(start) ? format(start, 'dd/MM/yyyy') : '...'} até ${isValid(end) ? format(end, 'dd/MM/yyyy') : '...'}`;
+       
+       doc.setFontSize(18);
+       doc.text("Relatório de Receita Google AdSense", 14, 22);
+       doc.setFontSize(11);
+       doc.setTextColor(100);
+       doc.text(`Período: ${dateStr}`, 14, 30);
+       doc.text(`Total Acumulado: R$ ${totals.toFixed(2)}`, 14, 37);
+ 
+       doc.autoTable({
+         head: [['Dia', 'Receita (R$)']],
+         body: revenueData.map(d => [isValid(d.date) ? format(d.date, 'dd/MM/yyyy') : '...', `R$ ${d.revenue.toFixed(2)}`]),
+         startY: 45,
+       });
+ 
+       const pageCount = doc.internal.getNumberOfPages();
+       for(let i = 1; i <= pageCount; i++) {
+           doc.setPage(i);
+           doc.setFontSize(10);
+           doc.text(`Gerado em: ${format(new Date(), 'dd/MM/yyyy HH:mm:ss')}`, 14, doc.internal.pageSize.height - 10);
+       }
+ 
+       doc.save(`adsense-report-${period}-${format(new Date(), 'yyyyMMddHHmmss')}.pdf`);
+       toast.success("PDF exportado com sucesso!");
+     } catch (error) {
+       console.error("PDF Export Error:", error);
+       toast.error("Erro ao exportar PDF");
+     }
+   };
 
   if (!adsenseConn?.isConnected) {
     return (
@@ -226,12 +240,12 @@ const AdSenseAnalytics = () => {
              
              {period === 'custom' && (
                <Popover>
-                 <PopoverTrigger asChild>
-                   <Button variant="outline" size="sm" className="gap-2">
-                     <Calendar className="h-4 w-4" />
-                     {format(dateRange.from, "dd/MM/yyyy")} - {format(dateRange.to, "dd/MM/yyyy")}
-                   </Button>
-                 </PopoverTrigger>
+               <PopoverTrigger asChild>
+                 <Button variant="outline" size="sm" className="gap-2">
+                   <Calendar className="h-4 w-4" />
+                   {dateRange?.from && isValid(dateRange.from) ? format(dateRange.from, "dd/MM/yyyy") : "..."} - {dateRange?.to && isValid(dateRange.to) ? format(dateRange.to, "dd/MM/yyyy") : "..."}
+                 </Button>
+               </PopoverTrigger>
                  <PopoverContent className="w-auto p-0" align="end">
                    <CalendarComponent
                      initialFocus
