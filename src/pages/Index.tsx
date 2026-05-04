@@ -1,5 +1,5 @@
 import DashboardLayout from "@/components/DashboardLayout";
-import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
+import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, BarChart, Bar, Cell } from 'recharts';
 import { 
   Card, 
   CardContent, 
@@ -78,8 +78,8 @@ const Index = () => {
           />
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
-          <Card className="lg:col-span-4">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-6">
+          <Card className="lg:col-span-4 shadow-sm border-muted/20">
             <CardHeader>
               <CardTitle>Crescimento de Canais</CardTitle>
               <CardDescription>
@@ -101,15 +101,15 @@ const Index = () => {
                   <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: 'hsl(var(--muted-foreground))', fontSize: 12}} />
                   <YAxis hide />
                   <Tooltip contentStyle={{backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))', borderRadius: '8px', color: 'hsl(var(--foreground))'}} />
-                  <Area type="monotone" dataKey="yt" stackId="1" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.2} />
-                  <Area type="monotone" dataKey="blog" stackId="1" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.2} />
+                  <Area type="monotone" dataKey="yt" stackId="1" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.1} strokeWidth={2} />
+                  <Area type="monotone" dataKey="blog" stackId="1" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.1} strokeWidth={2} />
                 </AreaChart>
               </ResponsiveContainer>
             </CardContent>
           </Card>
 
-          <Card className="lg:col-span-3">
-            <CardHeader>
+          <Card className="lg:col-span-2 shadow-sm border-muted/20">
+            <CardHeader className="pb-2">
               <CardTitle>Últimas Atualizações</CardTitle>
               <CardDescription>Eventos recentes em suas redes.</CardDescription>
             </CardHeader>
@@ -131,6 +131,76 @@ const Index = () => {
                    </div>
                  ))}
               </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <Card className="shadow-sm border-muted/20">
+            <CardHeader>
+              <CardTitle>Engajamento por Canal</CardTitle>
+              <CardDescription>Distribuição de interações por plataforma.</CardDescription>
+            </CardHeader>
+            <CardContent className="h-[250px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={[
+                  { name: 'YouTube', value: 45 },
+                  { name: 'Blog', value: 30 },
+                  { name: 'Facebook', value: 25 },
+                ]}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted))" />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} />
+                  <YAxis axisLine={false} tickLine={false} />
+                  <Tooltip contentStyle={{backgroundColor: 'hsl(var(--card))', borderRadius: '8px'}} />
+                  <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                    <Cell fill="hsl(var(--primary))" />
+                    <Cell fill="#3b82f6" />
+                    <Cell fill="#6366f1" />
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+
+          <Card className="shadow-sm border-muted/20">
+            <CardHeader>
+              <CardTitle>Metas de Crescimento</CardTitle>
+              <CardDescription>Progresso atual das suas metas principais.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {[
+                  { label: "15k Inscritos YT", progress: 82, color: "bg-primary" },
+                  { label: "2k Views Blog/Dia", progress: 65, color: "bg-blue-500" },
+                  { label: "10k Seguidores FB", progress: 45, color: "bg-indigo-500" },
+                ].map((goal, i) => (
+                  <div key={i} className="space-y-2">
+                    <div className="flex justify-between text-sm font-medium">
+                      <span>{goal.label}</span>
+                      <span>{goal.progress}%</span>
+                    </div>
+                    <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+                      <div className={cn("h-full transition-all duration-1000", goal.color)} style={{ width: `${goal.progress}%` }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="shadow-sm border-muted/20 bg-primary/5 border-primary/10">
+            <CardHeader>
+              <CardTitle className="text-primary">Dica da IA</CardTitle>
+              <CardDescription>Otimize seu crescimento hoje.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm leading-relaxed text-foreground/80">
+                Seu engajamento no YouTube aumenta significativamente quando você posta às 18h. 
+                <strong> Recomendação:</strong> Agende seu próximo vídeo sobre "Marketing Digital" para amanhã neste horário.
+              </p>
+              <button className="mt-4 w-full py-2 px-4 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors">
+                Ver mais insights
+              </button>
             </CardContent>
           </Card>
         </div>
