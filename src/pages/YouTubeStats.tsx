@@ -1,5 +1,6 @@
 import DashboardLayout from "@/components/DashboardLayout";
 import { AnalyticsCard } from "@/components/analytics/AnalyticsCard";
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Cell } from 'recharts';
 import { 
   Youtube, 
   TrendingUp, 
@@ -41,8 +42,32 @@ const YouTubeStats = () => {
           ))}
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-2">
-          <AnalyticsCard title="Vídeos Mais Populares (Últimos 30 dias)">
+        <div className="grid gap-6 lg:grid-cols-3">
+          <AnalyticsCard title="Retenção por Vídeo" className="lg:col-span-2">
+            <div className="h-[300px] mt-4">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={[
+                  { name: 'Vídeo A', retention: 75 },
+                  { name: 'Vídeo B', retention: 62 },
+                  { name: 'Vídeo C', retention: 88 },
+                  { name: 'Vídeo D', retention: 54 },
+                  { name: 'Vídeo E', retention: 68 },
+                ]}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted))" />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: 'hsl(var(--muted-foreground))', fontSize: 12}} />
+                  <YAxis axisLine={false} tickLine={false} tick={{fill: 'hsl(var(--muted-foreground))', fontSize: 12}} />
+                  <RechartsTooltip cursor={{fill: 'hsl(var(--accent)/0.5)'}} contentStyle={{backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))', borderRadius: '8px'}} />
+                  <Bar dataKey="retention" radius={[4, 4, 0, 0]}>
+                    {[0, 1, 2, 3, 4].map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={index === 2 ? 'hsl(var(--primary))' : 'hsl(var(--primary)/0.6)'} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </AnalyticsCard>
+
+          <AnalyticsCard title="Vídeos Mais Populares">
             <div className="space-y-5">
               {[
                 { title: "Como crescer no YouTube em 2024", views: "45.2k", watchTime: "2.1k hrs", ctr: "12.4%" },
