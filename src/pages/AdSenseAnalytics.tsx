@@ -178,20 +178,47 @@ const AdSenseAnalytics = () => {
               <p className="text-muted-foreground mt-1">Visão detalhada de ganhos e performance de monetização.</p>
             </div>
           </div>
-          <div className="flex bg-card border rounded-lg p-1">
-            {["7d", "30d", "90d"].map((p) => (
-              <button
-                key={p}
-                onClick={() => setPeriod(p)}
-                className={cn(
-                  "px-4 py-1.5 text-sm font-medium rounded-md transition-all",
-                  period === p ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                {p.toUpperCase()}
-              </button>
-            ))}
-          </div>
+           <div className="flex items-center gap-2">
+             <div className="flex bg-card border rounded-lg p-1">
+               {["7d", "30d", "90d", "custom"].map((p) => (
+                 <button
+                   key={p}
+                   onClick={() => setPeriod(p)}
+                   className={cn(
+                     "px-4 py-1.5 text-sm font-medium rounded-md transition-all",
+                     period === p ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                   )}
+                 >
+                   {p === 'custom' ? 'Personalizado' : p.toUpperCase()}
+                 </button>
+               ))}
+             </div>
+             
+             {period === 'custom' && (
+               <Popover>
+                 <PopoverTrigger asChild>
+                   <Button variant="outline" size="sm" className="gap-2">
+                     <Calendar className="h-4 w-4" />
+                     {format(dateRange.from, "dd/MM/yyyy")} - {format(dateRange.to, "dd/MM/yyyy")}
+                   </Button>
+                 </PopoverTrigger>
+                 <PopoverContent className="w-auto p-0" align="end">
+                   <CalendarComponent
+                     initialFocus
+                     mode="range"
+                     defaultMonth={dateRange.from}
+                     selected={{ from: dateRange.from, to: dateRange.to }}
+                     onSelect={(range: any) => {
+                       if (range?.from && range?.to) {
+                         setDateRange({ from: range.from, to: range.to });
+                       }
+                     }}
+                     numberOfMonths={2}
+                   />
+                 </PopoverContent>
+               </Popover>
+             )}
+           </div>
         </div>
         
         <div className="flex justify-end gap-2">
