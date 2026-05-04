@@ -235,12 +235,12 @@ const AdSenseAnalytics = () => {
              
              {period === 'custom' && (
                <Popover>
-                 <PopoverTrigger asChild>
-                   <Button variant="outline" size="sm" className="gap-2">
-                     <Calendar className="h-4 w-4" />
-                     {format(dateRange.from, "dd/MM/yyyy")} - {format(dateRange.to, "dd/MM/yyyy")}
-                   </Button>
-                 </PopoverTrigger>
+               <PopoverTrigger asChild>
+                 <Button variant="outline" size="sm" className="gap-2">
+                   <Calendar className="h-4 w-4" />
+                   {dateRange?.from && isValid(dateRange.from) ? format(dateRange.from, "dd/MM/yyyy") : "..."} - {dateRange?.to && isValid(dateRange.to) ? format(dateRange.to, "dd/MM/yyyy") : "..."}
+                 </Button>
+               </PopoverTrigger>
                  <PopoverContent className="w-auto p-0" align="end">
                    <CalendarComponent
                      initialFocus
