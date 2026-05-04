@@ -48,18 +48,28 @@ const AdSenseAnalytics = () => {
   const [syncHistory, setSyncHistory] = useState<any[]>([]);
 
   useEffect(() => {
+    let mounted = true;
     const fetchHistory = async () => {
-      const { data } = await supabase
-        .from('sync_history')
-        .select('*')
-        .eq('platform_id', 'adsense')
-        .order('created_at', { ascending: false })
-        .limit(5);
-      
-      if (data) setSyncHistory(data);
+      try {
+        const { data, error } = await supabase
+          .from('sync_history')
+          .select('*')
+          .eq('platform_id', 'adsense')
+          .order('created_at', { ascending: false })
+          .limit(5);
+        
+        if (error) {
+          console.error("Supabase error fetching history:", error);
+          return;
+        }
+        if (mounted && data) setSyncHistory(data);
+      } catch (err) {
+        console.error("Catch error fetching history:", err);
+      }
     };
 
     fetchHistory();
+    return () => { mounted = false; };
   }, [isSyncing]);
 
   // Mock data for AdSense revenue
