@@ -1,19 +1,21 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
  import { 
-   LayoutDashboard, 
-   Youtube, 
-   Globe, 
-   Facebook, 
-   TrendingUp, 
-   Settings, 
-   LogOut, 
-   Menu, 
-   X,
-   PieChart,
-   ChevronRight,
-   Sun,
-   Moon
+    LayoutDashboard,
+    Youtube,
+    Globe,
+    Facebook,
+    TrendingUp,
+    Settings,
+    LogOut,
+    Menu,
+    X,
+    PieChart,
+    ChevronRight,
+    Sun,
+    Moon,
+    Megaphone,
+    Search
  } from "lucide-react";
  import { Button } from "@/components/ui/button";
  import { cn } from "@/lib/utils";
@@ -37,9 +39,11 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     { name: "YouTube Stats", href: "/youtube", icon: Youtube },
     { name: "Blog Analytics", href: "/blog", icon: Globe },
     { name: "Facebook Pages", href: "/facebook", icon: Facebook },
-    { name: "Growth Strategy", href: "/strategy", icon: TrendingUp },
-    { name: "Reports", href: "/reports", icon: PieChart },
-    { name: "Settings", href: "/settings", icon: Settings },
+    { name: "Facebook Ads", href: "/facebook-ads", icon: Megaphone },
+    { name: "Estudo de Mercado", href: "/market-analysis", icon: Search },
+    { name: "Estratégia", href: "/strategy", icon: TrendingUp },
+    { name: "Relatórios", href: "/reports", icon: PieChart },
+    { name: "Configurações", href: "/settings", icon: Settings },
   ];
 
    return (
