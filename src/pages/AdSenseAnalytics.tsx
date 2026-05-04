@@ -296,38 +296,63 @@ const AdSenseAnalytics = () => {
           </AnalyticsCard>
 
           <div className="space-y-6">
-            <AnalyticsCard title="Sincronização Automática">
+            <AnalyticsCard title="Sincronização">
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-3 bg-primary/5 rounded-lg border border-primary/10">
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-primary" />
-                    <span className="text-sm font-medium">Intervalo</span>
+                <div className="flex flex-col gap-2 p-3 bg-primary/5 rounded-lg border border-primary/10">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-4 w-4 text-primary" />
+                      <span className="text-sm font-medium">Próxima Sincronização</span>
+                    </div>
+                    <span className="text-xs font-bold text-primary">em 42 min</span>
                   </div>
-                  <select className="bg-transparent text-sm font-bold focus:outline-none">
-                    <option>15 min</option>
-                    <option selected>1 hora</option>
-                    <option>6 horas</option>
-                    <option>24 horas</option>
-                  </select>
+                  <div className="flex items-center justify-between text-xs text-muted-foreground border-t border-primary/10 pt-2 mt-1">
+                    <span>Intervalo:</span>
+                    <select className="bg-transparent font-bold focus:outline-none text-foreground cursor-pointer">
+                      <option>15 min</option>
+                      <option selected>1 hora</option>
+                      <option>6 horas</option>
+                      <option>24 horas</option>
+                    </select>
+                  </div>
                 </div>
+
+                {syncLogs.length > 0 && (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
+                      <RefreshCw className={cn("h-4 w-4", isSyncing && "animate-spin")} />
+                      Status em Tempo Real
+                    </div>
+                    <div className="max-h-[150px] overflow-y-auto space-y-2 pr-1 scrollbar-thin scrollbar-thumb-muted">
+                      {syncLogs.map((log, i) => (
+                        <div key={i} className={cn(
+                          "text-[10px] font-mono p-2 rounded border-l-2 leading-tight",
+                          log.includes('ERRO') ? "bg-rose-500/5 border-rose-500 text-rose-600" : "bg-emerald-500/5 border-emerald-500 text-emerald-600"
+                        )}>
+                          {log}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 
-                <div className="space-y-3">
+                <div className="space-y-3 pt-2">
                   <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
                     <History className="h-4 w-4" />
-                    Histórico de Atualizações
+                    Histórico Recente
                   </div>
                   <div className="space-y-2">
                     {[
-                      { time: "Há 45 min", status: "Sucesso", detail: "24 novos registros" },
-                      { time: "Há 2 horas", status: "Sucesso", detail: "Sincronização completa" },
-                      { time: "Ontem, 23:15", status: "Aviso", detail: "Latência na API Google" },
+                      { time: "Hoje, 14:20", status: "Sucesso", detail: "Sincronização completa" },
+                      { time: "Hoje, 13:20", status: "Sucesso", detail: "15 novos registros" },
+                      { time: "Hoje, 12:20", status: "Erro", detail: "Falha de conexão temporária" },
                     ].map((log, i) => (
-                      <div key={i} className="text-xs p-2 border-l-2 border-primary/30 bg-accent/30 rounded-r-md">
-                        <div className="flex justify-between font-medium">
+                      <div key={i} className="text-[11px] p-2 border border-border bg-card rounded-md">
+                        <div className="flex justify-between font-bold">
                           <span>{log.time}</span>
-                          <span className={log.status === 'Sucesso' ? 'text-emerald-500' : 'text-amber-500'}>{log.status}</span>
+                          <span className={log.status === 'Sucesso' ? 'text-emerald-500' : 'text-rose-500'}>{log.status}</span>
                         </div>
-                        <p className="text-muted-foreground mt-0.5">{log.detail}</p>
+                        <p className="text-muted-foreground mt-0.5 truncate">{log.detail}</p>
                       </div>
                     ))}
                   </div>
