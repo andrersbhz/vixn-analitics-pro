@@ -1,3 +1,5 @@
+ import AdSenseAnalytics from "./pages/AdSenseAnalytics";
+            <Route path="/adsense" element={<AdSenseAnalytics />} />
  import AuthCallback from "./pages/AuthCallback";
  import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
  import { ThemeProvider } from "@/components/ThemeProvider";
