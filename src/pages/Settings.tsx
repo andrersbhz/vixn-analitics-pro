@@ -92,7 +92,11 @@ const ConnectionItem = ({ conn, onUpdate, onTestSync }: { conn: any, onUpdate: a
             <div className="flex items-center gap-2">
               <span className={`h-2 w-2 rounded-full ${conn.isConnected ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`}></span>
               <span className="text-xs font-medium text-muted-foreground">
-                {conn.isConnected ? "Conectado e Ativo" : "Desconectado"}
+                {conn.isConnected ? (
+                  <>Conectado • <span className="opacity-70">Sincronizado {conn.last_sync_at ? new Date(conn.last_sync_at).toLocaleTimeString() : 'Recentemente'}</span></>
+                ) : (
+                  "Desconectado"
+                )}
               </span>
             </div>
           </div>
