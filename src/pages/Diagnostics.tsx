@@ -47,13 +47,13 @@ const Diagnostics = () => {
     
     console.error = (...args: any[]) => {
       const msg = args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : String(arg)).join(' ');
-      setLogs(prev => [{ type: "error", msg, time: new Date().toLocaleTimeString() }, ...prev].slice(0, 50));
+      setLogs(prev => [{ type: "error" as const, msg, time: new Date().toLocaleTimeString() }, ...prev].slice(0, 50));
       originalError.apply(console, args);
     };
 
     console.warn = (...args: any[]) => {
       const msg = args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : String(arg)).join(' ');
-      setLogs(prev => [{ type: "warn", msg, time: new Date().toLocaleTimeString() }, ...prev].slice(0, 50));
+      setLogs(prev => [{ type: "warn" as const, msg, time: new Date().toLocaleTimeString() }, ...prev].slice(0, 50));
       originalWarn.apply(console, args);
     };
 
