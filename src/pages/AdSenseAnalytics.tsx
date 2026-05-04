@@ -155,35 +155,40 @@ const AdSenseAnalytics = () => {
      }
    };
 
-  const exportToPDF = () => {
-    const doc = new jsPDF() as any;
-    const start = revenueData[0]?.date || new Date();
-    const end = revenueData[revenueData.length-1]?.date || new Date();
-    const dateStr = `${format(start, 'dd/MM/yyyy')} até ${format(end, 'dd/MM/yyyy')}`;
-    
-    doc.setFontSize(18);
-    doc.text("Relatório de Receita Google AdSense", 14, 22);
-    doc.setFontSize(11);
-    doc.setTextColor(100);
-    doc.text(`Período: ${dateStr}`, 14, 30);
-    doc.text(`Total Acumulado: R$ ${totals.toFixed(2)}`, 14, 37);
-
-    doc.autoTable({
-      head: [['Dia', 'Receita (R$)']],
-      body: revenueData.map(d => [format(d.date, 'dd/MM/yyyy'), `R$ ${d.revenue.toFixed(2)}`]),
-      startY: 45,
-    });
-
-    const pageCount = doc.internal.getNumberOfPages();
-    for(let i = 1; i <= pageCount; i++) {
-        doc.setPage(i);
-        doc.setFontSize(10);
-        doc.text(`Gerado em: ${format(new Date(), 'dd/MM/yyyy HH:mm:ss')}`, 14, doc.internal.pageSize.height - 10);
-    }
-
-    doc.save(`adsense-report-${period}-${format(new Date(), 'yyyyMMddHHmmss')}.pdf`);
-    toast.success("PDF exportado com sucesso!");
-  };
+   const exportToPDF = () => {
+     try {
+       const doc = new jsPDF() as any;
+       const start = revenueData[0]?.date || new Date();
+       const end = revenueData[revenueData.length-1]?.date || new Date();
+       const dateStr = `${isValid(start) ? format(start, 'dd/MM/yyyy') : '...'} até ${isValid(end) ? format(end, 'dd/MM/yyyy') : '...'}`;
+       
+       doc.setFontSize(18);
+       doc.text("Relatório de Receita Google AdSense", 14, 22);
+       doc.setFontSize(11);
+       doc.setTextColor(100);
+       doc.text(`Período: ${dateStr}`, 14, 30);
+       doc.text(`Total Acumulado: R$ ${totals.toFixed(2)}`, 14, 37);
+ 
+       doc.autoTable({
+         head: [['Dia', 'Receita (R$)']],
+         body: revenueData.map(d => [isValid(d.date) ? format(d.date, 'dd/MM/yyyy') : '...', `R$ ${d.revenue.toFixed(2)}`]),
+         startY: 45,
+       });
+ 
+       const pageCount = doc.internal.getNumberOfPages();
+       for(let i = 1; i <= pageCount; i++) {
+           doc.setPage(i);
+           doc.setFontSize(10);
+           doc.text(`Gerado em: ${format(new Date(), 'dd/MM/yyyy HH:mm:ss')}`, 14, doc.internal.pageSize.height - 10);
+       }
+ 
+       doc.save(`adsense-report-${period}-${format(new Date(), 'yyyyMMddHHmmss')}.pdf`);
+       toast.success("PDF exportado com sucesso!");
+     } catch (error) {
+       console.error("PDF Export Error:", error);
+       toast.error("Erro ao exportar PDF");
+     }
+   };
 
   if (!adsenseConn?.isConnected) {
     return (
