@@ -10,8 +10,9 @@ import {
   Globe
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { useConnections } from "@/hooks/use-connections";
 import { 
   Youtube as YoutubeIcon, 
   Facebook as FacebookIcon, 
@@ -22,7 +23,158 @@ import {
   XCircle
 } from "lucide-react";
 
+const ConnectionItem = ({ conn, onUpdate }: { conn: any, onUpdate: any }) => {
+  const [config, setConfig] = useState(conn.config || {});
+  
+  const handleConnect = () => {
+    if (conn.id === 'wordpress') {
+      if (!config.url || !config.user || !config.password) {
+        toast.error("Por favor, preencha todos os campos do WordPress");
+        return;
+      }
+    } else if (!config.id) {
+      toast.error(`Por favor, insira o identificador do ${conn.name}`);
+      return;
+    }
+    onUpdate(conn.id, config, true);
+    toast.success(`${conn.name} conectado com sucesso!`);
+  };
+
+  const handleDisconnect = () => {
+    onUpdate(conn.id, {}, false);
+    setConfig({});
+    toast.info(`${conn.name} desconectado.`);
+  };
+
+  const updateConfig = (key: string, value: string) => {
+    setConfig((prev: any) => ({ ...prev, [key]: value }));
+  };
+
+  return (
+    <div className="p-5 border rounded-2xl bg-card/50 space-y-4 transition-all hover:border-primary/30">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="p-2 bg-background rounded-lg border">
+            {conn.icon}
+          </div>
+          <div>
+            <p className="font-bold text-foreground text-lg">{conn.name}</p>
+            <div className="flex items-center gap-2">
+              <span className={`h-2 w-2 rounded-full ${conn.isConnected ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`}></span>
+              <span className="text-xs font-medium text-muted-foreground">
+                {conn.isConnected ? "Conectado e Ativo" : "Desconectado"}
+              </span>
+            </div>
+          </div>
+        </div>
+        {conn.isConnected ? (
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handleDisconnect}
+            className="text-destructive border-destructive/20 hover:bg-destructive/10"
+          >
+            <XCircle className="h-4 w-4 mr-2" /> Desconectar
+          </Button>
+        ) : (
+          <a href={conn.link} target="_blank" rel="noopener noreferrer">
+            <Button variant="ghost" size="sm" className="text-primary">
+              <ExternalLink className="h-4 w-4 mr-2" /> Obter Info
+            </Button>
+          </a>
+        )}
+      </div>
+
+      {!conn.isConnected && (
+        <div className="space-y-3 pt-2">
+          <div className="flex items-start gap-2 p-3 bg-primary/5 rounded-lg border border-primary/10">
+            <Info className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              {conn.instructions}
+            </p>
+          </div>
+          
+          <div className="grid gap-3">
+            {conn.id === 'wordpress' ? (
+              <>
+                <input 
+                  type="text" 
+                  value={config.url || ""}
+                  onChange={(e) => updateConfig('url', e.target.value)}
+                  placeholder="URL do Blog (ex: https://meusite.com)"
+                  className="bg-background border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                />
+                <div className="grid grid-cols-2 gap-2">
+                  <input 
+                    type="text" 
+                    value={config.user || ""}
+                    onChange={(e) => updateConfig('user', e.target.value)}
+                    placeholder="Usuário"
+                    className="bg-background border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                  />
+                  <input 
+                    type="password" 
+                    value={config.password || ""}
+                    onChange={(e) => updateConfig('password', e.target.value)}
+                    placeholder="Senha de Aplicativo"
+                    className="bg-background border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                  />
+                </div>
+              </>
+            ) : (
+              <input 
+                type="text" 
+                value={config.id || ""}
+                onChange={(e) => updateConfig('id', e.target.value)}
+                placeholder={conn.placeholder}
+                className="bg-background border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+              />
+            )}
+            <Button onClick={handleConnect} className="w-full sm:w-auto">Conectar {conn.name}</Button>
+          </div>
+        </div>
+      )}
+
+      {conn.isConnected && (
+        <div className="flex items-center gap-2 p-2 bg-emerald-500/5 border border-emerald-500/10 rounded-lg">
+          <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+          <span className="text-xs text-emerald-600 font-medium">Conectado com dados reais da plataforma.</span>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const Settings = () => {
+  const { connections, updateConnection } = useConnections();
+
+  const connectionDetails = [
+    { 
+      id: "youtube",
+      name: "YouTube", 
+      icon: <YoutubeIcon className="h-6 w-6 text-red-500" />, 
+      link: "https://studio.youtube.com",
+      instructions: "Para conectar, vá ao YouTube Studio, acesse 'Estatísticas' e copie o ID do seu Canal nas configurações avançadas.",
+      placeholder: "Ex: UCxxxxxxxxxxxxxxxxxxxx"
+    },
+    { 
+      id: "wordpress",
+      name: "WordPress / Blog", 
+      icon: <WordPressIcon className="h-6 w-6 text-blue-500" />, 
+      link: "https://wordpress.org/support/article/application-passwords/",
+      instructions: "Vá em Usuários > Perfil no seu WordPress. Role até 'Senhas de Aplicativo', dê um nome e gere uma senha.",
+      placeholder: "https://seu-site.com"
+    },
+    { 
+      id: "facebook",
+      name: "Facebook Ads", 
+      icon: <FacebookIcon className="h-6 w-6 text-indigo-500" />, 
+      link: "https://adsmanager.facebook.com",
+      instructions: "Acesse o Gerenciador de Anúncios, vá em 'Configurações do Negócio' > 'Contas de Anúncios' e copie o ID da conta.",
+      placeholder: "Ex: 123456789012345"
+    },
+  ];
+
   return (
     <DashboardLayout>
       <div className="space-y-8">
