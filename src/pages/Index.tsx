@@ -18,7 +18,8 @@ import {
   MousePointer2, 
   Youtube, 
   Globe, 
-  Facebook 
+  Facebook,
+  DollarSign
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -47,6 +48,7 @@ const Index = () => {
   const wpConn = getConnection('wordpress');
   const ytConn = getConnection('youtube');
   const fbConn = getConnection('facebook');
+  const adsenseConn = getConnection('adsense');
 
   useEffect(() => {
     if (wpConn?.isConnected && wpConn.config.url) {
@@ -81,7 +83,7 @@ const Index = () => {
           </div>
         ) : (
           <>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5">
               <StatsCard 
                 title="Posts no Blog" 
                 value={wpConn?.isConnected ? (wpData?.postCount || "...") : "---"} 
@@ -102,6 +104,13 @@ const Index = () => {
                 change={fbConn?.isConnected ? "Monitorando" : "0%"} 
                 trend="up" 
                 icon={Facebook} 
+              />
+              <StatsCard 
+                title="AdSense" 
+                value={adsenseConn?.isConnected ? "Ativo" : "---"} 
+                change={adsenseConn?.isConnected ? "R$ 0,00" : "0%"} 
+                trend="up" 
+                icon={DollarSign} 
               />
               <StatsCard 
                 title="Sincronização" 

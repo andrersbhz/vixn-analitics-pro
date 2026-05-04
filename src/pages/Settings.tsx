@@ -20,7 +20,8 @@ import {
   ExternalLink, 
   Info,
   CheckCircle2,
-  XCircle
+  XCircle,
+  DollarSign
 } from "lucide-react";
 
 const ConnectionItem = ({ conn, onUpdate }: { conn: any, onUpdate: any }) => {
@@ -172,6 +173,14 @@ const Settings = () => {
       link: "https://adsmanager.facebook.com",
       instructions: "Acesse o Gerenciador de Anúncios, vá em 'Configurações do Negócio' > 'Contas de Anúncios' e copie o ID da conta.",
       placeholder: "Ex: 123456789012345"
+    },
+    { 
+      id: "adsense",
+      name: "Google AdSense", 
+      icon: <DollarSign className="h-6 w-6 text-yellow-600" />, 
+      link: "https://adsense.google.com/start/management-api/",
+      instructions: "Ative a API do AdSense no Google Cloud Console e gere um ID de Cliente OAuth ou use seu ID de publicador para identificação.",
+      placeholder: "Ex: pub-xxxxxxxxxxxxxxxx"
     },
   ];
 

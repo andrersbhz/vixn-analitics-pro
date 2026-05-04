@@ -19,3 +19,8 @@ VALUES
     ('wordpress', 'WordPress', false, '{}'),
     ('facebook', 'Facebook Ads', false, '{}')
 ON CONFLICT (id) DO NOTHING;
+
+-- Adicionando Google AdSense à tabela inicial
+INSERT INTO public.platform_connections (id, name, is_connected, config)
+VALUES ('adsense', 'Google AdSense', false, '{}')
+ON CONFLICT (id) DO NOTHING;
