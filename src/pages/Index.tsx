@@ -22,6 +22,7 @@ import {
   DollarSign
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const StatsCard = ({ title, value, change, trend, icon: Icon }: any) => (
@@ -78,9 +79,9 @@ const Index = () => {
               <h2 className="text-xl font-bold">Nenhuma plataforma conectada</h2>
               <p className="text-muted-foreground mt-1">Conecte seu YouTube, Blog ou Facebook Ads para ver seus dados reais aqui.</p>
             </div>
-            <a href="/settings">
-              <button className="px-6 py-2 bg-primary text-primary-foreground rounded-lg font-medium">Configurar Conexões</button>
-            </a>
+            <Link to="/settings">
+              <Button className="px-6 py-2">Configurar Conexões</Button>
+            </Link>
           </div>
         ) : (
           <>
