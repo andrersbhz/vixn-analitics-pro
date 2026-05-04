@@ -134,17 +134,26 @@ const AdSenseAnalytics = () => {
     }
   };
 
-  const exportToCSV = () => {
-    const csv = Papa.unparse(revenueData.map(d => ({ 'Dia': format(d.date, 'dd/MM/yyyy'), 'Receita (R$)': d.revenue.toFixed(2) })));
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.setAttribute('download', `adsense-report-${format(dateRange.from, 'yyyy-MM-dd')}-to-${format(dateRange.to, 'yyyy-MM-dd')}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    toast.success("CSV exportado com sucesso!");
-  };
+   const exportToCSV = () => {
+     try {
+       const csv = Papa.unparse(revenueData.map(d => ({ 
+         'Dia': isValid(d.date) ? format(d.date, 'dd/MM/yyyy') : 'Inválido', 
+         'Receita (R$)': d.revenue.toFixed(2) 
+       })));
+       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+       const link = document.createElement('a');
+       link.href = URL.createObjectURL(blob);
+       const fileName = `adsense-report-${dateRange?.from && isValid(dateRange.from) ? format(dateRange.from, 'yyyy-MM-dd') : 'export'}.csv`;
+       link.setAttribute('download', fileName);
+       document.body.appendChild(link);
+       link.click();
+       document.body.removeChild(link);
+       toast.success("CSV exportado com sucesso!");
+     } catch (error) {
+       console.error("CSV Export Error:", error);
+       toast.error("Erro ao exportar CSV");
+     }
+   };
 
   const exportToPDF = () => {
     const doc = new jsPDF() as any;
