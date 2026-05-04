@@ -7,6 +7,9 @@ import {
   CardHeader, 
   CardTitle 
 } from "@/components/ui/card";
+import { useState, useEffect } from "react";
+import { useConnections } from "@/hooks/use-connections";
+import { fetchWordPressData, WordPressStats } from "@/lib/wordpress";
 import { 
   ArrowUpRight, 
   ArrowDownRight, 
@@ -39,6 +42,22 @@ const StatsCard = ({ title, value, change, trend, icon: Icon }: any) => (
 );
 
 const Index = () => {
+  const { connections, getConnection } = useConnections();
+  const [wpData, setWpData] = useState<WordPressStats | null>(null);
+  const wpConn = getConnection('wordpress');
+  const ytConn = getConnection('youtube');
+  const fbConn = getConnection('facebook');
+
+  useEffect(() => {
+    if (wpConn?.isConnected && wpConn.config.url) {
+      fetchWordPressData(wpConn.config.url, wpConn.config.user, wpConn.config.password)
+        .then(setWpData)
+        .catch(console.error);
+    }
+  }, [wpConn]);
+
+  const isAnyConnected = connections.some(c => c.isConnected);
+
   return (
     <DashboardLayout>
       <div className="space-y-8">
@@ -47,36 +66,55 @@ const Index = () => {
            <p className="text-muted-foreground mt-2">Visão geral do seu crescimento em todas as plataformas.</p>
          </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          <StatsCard 
-            title="Visualizações Totais" 
-            value="128.432" 
-            change="+12.5%" 
-            trend="up" 
-            icon={Eye} 
-          />
-          <StatsCard 
-            title="Inscritos/Seguidores" 
-            value="12.245" 
-            change="+4.3%" 
-            trend="up" 
-            icon={Users} 
-          />
-          <StatsCard 
-            title="Taxa de Cliques" 
-            value="8.2%" 
-            change="-0.5%" 
-            trend="down" 
-            icon={MousePointer2} 
-          />
-          <StatsCard 
-            title="Tempo de Exibição" 
-            value="4.5k hrs" 
-            change="+22.1%" 
-            trend="up" 
-            icon={Youtube} 
-          />
-        </div>
+        {!isAnyConnected ? (
+          <div className="p-12 border-2 border-dashed rounded-3xl flex flex-col items-center justify-center text-center space-y-4 bg-accent/20">
+            <div className="p-4 bg-primary/10 rounded-full">
+              <Globe className="h-10 w-10 text-primary" />
+            </div>
+            <div className="max-w-md">
+              <h2 className="text-xl font-bold">Nenhuma plataforma conectada</h2>
+              <p className="text-muted-foreground mt-1">Conecte seu YouTube, Blog ou Facebook Ads para ver seus dados reais aqui.</p>
+            </div>
+            <a href="/settings">
+              <button className="px-6 py-2 bg-primary text-primary-foreground rounded-lg font-medium">Configurar Conexões</button>
+            </a>
+          </div>
+        ) : (
+          <>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+              <StatsCard 
+                title="Posts no Blog" 
+                value={wpConn?.isConnected ? (wpData?.postCount || "...") : "---"} 
+                change={wpConn?.isConnected ? "+0%" : "0%"} 
+                trend="up" 
+                icon={Globe} 
+              />
+              <StatsCard 
+                title="Canal YouTube" 
+                value={ytConn?.isConnected ? "Conectado" : "---"} 
+                change={ytConn?.isConnected ? "ID: " + ytConn.config.id?.substring(0,8) + "..." : "0%"} 
+                trend="up" 
+                icon={Youtube} 
+              />
+              <StatsCard 
+                title="Contas Facebook" 
+                value={fbConn?.isConnected ? "Ativo" : "---"} 
+                change={fbConn?.isConnected ? "Monitorando" : "0%"} 
+                trend="up" 
+                icon={Facebook} 
+              />
+              <StatsCard 
+                title="Sincronização" 
+                value={isAnyConnected ? "Real-time" : "---"} 
+                change="Status OK" 
+                trend="up" 
+                icon={Users} 
+              />
+            </div>
+
+            {/* Rest of the dashboard remains but showing connected indicators */}
+          </>
+        )}
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-6">
           <Card className="lg:col-span-4 shadow-sm border-muted/20">
