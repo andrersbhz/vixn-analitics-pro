@@ -22,6 +22,7 @@ import {
   DollarSign
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const StatsCard = ({ title, value, change, trend, icon: Icon }: any) => (
