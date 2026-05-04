@@ -26,7 +26,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { format, subDays, isAfter, isBefore, startOfDay, endOfDay, formatDistanceToNow } from "date-fns";
+import { format, subDays, isAfter, isBefore, startOfDay, endOfDay, formatDistanceToNow, isValid } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -78,21 +78,37 @@ const AdSenseAnalytics = () => {
   }, []);
 
   const revenueData = useMemo(() => {
-    let start: Date;
-    let end = endOfDay(new Date());
+    try {
+      let start: Date;
+      let end = endOfDay(new Date());
 
-    if (period === '7d') start = startOfDay(subDays(new Date(), 6));
-    else if (period === '30d') start = startOfDay(subDays(new Date(), 29));
-    else if (period === '90d') start = startOfDay(subDays(new Date(), 89));
-    else {
-      start = startOfDay(dateRange.from);
-      end = endOfDay(dateRange.to);
+      if (period === '7d') {
+        start = startOfDay(subDays(new Date(), 6));
+      } else if (period === '30d') {
+        start = startOfDay(subDays(new Date(), 29));
+      } else if (period === '90d') {
+        start = startOfDay(subDays(new Date(), 89));
+      } else {
+        if (!dateRange || !dateRange.from || !isValid(dateRange.from)) {
+          start = startOfDay(subDays(new Date(), 6));
+        } else {
+          start = startOfDay(dateRange.from);
+        }
+        
+        if (dateRange?.to && isValid(dateRange.to)) {
+          end = endOfDay(dateRange.to);
+        }
+      }
+
+      return allData.filter(d => {
+        const date = d.date;
+        return (isAfter(date, start) || date.getTime() === start.getTime()) && 
+               (isBefore(date, end) || date.getTime() === end.getTime());
+      });
+    } catch (error) {
+      console.error("Error calculating revenueData:", error);
+      return [];
     }
-
-    return allData.filter(d => 
-      (isAfter(d.date, start) || d.date.getTime() === start.getTime()) && 
-      (isBefore(d.date, end) || d.date.getTime() === end.getTime())
-    );
   }, [period, dateRange, allData]);
 
   const totals = useMemo(() => {
