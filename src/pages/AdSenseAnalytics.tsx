@@ -172,7 +172,7 @@ const AdSenseAnalytics = () => {
         doc.text(`Gerado em: ${format(new Date(), 'dd/MM/yyyy HH:mm:ss')}`, 14, doc.internal.pageSize.height - 10);
     }
 
-    doc.save(`adsense-report-${period}.pdf`);
+    doc.save(`adsense-report-${period}-${format(new Date(), 'yyyyMMddHHmmss')}.pdf`);
     toast.success("PDF exportado com sucesso!");
   };
 
