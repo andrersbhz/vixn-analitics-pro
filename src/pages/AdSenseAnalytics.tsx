@@ -1,21 +1,18 @@
- import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { AnalyticsCard } from "@/components/analytics/AnalyticsCard";
 import { 
   DollarSign, 
   Calendar, 
   TrendingUp, 
-  ArrowUpRight, 
-  ArrowDownRight,
   Clock,
   History,
-  Settings,
   RefreshCw,
-  Download,
   FileText,
-  Table
+  Table,
+  AlertCircle
 } from "lucide-react";
- import { 
+import { 
   ResponsiveContainer, 
   AreaChart, 
   Area, 
@@ -27,20 +24,20 @@ import {
 import { useConnections } from "@/hooks/use-connections";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
- import { Calendar as CalendarComponent } from "@/components/ui/calendar";
- import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
- import { format, subDays, isAfter, isBefore, startOfDay, endOfDay } from "date-fns";
- import { ptBR } from "date-fns/locale";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { format, subDays, isAfter, isBefore, startOfDay, endOfDay, formatDistanceToNow } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import Papa from "papaparse";
+import { supabase } from "@/integrations/supabase/client";
 
 const AdSenseAnalytics = () => {
-  const { getConnection } = useConnections();
+  const { getConnection, testSync, updateSyncSettings } = useConnections();
   const adsenseConn = getConnection('adsense');
-  const { testSync } = useConnections();
   const [period, setPeriod] = useState("7d");
   const [dateRange, setDateRange] = useState<{ from: Date; to: Date }>({
     from: subDays(new Date(), 6),
@@ -48,6 +45,22 @@ const AdSenseAnalytics = () => {
   });
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncLogs, setSyncLogs] = useState<string[]>([]);
+  const [syncHistory, setSyncHistory] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchHistory = async () => {
+      const { data } = await supabase
+        .from('sync_history')
+        .select('*')
+        .eq('platform_id', 'adsense')
+        .order('created_at', { ascending: false })
+        .limit(5);
+      
+      if (data) setSyncHistory(data);
+    };
+
+    fetchHistory();
+  }, [isSyncing]);
 
   // Mock data for AdSense revenue
   const allData = useMemo(() => {
@@ -88,7 +101,8 @@ const AdSenseAnalytics = () => {
 
   const handleSyncNow = async () => {
     setIsSyncing(true);
-    setSyncLogs(prev => [`[${new Date().toLocaleTimeString()}] Iniciando sincronização...`, ...prev]);
+    const startTime = new Date().toLocaleTimeString();
+    setSyncLogs(prev => [`[${startTime}] Iniciando sincronização...`, ...prev]);
     toast.info("Iniciando sincronização com Google AdSense...");
     try {
       const result = await testSync('adsense');
@@ -105,7 +119,7 @@ const AdSenseAnalytics = () => {
   };
 
   const exportToCSV = () => {
-    const csv = Papa.unparse(revenueData.map(d => ({ 'Dia': d.name, 'Receita (R$)': d.revenue.toFixed(2) })));
+    const csv = Papa.unparse(revenueData.map(d => ({ 'Dia': format(d.date, 'dd/MM/yyyy'), 'Receita (R$)': d.revenue.toFixed(2) })));
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
@@ -118,9 +132,10 @@ const AdSenseAnalytics = () => {
 
   const exportToPDF = () => {
     const doc = new jsPDF() as any;
-    const dateStr = `${format(revenueData[0]?.date || new Date(), 'dd/MM/yyyy')} até ${format(revenueData[revenueData.length-1]?.date || new Date(), 'dd/MM/yyyy')}`;
+    const start = revenueData[0]?.date || new Date();
+    const end = revenueData[revenueData.length-1]?.date || new Date();
+    const dateStr = `${format(start, 'dd/MM/yyyy')} até ${format(end, 'dd/MM/yyyy')}`;
     
-    // Header
     doc.setFontSize(18);
     doc.text("Relatório de Receita Google AdSense", 14, 22);
     doc.setFontSize(11);
@@ -134,7 +149,6 @@ const AdSenseAnalytics = () => {
       startY: 45,
     });
 
-    // Footer
     const pageCount = doc.internal.getNumberOfPages();
     for(let i = 1; i <= pageCount; i++) {
         doc.setPage(i);
@@ -222,28 +236,13 @@ const AdSenseAnalytics = () => {
         </div>
         
         <div className="flex justify-end gap-2">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={exportToCSV}
-            className="gap-2"
-          >
+          <Button variant="outline" size="sm" onClick={exportToCSV} className="gap-2">
             <Table className="h-4 w-4" /> Exportar CSV
           </Button>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={exportToPDF}
-            className="gap-2"
-          >
+          <Button variant="outline" size="sm" onClick={exportToPDF} className="gap-2">
             <FileText className="h-4 w-4" /> Exportar PDF
           </Button>
-          <Button 
-            size="sm" 
-            onClick={handleSyncNow} 
-            disabled={isSyncing}
-            className="gap-2"
-          >
+          <Button size="sm" onClick={handleSyncNow} disabled={isSyncing} className="gap-2">
             <RefreshCw className={cn("h-4 w-4", isSyncing && "animate-spin")} />
             {isSyncing ? "Sincronizando..." : "Sincronizar Agora"}
           </Button>
@@ -304,15 +303,23 @@ const AdSenseAnalytics = () => {
                       <Clock className="h-4 w-4 text-primary" />
                       <span className="text-sm font-medium">Próxima Sincronização</span>
                     </div>
-                    <span className="text-xs font-bold text-primary">em 42 min</span>
+                    <span className="text-xs font-bold text-primary">
+                      {adsenseConn?.next_sync_at 
+                        ? formatDistanceToNow(new Date(adsenseConn.next_sync_at), { locale: ptBR, addSuffix: true })
+                        : 'Não agendada'}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between text-xs text-muted-foreground border-t border-primary/10 pt-2 mt-1">
                     <span>Intervalo:</span>
-                    <select className="bg-transparent font-bold focus:outline-none text-foreground cursor-pointer">
-                      <option>15 min</option>
-                      <option selected>1 hora</option>
-                      <option>6 horas</option>
-                      <option>24 horas</option>
+                    <select 
+                      className="bg-transparent font-bold focus:outline-none text-foreground cursor-pointer"
+                      value={adsenseConn?.sync_interval_minutes || 60}
+                      onChange={(e) => updateSyncSettings('adsense', Number(e.target.value))}
+                    >
+                      <option value={15}>15 min</option>
+                      <option value={60}>1 hora</option>
+                      <option value={360}>6 horas</option>
+                      <option value={1440}>24 horas</option>
                     </select>
                   </div>
                 </div>
@@ -342,19 +349,31 @@ const AdSenseAnalytics = () => {
                     Histórico Recente
                   </div>
                   <div className="space-y-2">
-                    {[
-                      { time: "Hoje, 14:20", status: "Sucesso", detail: "Sincronização completa" },
-                      { time: "Hoje, 13:20", status: "Sucesso", detail: "15 novos registros" },
-                      { time: "Hoje, 12:20", status: "Erro", detail: "Falha de conexão temporária" },
-                    ].map((log, i) => (
+                    {syncHistory.length > 0 ? syncHistory.map((log, i) => (
                       <div key={i} className="text-[11px] p-2 border border-border bg-card rounded-md">
                         <div className="flex justify-between font-bold">
-                          <span>{log.time}</span>
-                          <span className={log.status === 'Sucesso' ? 'text-emerald-500' : 'text-rose-500'}>{log.status}</span>
+                          <span>{format(new Date(log.created_at), 'dd/MM, HH:mm')}</span>
+                          <div className="flex items-center gap-2">
+                            <span className={log.status === 'success' ? 'text-emerald-500' : 'text-rose-500'}>
+                              {log.status === 'success' ? 'Sucesso' : 'Erro'}
+                            </span>
+                            {log.status === 'error' && (
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-4 w-4 text-rose-500 hover:text-rose-700 hover:bg-rose-50"
+                                onClick={handleSyncNow}
+                              >
+                                <RefreshCw className="h-3 w-3" />
+                              </Button>
+                            )}
+                          </div>
                         </div>
                         <p className="text-muted-foreground mt-0.5 truncate">{log.detail}</p>
                       </div>
-                    ))}
+                    )) : (
+                      <p className="text-xs text-muted-foreground text-center py-4 italic">Nenhum histórico encontrado</p>
+                    )}
                   </div>
                 </div>
               </div>
