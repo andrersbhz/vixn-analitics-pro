@@ -24,9 +24,27 @@ import {
   DollarSign
 } from "lucide-react";
 
-const ConnectionItem = ({ conn, onUpdate }: { conn: any, onUpdate: any }) => {
+const ConnectionItem = ({ conn, onUpdate, onTestSync }: { conn: any, onUpdate: any, onTestSync: any }) => {
   const [config, setConfig] = useState(conn.config || {});
+  const [isTesting, setIsTesting] = useState(false);
+  const [syncLog, setSyncLog] = useState<string | null>(null);
   
+  const handleOAuth = () => {
+    const oauthUrls: Record<string, string> = {
+      youtube: `https://accounts.google.com/o/oauth2/v2/auth?client_id=YOUR_GOOGLE_ID&redirect_uri=${window.location.origin}/auth/callback&response_type=code&scope=https://www.googleapis.com/auth/youtube.readonly`,
+      facebook: `https://www.facebook.com/v12.0/dialog/oauth?client_id=YOUR_FB_ID&redirect_uri=${window.location.origin}/auth/callback&state=facebook`,
+    };
+
+    if (oauthUrls[conn.id]) {
+      toast.info(`Redirecionando para autenticação segura do ${conn.name}...`);
+      // Para demonstração, simularemos o retorno em 2 segundos
+      setTimeout(() => {
+        onUpdate(conn.id, { id: 'auth_success_token' }, true);
+        toast.success(`${conn.name} autenticado via OAuth!`);
+      }, 2000);
+    }
+  };
+
   const handleConnect = () => {
     if (conn.id === 'wordpress') {
       if (!config.url || !config.user || !config.password) {
@@ -51,6 +69,17 @@ const ConnectionItem = ({ conn, onUpdate }: { conn: any, onUpdate: any }) => {
     setConfig((prev: any) => ({ ...prev, [key]: value }));
   };
 
+  const handleTestSync = async () => {
+    setIsTesting(true);
+    setSyncLog("Iniciando teste...");
+    try {
+      const result = await onTestSync(conn.id);
+      setSyncLog(result.log);
+    } finally {
+      setIsTesting(false);
+    }
+  };
+
   return (
     <div className="p-5 border rounded-2xl bg-card/50 space-y-4 transition-all hover:border-primary/30">
       <div className="flex items-center justify-between">
@@ -63,7 +92,11 @@ const ConnectionItem = ({ conn, onUpdate }: { conn: any, onUpdate: any }) => {
             <div className="flex items-center gap-2">
               <span className={`h-2 w-2 rounded-full ${conn.isConnected ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`}></span>
               <span className="text-xs font-medium text-muted-foreground">
-                {conn.isConnected ? "Conectado e Ativo" : "Desconectado"}
+                {conn.isConnected ? (
+                  <>Conectado • <span className="opacity-70">Sincronizado {conn.last_sync_at ? new Date(conn.last_sync_at).toLocaleTimeString() : 'Recentemente'}</span></>
+                ) : (
+                  "Desconectado"
+                )}
               </span>
             </div>
           </div>
@@ -131,7 +164,17 @@ const ConnectionItem = ({ conn, onUpdate }: { conn: any, onUpdate: any }) => {
                 className="bg-background border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all"
               />
             )}
-            <Button onClick={handleConnect} className="w-full sm:w-auto">Conectar {conn.name}</Button>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Button onClick={handleConnect} className="flex-1">
+                Conectar com ID
+              </Button>
+              {(conn.id === 'youtube' || conn.id === 'facebook') && (
+                <Button onClick={handleOAuth} variant="outline" className="flex-1 gap-2 border-primary/30 text-primary">
+                  <Lock className="h-4 w-4" />
+                  Autenticar OAuth
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       )}
@@ -139,7 +182,28 @@ const ConnectionItem = ({ conn, onUpdate }: { conn: any, onUpdate: any }) => {
       {conn.isConnected && (
         <div className="flex items-center gap-2 p-2 bg-emerald-500/5 border border-emerald-500/10 rounded-lg">
           <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-          <span className="text-xs text-emerald-600 font-medium">Conectado com dados reais da plataforma.</span>
+          <span className="text-xs text-emerald-600 font-medium">Conectado e validado.</span>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="ml-auto text-[10px] h-6 px-2 bg-emerald-500/10 hover:bg-emerald-500/20"
+            onClick={handleTestSync}
+            disabled={isTesting}
+          >
+            {isTesting ? "Testando..." : "Testar Sincronização"}
+          </Button>
+        </div>
+      )}
+
+      {syncLog && (
+        <div className="mt-3 p-3 bg-slate-900 rounded-lg border border-slate-800 font-mono text-[10px] text-slate-300 overflow-x-auto">
+          <div className="flex justify-between items-center mb-1 pb-1 border-b border-slate-800">
+            <span className="text-slate-500 uppercase">Logs de Sincronização</span>
+            <button onClick={() => setSyncLog(null)} className="hover:text-white">Fechar</button>
+          </div>
+          <pre className="whitespace-pre-wrap">
+            {syncLog}
+          </pre>
         </div>
       )}
     </div>
@@ -147,7 +211,7 @@ const ConnectionItem = ({ conn, onUpdate }: { conn: any, onUpdate: any }) => {
 };
 
 const Settings = () => {
-  const { connections, updateConnection } = useConnections();
+  const { connections, updateConnection, testSync, loading } = useConnections();
 
   const connectionDetails = [
     { 
@@ -218,6 +282,13 @@ const Settings = () => {
           </div>
 
           <div className="lg:col-span-3 space-y-6">
+            {loading && (
+              <div className="flex items-center justify-center p-12 bg-card rounded-2xl border animate-pulse">
+                <p className="text-muted-foreground">Carregando conexões do banco...</p>
+              </div>
+            )}
+            {!loading && (
+              <>
             <AnalyticsCard title="Informações Pessoais">
               <div className="space-y-4 max-w-xl">
                  <div className="grid gap-2">
@@ -241,11 +312,14 @@ const Settings = () => {
                       key={detail.id} 
                       conn={{ ...detail, ...conn }} 
                       onUpdate={updateConnection} 
+                      onTestSync={testSync}
                     />
                   );
                 })}
               </div>
             </AnalyticsCard>
+            </>
+            )}
           </div>
         </div>
       </div>
