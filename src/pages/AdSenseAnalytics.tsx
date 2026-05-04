@@ -26,7 +26,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { format, subDays, isAfter, isBefore, startOfDay, endOfDay, formatDistanceToNow, isValid } from "date-fns";
+import { format, subDays, isAfter, isBefore, startOfDay, endOfDay, formatDistanceToNow, isValid, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -370,7 +370,7 @@ const AdSenseAnalytics = () => {
                     {syncHistory.length > 0 ? syncHistory.map((log, i) => (
                       <div key={i} className="text-[11px] p-2 border border-border bg-card rounded-md">
                         <div className="flex justify-between font-bold">
-                          <span>{format(new Date(log.created_at), 'dd/MM, HH:mm')}</span>
+                          <span>{isValid(parseISO(log.created_at)) ? format(parseISO(log.created_at), 'dd/MM, HH:mm') : 'Data inválida'}</span>
                           <div className="flex items-center gap-2">
                             <span className={log.status === 'success' ? 'text-emerald-500' : 'text-rose-500'}>
                               {log.status === 'success' ? 'Sucesso' : 'Erro'}
