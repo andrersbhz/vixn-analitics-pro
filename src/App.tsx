@@ -9,6 +9,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
  import YouTubeStats from "./pages/YouTubeStats";
  import BlogAnalytics from "./pages/BlogAnalytics";
  import FacebookPages from "./pages/FacebookPages";
+import FacebookAds from "./pages/FacebookAds";
+import MarketAnalysis from "./pages/MarketAnalysis";
  import Strategy from "./pages/Strategy";
  import Reports from "./pages/Reports";
  import Settings from "./pages/Settings";
@@ -27,6 +29,8 @@ const queryClient = new QueryClient();
            <Route path="/youtube" element={<YouTubeStats />} />
            <Route path="/blog" element={<BlogAnalytics />} />
            <Route path="/facebook" element={<FacebookPages />} />
+           <Route path="/facebook-ads" element={<FacebookAds />} />
+           <Route path="/market-analysis" element={<MarketAnalysis />} />
            <Route path="/strategy" element={<Strategy />} />
            <Route path="/reports" element={<Reports />} />
            <Route path="/settings" element={<Settings />} />
