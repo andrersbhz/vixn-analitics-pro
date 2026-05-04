@@ -9,7 +9,11 @@ import {
   ArrowDownRight,
   Clock,
   History,
-  Settings
+  Settings,
+  RefreshCw,
+  Download,
+  FileText,
+  Table
 } from "lucide-react";
 import { 
   ResponsiveContainer, 
@@ -24,11 +28,17 @@ import { useConnections } from "@/hooks/use-connections";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
+import Papa from "papaparse";
 
 const AdSenseAnalytics = () => {
   const { getConnection } = useConnections();
   const adsenseConn = getConnection('adsense');
+  const { testSync } = useConnections();
   const [period, setPeriod] = useState("7d");
+  const [isSyncing, setIsSyncing] = useState(false);
 
   // Mock data for AdSense revenue
   const revenueData = [
@@ -40,6 +50,45 @@ const AdSenseAnalytics = () => {
     { name: 'Sáb', revenue: 38.20 },
     { name: 'Dom', revenue: 42.10 },
   ];
+
+  const handleSyncNow = async () => {
+    setIsSyncing(true);
+    toast.info("Iniciando sincronização com Google AdSense...");
+    try {
+      const result = await testSync('adsense');
+      if (result.success) {
+        toast.success("Sincronização concluída com sucesso!");
+      } else {
+        toast.error("Erro na sincronização. Verifique os logs.");
+      }
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  const exportToCSV = () => {
+    const csv = Papa.unparse(revenueData.map(d => ({ 'Dia': d.name, 'Receita (R$)': d.revenue.toFixed(2) })));
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.setAttribute('download', `adsense-report-${period}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success("CSV exportado com sucesso!");
+  };
+
+  const exportToPDF = () => {
+    const doc = new jsPDF() as any;
+    doc.text("Relatório de Receita Google AdSense", 14, 15);
+    doc.autoTable({
+      head: [['Dia', 'Receita (R$)']],
+      body: revenueData.map(d => [d.name, `R$ ${d.revenue.toFixed(2)}`]),
+      startY: 20,
+    });
+    doc.save(`adsense-report-${period}.pdf`);
+    toast.success("PDF exportado com sucesso!");
+  };
 
   if (!adsenseConn?.isConnected) {
     return (
@@ -87,6 +136,34 @@ const AdSenseAnalytics = () => {
               </button>
             ))}
           </div>
+        </div>
+        
+        <div className="flex justify-end gap-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={exportToCSV}
+            className="gap-2"
+          >
+            <Table className="h-4 w-4" /> Exportar CSV
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={exportToPDF}
+            className="gap-2"
+          >
+            <FileText className="h-4 w-4" /> Exportar PDF
+          </Button>
+          <Button 
+            size="sm" 
+            onClick={handleSyncNow} 
+            disabled={isSyncing}
+            className="gap-2"
+          >
+            <RefreshCw className={cn("h-4 w-4", isSyncing && "animate-spin")} />
+            {isSyncing ? "Sincronizando..." : "Sincronizar Agora"}
+          </Button>
         </div>
 
         <div className="grid gap-6 md:grid-cols-4">
