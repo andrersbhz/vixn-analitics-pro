@@ -17,13 +17,13 @@ const Strategy = () => {
       <div className="space-y-8">
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-emerald-100 rounded-xl">
-              <TrendingUp className="h-8 w-8 text-emerald-600" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-slate-900">Estratégia de Crescimento</h1>
-              <p className="text-slate-500 mt-1">Seu roadmap personalizado para dominar o mercado.</p>
-            </div>
+             <div className="p-3 bg-emerald-500/10 rounded-xl">
+               <TrendingUp className="h-8 w-8 text-emerald-500" />
+             </div>
+             <div>
+               <h1 className="text-3xl font-bold text-foreground">Estratégia de Crescimento</h1>
+               <p className="text-muted-foreground mt-1">Seu roadmap personalizado para dominar o mercado.</p>
+             </div>
           </div>
           <Button className="bg-emerald-600 hover:bg-emerald-700">
             Gerar Nova Estratégia <Zap className="ml-2 h-4 w-4 fill-white" />
@@ -41,19 +41,19 @@ const Strategy = () => {
                 ].map((goal, i) => (
                   <div key={i} className="space-y-3">
                     <div className="flex justify-between items-center">
-                      <h4 className="font-semibold text-slate-800">{goal.title}</h4>
-                      <span className="text-xs font-medium bg-slate-100 px-2 py-1 rounded text-slate-600">Faltam {goal.deadline}</span>
-                    </div>
-                    <div className="h-3 w-full bg-slate-100 rounded-full overflow-hidden">
+                       <h4 className="font-semibold text-foreground">{goal.title}</h4>
+                       <span className="text-xs font-medium bg-muted px-2 py-1 rounded text-muted-foreground">Faltam {goal.deadline}</span>
+                     </div>
+                     <div className="h-3 w-full bg-muted rounded-full overflow-hidden">
                       <div 
                         className="h-full bg-emerald-500 transition-all duration-1000" 
                         style={{ width: `${goal.progress}%` }}
                       />
                     </div>
-                    <div className="flex justify-between text-xs text-slate-500">
-                      <span>Atual: {goal.current}</span>
-                      <span>Meta: {goal.target}</span>
-                    </div>
+                     <div className="flex justify-between text-xs text-muted-foreground">
+                       <span>Atual: {goal.current}</span>
+                       <span>Meta: {goal.target}</span>
+                     </div>
                   </div>
                 ))}
               </div>
@@ -68,13 +68,13 @@ const Strategy = () => {
                   { text: "Analisar as métricas de retenção da última semana", done: false },
                   { text: "Configurar automação de newsletter para novos inscritos", done: false },
                 ].map((item, i) => (
-                  <div key={i} className="flex items-center gap-3 p-3 hover:bg-slate-50 rounded-lg transition-colors cursor-pointer group">
+                   <div key={i} className="flex items-center gap-3 p-3 hover:bg-accent/50 rounded-lg transition-colors cursor-pointer group">
                     {item.done ? (
                       <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0" />
                     ) : (
-                      <Circle className="h-5 w-5 text-slate-300 shrink-0 group-hover:text-primary transition-colors" />
-                    )}
-                    <span className={item.done ? "text-slate-400 line-through text-sm" : "text-slate-700 text-sm font-medium"}>
+                       <Circle className="h-5 w-5 text-muted-foreground/30 shrink-0 group-hover:text-primary transition-colors" />
+                     )}
+                     <span className={item.done ? "text-muted-foreground/50 line-through text-sm" : "text-foreground text-sm font-medium"}>
                       {item.text}
                     </span>
                   </div>
@@ -84,8 +84,8 @@ const Strategy = () => {
           </div>
 
           <div className="space-y-6">
-            <AnalyticsCard title="Insights da GrowthSuite" className="bg-slate-900 border-slate-800 text-white">
-              <div className="space-y-6">
+             <AnalyticsCard title="Insights da GrowthSuite" className="bg-slate-900 dark:bg-slate-950 border-slate-800 text-white">
+               <div className="space-y-6">
                 <div className="flex gap-4">
                   <Target className="h-8 w-8 text-emerald-400 shrink-0" />
                   <div>
@@ -109,18 +109,18 @@ const Strategy = () => {
             <AnalyticsCard title="Rank de Nicho">
               <div className="flex flex-col items-center py-4">
                 <div className="relative h-32 w-32 flex items-center justify-center">
-                  <svg className="h-full w-full rotate-[-90deg]">
-                    <circle cx="64" cy="64" r="58" stroke="currentColor" strokeWidth="10" fill="transparent" className="text-slate-100" />
-                    <circle cx="64" cy="64" r="58" stroke="currentColor" strokeWidth="10" fill="transparent" strokeDasharray="364.4" strokeDashoffset="91.1" className="text-primary" />
-                  </svg>
-                  <div className="absolute flex flex-col items-center">
-                    <span className="text-3xl font-bold text-slate-900">#4</span>
-                    <span className="text-[10px] text-slate-500 uppercase font-bold tracking-widest">No Nicho</span>
-                  </div>
-                </div>
-                <p className="text-sm text-slate-600 text-center mt-6">
-                  Você está entre os **5% canais que mais crescem** no segmento de Marketing Digital.
-                </p>
+                   <svg className="h-full w-full rotate-[-90deg]">
+                     <circle cx="64" cy="64" r="58" stroke="currentColor" strokeWidth="10" fill="transparent" className="text-muted/30" />
+                     <circle cx="64" cy="64" r="58" stroke="currentColor" strokeWidth="10" fill="transparent" strokeDasharray="364.4" strokeDashoffset="91.1" className="text-primary" />
+                   </svg>
+                   <div className="absolute flex flex-col items-center">
+                     <span className="text-3xl font-bold text-foreground">#4</span>
+                     <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">No Nicho</span>
+                   </div>
+                 </div>
+                 <p className="text-sm text-muted-foreground text-center mt-6">
+                   Você está entre os **5% canais que mais crescem** no segmento de Marketing Digital.
+                 </p>
               </div>
             </AnalyticsCard>
           </div>
