@@ -1,91 +1,78 @@
-import DashboardLayout from "@/components/DashboardLayout";
-import { AnalyticsCard } from "@/components/analytics/AnalyticsCard";
-import { 
-  Facebook, 
-  Users, 
-  MessageCircle, 
-  Share2, 
-  Heart,
-  BarChart2
-} from "lucide-react";
-
-const FacebookPages = () => {
-  return (
-    <DashboardLayout>
-      <div className="space-y-8">
-        <div className="flex items-center gap-3">
-           <div className="p-3 bg-indigo-500/10 rounded-xl">
-             <Facebook className="h-8 w-8 text-indigo-500" />
-           </div>
-           <div>
-             <h1 className="text-3xl font-bold text-foreground">Facebook Pages</h1>
-             <p className="text-muted-foreground mt-1">Gerencie e analise o engajamento de suas páginas.</p>
-           </div>
-        </div>
-
-        <div className="grid gap-6 md:grid-cols-3">
-           <AnalyticsCard title="Alcance da Página">
-             <div className="flex items-end gap-2">
-               <span className="text-4xl font-bold text-foreground">24.5k</span>
-               <span className="text-emerald-500 text-sm font-semibold mb-1">+15.2%</span>
-             </div>
-             <p className="text-muted-foreground text-sm mt-2">Pessoas alcançadas nos últimos 28 dias.</p>
-           </AnalyticsCard>
+ import DashboardLayout from "@/components/DashboardLayout";
+ import { AnalyticsCard } from "@/components/analytics/AnalyticsCard";
+ import { useConnections } from "@/hooks/use-connections";
+ import { Facebook, AlertCircle } from "lucide-react";
+ import { Link } from "react-router-dom";
+ import { Button } from "@/components/ui/button";
  
-           <AnalyticsCard title="Engajamento Total">
-             <div className="flex items-end gap-2">
-               <span className="text-4xl font-bold text-foreground">8.2k</span>
-               <span className="text-emerald-500 text-sm font-semibold mb-1">+8.4%</span>
-             </div>
-             <p className="text-muted-foreground text-sm mt-2">Reações, comentários e compartilhamentos.</p>
-           </AnalyticsCard>
+ const FacebookPages = () => {
+   const { getConnection, items, loading } = useConnections();
+   const fbConn = getConnection('facebook');
+   const fbItems = items.filter(item => item.platform_id === 'facebook');
  
-           <AnalyticsCard title="Novos Seguidores">
-             <div className="flex items-end gap-2">
-               <span className="text-4xl font-bold text-foreground">452</span>
-               <span className="text-rose-500 text-sm font-semibold mb-1">-2.1%</span>
-             </div>
-             <p className="text-muted-foreground text-sm mt-2">Seguidores líquidos ganhos recentemente.</p>
-           </AnalyticsCard>
-        </div>
-
-        <div className="grid gap-6 lg:grid-cols-2">
-          <AnalyticsCard title="Postagens de Maior Sucesso">
-            <div className="space-y-6">
-              {[
-                { text: "10 ferramentas indispensáveis para marketing digital...", reach: "12.4k", eng: "1.2k", icon: Heart },
-                { text: "Guia completo: Como configurar seu primeiro blog...", reach: "8.1k", eng: "840", icon: Share2 },
-                { text: "O segredo para um canal de sucesso no YouTube...", reach: "5.6k", eng: "520", icon: MessageCircle },
-              ].map((post, i) => (
-                <div key={i} className="flex gap-4 items-start pb-4 border-b last:border-0 last:pb-0">
-                   <div className="h-12 w-12 rounded bg-accent/50 flex items-center justify-center shrink-0">
-                     <BarChart2 className="h-6 w-6 text-muted-foreground" />
-                   </div>
-                   <div className="flex-1 min-w-0">
-                     <p className="text-sm font-medium text-foreground line-clamp-2">{post.text}</p>
-                     <div className="flex gap-4 mt-2 text-xs text-muted-foreground">
-                       <span className="flex items-center gap-1"><Users className="h-3 w-3" /> {post.reach} alcance</span>
-                       <span className="flex items-center gap-1"><post.icon className="h-3 w-3" /> {post.eng} engajamento</span>
-                     </div>
-                   </div>
-                </div>
-              ))}
+   if (!fbConn?.isConnected) {
+     return (
+       <DashboardLayout>
+         <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
+           <div className="p-4 bg-indigo-500/10 rounded-full">
+             <Facebook className="h-12 w-12 text-indigo-500" />
+           </div>
+           <h2 className="text-2xl font-bold">Facebook não conectado</h2>
+           <p className="text-muted-foreground text-center max-w-md">
+             Insira o ID da sua conta de anúncios ou página nas configurações para monitorar dados reais.
+           </p>
+           <Link to="/settings">
+             <Button>Ir para Configurações</Button>
+           </Link>
+         </div>
+       </DashboardLayout>
+     );
+   }
+ 
+   return (
+     <DashboardLayout>
+       <div className="space-y-8">
+         <div className="flex items-center gap-3">
+            <div className="p-3 bg-indigo-500/10 rounded-xl">
+              <Facebook className="h-8 w-8 text-indigo-500" />
             </div>
-          </AnalyticsCard>
-
-          <AnalyticsCard title="Melhor Horário para Postar">
-             <div className="h-[200px] flex items-center justify-center border-2 border-dashed border-muted rounded-lg text-muted-foreground bg-accent/5">
-               Mapa de Calor de Engajamento por Hora
-             </div>
-             <div className="mt-6 p-4 bg-indigo-500/10 rounded-lg border border-indigo-500/20">
-               <p className="text-sm text-indigo-500 font-medium">Insights da IA:</p>
-               <p className="text-sm text-indigo-400 mt-1">Seu maior engajamento ocorre às **Terças-feiras entre 19:00 e 21:00**. Considere agendar conteúdos importantes para este período.</p>
-             </div>
-          </AnalyticsCard>
-        </div>
-      </div>
-    </DashboardLayout>
-  );
-};
+            <div>
+              <h1 className="text-3xl font-bold text-foreground">Facebook Analytics</h1>
+              <p className="text-muted-foreground mt-1">Dados reais da sua conta: {fbConn.config.id}</p>
+            </div>
+         </div>
+ 
+         <div className="grid gap-6">
+            <AnalyticsCard title="Status da Conexão">
+               <div className="flex items-center gap-4 p-6 bg-accent/20 rounded-2xl border border-dashed">
+                 <div className="p-3 bg-emerald-500/10 rounded-full">
+                   <AlertCircle className="h-6 w-6 text-emerald-500" />
+                 </div>
+                 <div>
+                   <h3 className="font-bold">Pronto para Sincronização</h3>
+                   <p className="text-sm text-muted-foreground">O ID foi validado. Os dados aparecerão aqui após a próxima sincronização automática ou manual.</p>
+                 </div>
+               </div>
+            </AnalyticsCard>
+         </div>
+ 
+         {fbItems.length > 0 && (
+           <div className="grid gap-6">
+             <AnalyticsCard title="Páginas/Posts Encontrados">
+               <div className="space-y-4">
+                 {fbItems.map(item => (
+                   <div key={item.id} className="p-4 border rounded-xl">
+                     <p className="font-medium">{item.title}</p>
+                     <p className="text-xs text-muted-foreground mt-1">ID Externo: {item.external_id}</p>
+                   </div>
+                 ))}
+               </div>
+             </AnalyticsCard>
+           </div>
+         )}
+       </div>
+     </DashboardLayout>
+   );
+ };
 
 export default FacebookPages;
