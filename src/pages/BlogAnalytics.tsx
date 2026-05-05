@@ -34,7 +34,6 @@ import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
 const BlogAnalytics = () => {
-  const { getConnection } = useConnections();
   const { getConnection, items } = useConnections();
   const wpConn = getConnection('wordpress');
   const wpItems = useMemo(() => items.filter(i => i.platform_id === 'wordpress'), [items]);
