@@ -80,7 +80,7 @@ const BlogAnalytics = () => {
              <Globe className="h-8 w-8 text-blue-500" />
            </div>
            <div>
-             <h1 className="text-3xl font-bold text-foreground">Blog Analytics</h1>
+             <h1 className="text-3xl font-extralight text-foreground tracking-tight">Blog Analytics</h1>
              <p className="text-muted-foreground mt-1">Monitore o desempenho do seu site ou WordPress.</p>
            </div>
         </div>
@@ -98,8 +98,8 @@ const BlogAnalytics = () => {
                     <stat.icon className={`${stat.color} h-6 w-6`} />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">{stat.label}</p>
-                    <p className="text-2xl font-bold text-foreground">{stat.value}</p>
+                    <p className="text-xs font-light uppercase tracking-widest text-muted-foreground">{stat.label}</p>
+                    <p className="text-2xl font-extralight text-foreground">{stat.value}</p>
                   </div>
                 </div>
               </div>
