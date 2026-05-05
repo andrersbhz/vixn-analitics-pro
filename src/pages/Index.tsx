@@ -72,7 +72,7 @@ const StatsCard = ({ title, value, change, trend, icon: Icon }: any) => (
 );
 
 const Index = () => {
-   const { connections, getConnection, items, loading, addConnection, updateConnection } = useConnections();
+   const { connections, getConnection, items, loading, updateConnection } = useConnections();
    const [isNewProjectOpen, setIsNewProjectOpen] = useState(false);
    const [projectName, setProjectName] = useState("");
    const [projectPlatform, setProjectPlatform] = useState("");
@@ -87,22 +87,15 @@ const Index = () => {
 
      setIsCreating(true);
      try {
-       // Logic to add a new connection or "project"
-       // In this context, a "project" seems to be a new platform connection
-       await addConnection({
-         platform_id: projectPlatform as any,
-         platform_name: projectName,
-         config: { id: platformId },
-         isConnected: true
-       });
+       await updateConnection(projectPlatform, { id: platformId }, true);
        
-       toast.success(`Projeto "${projectName}" criado com sucesso!`);
+       toast.success(`Projeto "${projectName}" configurado com sucesso!`);
        setIsNewProjectOpen(false);
        setProjectName("");
        setProjectPlatform("");
        setPlatformId("");
      } catch (error) {
-       toast.error("Erro ao criar projeto.");
+       toast.error("Erro ao configurar projeto.");
      } finally {
        setIsCreating(false);
      }
