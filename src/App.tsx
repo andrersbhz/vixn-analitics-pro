@@ -14,7 +14,6 @@ import MarketAnalysis from "./pages/MarketAnalysis";
 import Strategy from "./pages/Strategy";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
-import AuthCallback from "./pages/AuthCallback";
 import Diagnostics from "./pages/Diagnostics";
 import NotFound from "./pages/NotFound";
 
@@ -39,7 +38,6 @@ const App = () => {
               <Route path="/strategy" element={<Strategy />} />
               <Route path="/reports" element={<Reports />} />
               <Route path="/settings" element={<Settings />} />
-              <Route path="/auth/callback" element={<AuthCallback />} />
               <Route path="/diagnostics" element={<Diagnostics />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
