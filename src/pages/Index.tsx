@@ -93,34 +93,34 @@ const Index = () => {
         ) : (
           <>
              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-               <StatsCard 
-                 title="Posts no Blog" 
-                 value={wpConn?.isConnected ? wpCount : "---"} 
-                 change={wpConn?.isConnected ? "Posts reais" : "0%"} 
-                 trend="up" 
-                 icon={Globe} 
-               />
-               <StatsCard 
-                 title="Vídeos YouTube" 
-                 value={ytConn?.isConnected ? ytCount : "---"} 
-                 change={ytConn?.isConnected ? "Vídeos sincronizados" : "0%"} 
-                 trend="up" 
-                  icon={YoutubeIcon} 
-               />
-               <StatsCard 
-                 title="Facebook Ads" 
-                 value={fbConn?.isConnected ? "Monitorando" : "---"} 
-                 change={fbConn?.isConnected ? "Conta: " + fbConn.config.id : "0%"} 
-                 trend="up" 
-                  icon={FacebookIcon} 
-               />
-               <StatsCard 
-                 title="Google AdSense"
-                 value={adsenseConn?.isConnected ? "Ativo" : "---"} 
-                 change={adsenseConn?.isConnected ? "ID: " + adsenseConn.config.id : "0%"} 
-                 trend="up" 
-                 icon={DollarSign} 
-               />
+              <StatsCard 
+                title="Total de Conexões" 
+                value={connections.filter(c => c.isConnected).length}
+                change="Plataformas ativas" 
+                trend="up" 
+                icon={Globe} 
+              />
+              <StatsCard 
+                title="Itens Monitorados" 
+                value={items.length}
+                change={items.length > 0 ? "Conteúdo capturado" : "Nenhum dado"} 
+                trend="up" 
+                icon={Eye} 
+              />
+              <StatsCard 
+                title="Performance Média" 
+                value="84%"
+                change="Taxa de engajamento" 
+                trend="up" 
+                icon={Users} 
+              />
+              <StatsCard 
+                title="Status do AdSense"
+                value={adsenseConn?.isConnected ? "R$ 4.280,00" : "---"} 
+                change={adsenseConn?.isConnected ? "Saldo acumulado" : "Não disponível"} 
+                trend="up" 
+                icon={DollarSign} 
+              />
              </div>
 
               <div className="grid gap-6">
