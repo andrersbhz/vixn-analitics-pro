@@ -17,10 +17,21 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@Lovable" />
     <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <script>
+      window.onerror = function(msg, url, lineNo, columnNo, error) {
+        console.log('Global Error caught: ' + msg + ' at ' + url + ':' + lineNo + ':' + columnNo);
+        return false;
+      };
+      window.onunhandledrejection = function(event) {
+        console.log('Unhandled Rejection caught: ' + event.reason);
+      };
+    </script>
   </head>
 
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <h1 style="color: black; background: yellow; padding: 20px;">STATIC HTML TEST</h1>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

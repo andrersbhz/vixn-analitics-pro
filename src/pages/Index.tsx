@@ -163,7 +163,7 @@ const Index = () => {
                            <Globe className={cn("h-4 w-4 text-blue-500")} />
                          </div>
                          <div className="flex-1">
-                           <p className="text-sm font-medium text-foreground line-clamp-1" dangerouslySetInnerHTML={{ __html: post.title.rendered }}></p>
+                           <p className="text-sm font-medium text-foreground line-clamp-1" dangerouslySetInnerHTML={{ __html: post.title?.rendered || "Sem título" }}></p>
                            <p className="text-xs text-muted-foreground">Postado no Blog</p>
                          </div>
                        </div>
