@@ -5,7 +5,6 @@ import { useConnections } from "@/hooks/use-connections";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { 
-  Youtube, 
   TrendingUp, 
   Clock, 
   ThumbsUp, 
