@@ -10,7 +10,7 @@ import {
   Globe
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { useConnections } from "@/hooks/use-connections";
 import { 
@@ -35,10 +35,11 @@ const FacebookIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-const ConnectionItem = ({ conn, onUpdate, onTestSync }: { conn: any, onUpdate: any, onTestSync: any }) => {
+const ConnectionItem = ({ conn, onUpdate, onTestSync, autoSyncTrigger }: { conn: any, onUpdate: any, onTestSync: any, autoSyncTrigger?: boolean }) => {
   const [config, setConfig] = useState(conn.config || {});
   const [isTesting, setIsTesting] = useState(false);
   const [syncLog, setSyncLog] = useState<string | null>(null);
+  const hasAutoSynced = useRef(false);
   
   const handleConnect = () => {
     if (conn.id === 'wordpress') {
@@ -74,6 +75,13 @@ const ConnectionItem = ({ conn, onUpdate, onTestSync }: { conn: any, onUpdate: a
       setIsTesting(false);
     }
   };
+
+  useEffect(() => {
+    if (autoSyncTrigger && conn.isConnected && !hasAutoSynced.current && !isTesting) {
+      hasAutoSynced.current = true;
+      handleTestSync();
+    }
+  }, [autoSyncTrigger, conn.isConnected]);
 
   return (
     <div className="p-5 border rounded-2xl bg-card/50 space-y-4 transition-all hover:border-primary/30">
@@ -200,7 +208,8 @@ const ConnectionItem = ({ conn, onUpdate, onTestSync }: { conn: any, onUpdate: a
 };
 
 const Settings = () => {
-  const { connections, updateConnection, testSync, loading } = useConnections();
+  const { connections, updateConnection, testSync, loading, items } = useConnections();
+  const hasNoVideos = items.filter(i => i.platform_id === 'youtube').length === 0;
 
   const connectionDetails = [
     { 
@@ -302,6 +311,7 @@ const Settings = () => {
                       conn={{ ...detail, ...conn }} 
                       onUpdate={updateConnection} 
                       onTestSync={testSync}
+                      autoSyncTrigger={detail.id === 'youtube' && hasNoVideos}
                     />
                   );
                 })}
