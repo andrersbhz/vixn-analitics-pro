@@ -54,8 +54,8 @@ const Strategy = () => {
                <TrendingUp className="h-8 w-8 text-emerald-500" />
              </div>
              <div>
-               <h1 className="text-3xl font-bold text-foreground">Estratégia de Crescimento</h1>
-               <p className="text-muted-foreground mt-1">Seu roadmap personalizado para dominar o mercado.</p>
+               <h1 className="text-3xl font-extralight text-foreground tracking-tight">Estratégia de Crescimento</h1>
+               <p className="text-muted-foreground mt-1 font-light italic opacity-80">Seu roadmap personalizado para dominar o mercado.</p>
              </div>
           </div>
           <Button className="bg-emerald-600 hover:bg-emerald-700">
@@ -119,7 +119,7 @@ const Strategy = () => {
                      <circle cx="64" cy="64" r="58" stroke="currentColor" strokeWidth="10" fill="transparent" strokeDasharray="364.4" strokeDashoffset="91.1" className="text-primary" />
                    </svg>
                    <div className="absolute flex flex-col items-center">
-                     <span className="text-3xl font-bold text-foreground">#4</span>
+                      <span className="text-3xl font-extralight text-foreground">#4</span>
                      <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">No Nicho</span>
                    </div>
                  </div>
