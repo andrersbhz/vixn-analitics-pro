@@ -1,15 +1,19 @@
+import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { AnalyticsCard } from "@/components/analytics/AnalyticsCard";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Cell } from 'recharts';
 import { useConnections } from "@/hooks/use-connections";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import { 
   TrendingUp, 
   Clock, 
   ThumbsUp, 
   MessageSquare, 
-  Share2 
+  Share2,
+  RefreshCw,
+  Loader2
 } from "lucide-react";
 
 const YoutubeIcon = ({ className }: { className?: string }) => (
@@ -19,10 +23,30 @@ const YoutubeIcon = ({ className }: { className?: string }) => (
 );
 
 
- const YouTubeStats = () => {
-   const { getConnection, items, loading } = useConnections();
+  const YouTubeStats = () => {
+    const { getConnection, items, loading, testSync } = useConnections();
    const ytConn = getConnection('youtube');
    const ytVideos = items.filter(item => item.platform_id === 'youtube');
+    const [syncing, setSyncing] = useState(false);
+
+    const handleSync = async () => {
+      if (syncing) return;
+      setSyncing(true);
+      const result = await testSync('youtube');
+      setSyncing(false);
+      if (result.success) {
+        toast.success(result.log);
+      } else {
+        toast.error(result.log);
+      }
+    };
+
+    // Auto-sync if connected but no videos
+    useEffect(() => {
+      if (ytConn?.isConnected && ytVideos.length === 0 && !loading && !syncing) {
+        handleSync();
+      }
+    }, [ytConn?.isConnected, ytVideos.length, loading]);
 
   if (!ytConn?.isConnected) {
     return (
@@ -46,14 +70,25 @@ const YoutubeIcon = ({ className }: { className?: string }) => (
   return (
     <DashboardLayout>
       <div className="space-y-8">
-        <div className="flex items-center gap-3">
-           <div className="p-3 bg-red-500/10 rounded-xl">
-             <YoutubeIcon className="h-8 w-8 text-red-500" />
-           </div>
-           <div>
-             <h1 className="text-3xl font-bold text-foreground">YouTube Stats</h1>
-             <p className="text-muted-foreground mt-1">Análise detalhada do seu canal e vídeos.</p>
-           </div>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+             <div className="p-3 bg-red-500/10 rounded-xl">
+               <YoutubeIcon className="h-8 w-8 text-red-500" />
+             </div>
+             <div>
+               <h1 className="text-3xl font-bold text-foreground">YouTube Stats</h1>
+               <p className="text-muted-foreground mt-1">Análise detalhada do seu canal e vídeos.</p>
+             </div>
+          </div>
+          <Button 
+            variant="outline" 
+            className="gap-2 border-red-500/20 hover:bg-red-500/10 glass-card"
+            onClick={handleSync}
+            disabled={syncing}
+          >
+            {syncing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+            {syncing ? "Sincronizando..." : "Sincronizar Agora"}
+          </Button>
         </div>
 
         <div className="grid gap-6 md:grid-cols-3">
