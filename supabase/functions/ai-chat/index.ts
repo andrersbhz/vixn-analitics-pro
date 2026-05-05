@@ -14,8 +14,9 @@ serve(async (req) => {
     const { prompt, model = 'gemini' } = await req.json()
     
     if (model === 'gemini') {
-      const apiKey = Deno.env.get('GEMINI_API_KEY')
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+      console.log('Gemini model selection, checking API Key...');
+      const apiKey = Deno.env.get('GEMINI_API_KEY');
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
