@@ -2,7 +2,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardLayout from "@/components/DashboardLayout";
 import { AnalyticsCard } from "@/components/analytics/AnalyticsCard";
-import { Search, Briefcase, TrendingUp, Users, Target, Rocket, Loader2, Sparkles, Globe, AlertCircle, BarChart3, PieChart, Info, ArrowUpRight, Facebook, Instagram, Linkedin, MessageCircle, Play } from "lucide-react";
+import { Search, Briefcase, TrendingUp, Users, Target, Rocket, Loader2, Sparkles, Globe, AlertCircle, BarChart3, PieChart, Info, ArrowUpRight, MessageCircle, Play, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { 
@@ -238,7 +238,7 @@ const MarketAnalysis = () => {
                   <div className="p-3 bg-blue-500/5 rounded-xl border border-blue-500/10 flex flex-col gap-2">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <Globe className="h-4 w-4 text-blue-400" />
+                        <Search className="h-4 w-4 text-blue-400" />
                         <span className="text-[10px] font-bold text-blue-400 uppercase">Google Ads</span>
                       </div>
                       <span className="text-[10px] text-muted-foreground">{analysisResult?.googleAds?.budget}</span>
@@ -249,7 +249,7 @@ const MarketAnalysis = () => {
                   <div className="p-3 bg-blue-600/5 rounded-xl border border-blue-600/10 flex flex-col gap-2">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <Facebook className="h-4 w-4 text-blue-600" />
+                        <Share2 className="h-4 w-4 text-blue-600" />
                         <span className="text-[10px] font-bold text-blue-600 uppercase">Facebook / Instagram</span>
                       </div>
                       <span className="text-[10px] text-muted-foreground">{analysisResult?.facebookAds?.budget}</span>
@@ -271,7 +271,7 @@ const MarketAnalysis = () => {
                   <div className="p-3 bg-indigo-500/5 rounded-xl border border-indigo-500/10 flex flex-col gap-2">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <Linkedin className="h-4 w-4 text-indigo-400" />
+                        <Briefcase className="h-4 w-4 text-indigo-400" />
                         <span className="text-[10px] font-bold text-indigo-400 uppercase">LinkedIn Ads</span>
                       </div>
                       <span className="text-[10px] text-muted-foreground">{analysisResult?.linkedinAds?.budget}</span>
