@@ -24,10 +24,11 @@ const MarketAnalysis = () => {
       const { data, error } = await supabase.functions.invoke('ai-chat', {
         body: { 
           prompt: `Realize uma análise de mercado detalhada para: ${query}. 
-          Retorne um JSON com os seguintes campos: 
-          marketSize (string), competitiveness (string), avgCac (string), 
+          Retorne um JSON com os seguintes campos:
+          marketSize (string), competitiveness (string), avgCac (string),
           opportunity (string), trends (string), adsStrategy (string), channels (string).
-          Responda apenas o JSON puro, sem markdown.` 
+          Responda apenas o JSON puro, sem markdown.`,
+          model: 'gemini'
         }
       });
 
