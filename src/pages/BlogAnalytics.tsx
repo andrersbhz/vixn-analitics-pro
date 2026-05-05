@@ -85,27 +85,45 @@ const BlogAnalytics = () => {
            </div>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-4">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
            {[
-            { label: "Total de Posts", value: loading ? "..." : data?.postCount || "0", icon: FileText, color: "text-blue-600" },
-            { label: "Site", value: loading ? "..." : data?.siteName || "N/A", icon: Globe, color: "text-emerald-600" },
-            { label: "Status API", value: error ? "Erro" : "Ativo", icon: AlertCircle, color: error ? "text-rose-600" : "text-emerald-600" },
-            { label: "Última Sinc.", value: "Agora", icon: Clock, color: "text-indigo-600" },
+            { label: "Total de Posts", value: loading ? "..." : data?.postCount || "0", icon: FileText, color: "text-blue-500", bg: "bg-blue-500/10" },
+            { label: "Comentários", value: loading ? "..." : data?.totalComments || "0", icon: MessageSquare, color: "text-emerald-500", bg: "bg-emerald-500/10" },
+            { label: "Categorias", value: loading ? "..." : data?.categoriesCount || "0", icon: FolderOpen, color: "text-orange-500", bg: "bg-orange-500/10" },
+            { label: "Tags Ativas", value: loading ? "..." : data?.tagsCount || "0", icon: Tag, color: "text-purple-500", bg: "bg-purple-500/10" },
           ].map((stat, i) => (
-             <div key={i} className="bg-card p-5 rounded-xl border shadow-sm">
-               <div className="flex justify-between items-start mb-4">
-                 <div className="p-2 bg-accent/50 rounded-lg">
-                   <stat.icon className={stat.color + " h-5 w-5"} />
-                 </div>
-                 {!loading && !error && (
-                   <div className="flex items-center text-xs font-medium text-emerald-500 bg-emerald-500/10 px-2 py-1 rounded">
-                     Sincronizado
-                   </div>
-                 )}
-               </div>
-               <p className="text-sm font-medium text-muted-foreground">{stat.label}</p>
-               <p className="text-2xl font-bold text-foreground mt-1">{stat.value}</p>
-             </div>
+              <div key={i} className="glass-card p-6 rounded-2xl border border-white/10 shadow-xl">
+                <div className="flex items-center gap-4">
+                  <div className={`p-3 ${stat.bg} rounded-xl`}>
+                    <stat.icon className={`${stat.color} h-6 w-6`} />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">{stat.label}</p>
+                    <p className="text-2xl font-bold text-foreground">{stat.value}</p>
+                  </div>
+                </div>
+              </div>
+          ))}
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+           {[
+            { label: "Usuários", value: loading ? "..." : data?.usersCount || "0", icon: Users, color: "text-cyan-500", bg: "bg-cyan-500/10" },
+            { label: "Site", value: loading ? "..." : data?.siteName || "N/A", icon: Globe, color: "text-indigo-500", bg: "bg-indigo-500/10" },
+            { label: "Status API", value: error ? "Erro" : "Ativo", icon: AlertCircle, color: error ? "text-rose-500" : "text-emerald-500", bg: error ? "bg-rose-500/10" : "bg-emerald-500/10" },
+            { label: "Sincronização", value: "Real-time", icon: Clock, color: "text-amber-500", bg: "bg-amber-500/10" },
+          ].map((stat, i) => (
+              <div key={i} className="glass-card p-6 rounded-2xl border border-white/10 shadow-xl">
+                <div className="flex items-center gap-4">
+                  <div className={`p-3 ${stat.bg} rounded-xl`}>
+                    <stat.icon className={`${stat.color} h-6 w-6`} />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">{stat.label}</p>
+                    <p className="text-2xl font-bold text-foreground">{stat.value}</p>
+                  </div>
+                </div>
+              </div>
           ))}
         </div>
 
