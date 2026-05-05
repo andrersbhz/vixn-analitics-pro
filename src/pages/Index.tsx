@@ -123,7 +123,42 @@ const Index = () => {
               />
              </div>
 
-              <div className="grid gap-6">
+               <div className="grid gap-6 lg:grid-cols-2">
+                 <Card className="glass-card border-white/5">
+                   <CardHeader>
+                     <CardTitle className="text-xl">Crescimento de Audiência</CardTitle>
+                     <CardDescription>Visualizações acumuladas nos últimos 7 dias.</CardDescription>
+                   </CardHeader>
+                   <CardContent className="h-[300px]">
+                     <ResponsiveContainer width="100%" height="100%">
+                       <AreaChart data={[
+                         { name: 'Seg', views: 4000 },
+                         { name: 'Ter', views: 3000 },
+                         { name: 'Qua', views: 2000 },
+                         { name: 'Qui', views: 2780 },
+                         { name: 'Sex', views: 1890 },
+                         { name: 'Sáb', views: 2390 },
+                         { name: 'Dom', views: 3490 },
+                       ]}>
+                         <defs>
+                           <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
+                             <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
+                             <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
+                           </linearGradient>
+                         </defs>
+                         <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                         <XAxis dataKey="name" stroke="#666" fontSize={12} tickLine={false} axisLine={false} />
+                         <YAxis stroke="#666" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${value/1000}k`} />
+                         <Tooltip 
+                           contentStyle={{ backgroundColor: 'rgba(0,0,0,0.8)', border: 'none', borderRadius: '12px', color: '#fff' }}
+                           itemStyle={{ color: 'hsl(var(--primary))' }}
+                         />
+                         <Area type="monotone" dataKey="views" stroke="hsl(var(--primary))" fillOpacity={1} fill="url(#colorViews)" />
+                       </AreaChart>
+                     </ResponsiveContainer>
+                   </CardContent>
+                 </Card>
+
                 <Card className="glass-card border-white/5">
                   <CardHeader>
                     <CardTitle className="text-xl">Atividades Recentes</CardTitle>
