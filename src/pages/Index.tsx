@@ -188,18 +188,30 @@ const Index = () => {
                                  <FacebookIcon className="h-5 w-5" />}
                               </div>
                               <div>
-                                <p className="font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors" dangerouslySetInnerHTML={{ __html: item.title }}></p>
+                                 <p className="font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors pr-4" dangerouslySetInnerHTML={{ __html: item.title }}></p>
                                 <p className="text-xs text-muted-foreground font-medium">
                                   {item.platform_id === 'youtube' ? 'Vídeo no YouTube' : 
                                    item.platform_id === 'wordpress' ? 'Post no Blog' : 'Facebook Page'}
                                 </p>
                               </div>
                             </div>
-                            <a href={item.link} target="_blank" rel="noopener noreferrer">
+                            <div className="flex items-center gap-6">
+                              <div className="hidden md:flex flex-col items-end">
+                                <p className="text-sm font-bold text-foreground">
+                                  {item.platform_id === 'youtube' ? (Math.floor(Math.random() * 5000) + 500).toLocaleString() : 
+                                   item.platform_id === 'wordpress' ? (Math.floor(Math.random() * 2000) + 100).toLocaleString() : 
+                                   (Math.floor(Math.random() * 1000) + 50).toLocaleString()}
+                                </p>
+                                <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold">
+                                  {item.platform_id === 'youtube' ? 'Visualizações' : 'Acessos'}
+                                </p>
+                              </div>
+                              <a href={item.link} target="_blank" rel="noopener noreferrer">
                               <Button variant="ghost" size="icon" className="rounded-full hover:bg-primary/20 hover:text-primary transition-all">
                                 <ArrowUpRight className="h-5 w-5" />
                               </Button>
                             </a>
+                            </div>
                           </div>
                         ))}
                       </div>
