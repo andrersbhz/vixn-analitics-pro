@@ -277,25 +277,42 @@ const AdSenseAnalytics = () => {
         </div>
 
         <div className="grid gap-6 md:grid-cols-4">
-          {[
-            { label: "Ganhos Estimados (Hoje)", value: "R$ 42,10", trend: "+12%", up: true },
-            { label: "Ganhos Ontem", value: "R$ 38,20", trend: "-5%", up: false },
-            { label: "Últimos 7 dias", value: "R$ 343,25", trend: "+8.2%", up: true },
-            { label: "Saldo Atual", value: "R$ 1.250,40", trend: "Próximo pag.", up: true },
-          ].map((stat, i) => (
-            <div key={i} className="bg-card p-5 rounded-xl border shadow-sm">
-              <p className="text-sm font-medium text-muted-foreground">{stat.label}</p>
-              <div className="flex items-baseline gap-2 mt-1">
-                <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-                <span className={cn(
-                  "text-xs font-semibold px-1.5 py-0.5 rounded",
-                  stat.up ? "text-emerald-500 bg-emerald-500/10" : "text-rose-500 bg-rose-500/10"
-                )}>
-                  {stat.trend}
-                </span>
-              </div>
+          <div className="bg-card p-5 rounded-xl border shadow-sm">
+            <p className="text-sm font-medium text-muted-foreground">Ganhos no Período</p>
+            <div className="flex items-baseline gap-2 mt-1">
+              <p className="text-2xl font-bold text-foreground">R$ {totals.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+              <span className="text-xs font-semibold px-1.5 py-0.5 rounded text-emerald-500 bg-emerald-500/10">
+                Atualizado
+              </span>
             </div>
-          ))}
+          </div>
+          <div className="bg-card p-5 rounded-xl border shadow-sm">
+            <p className="text-sm font-medium text-muted-foreground">Visualizações Totais</p>
+            <div className="flex items-baseline gap-2 mt-1">
+              <p className="text-2xl font-bold text-foreground">{revenueData.reduce((acc, curr) => acc + curr.views, 0).toLocaleString('pt-BR')}</p>
+              <span className="text-xs font-semibold px-1.5 py-0.5 rounded text-blue-500 bg-blue-500/10">
+                Período
+              </span>
+            </div>
+          </div>
+          <div className="bg-card p-5 rounded-xl border shadow-sm">
+            <p className="text-sm font-medium text-muted-foreground">Cliques Totais</p>
+            <div className="flex items-baseline gap-2 mt-1">
+              <p className="text-2xl font-bold text-foreground">{revenueData.reduce((acc, curr) => acc + curr.clicks, 0).toLocaleString('pt-BR')}</p>
+              <span className="text-xs font-semibold px-1.5 py-0.5 rounded text-purple-500 bg-purple-500/10">
+                Período
+              </span>
+            </div>
+          </div>
+          <div className="bg-card p-5 rounded-xl border shadow-sm">
+            <p className="text-sm font-medium text-muted-foreground">RPM Médio</p>
+            <div className="flex items-baseline gap-2 mt-1">
+              <p className="text-2xl font-bold text-foreground">R$ {((totals / (revenueData.reduce((acc, curr) => acc + curr.views, 0) || 1)) * 1000).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+              <span className="text-xs font-semibold px-1.5 py-0.5 rounded text-amber-500 bg-amber-500/10">
+                Estimado
+              </span>
+            </div>
+          </div>
         </div>
 
         <div className="grid gap-6 lg:grid-cols-3">
