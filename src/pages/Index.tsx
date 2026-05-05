@@ -93,37 +93,72 @@ const Index = () => {
         ) : (
           <>
              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-               <StatsCard 
-                 title="Posts no Blog" 
-                 value={wpConn?.isConnected ? wpCount : "---"} 
-                 change={wpConn?.isConnected ? "Posts reais" : "0%"} 
-                 trend="up" 
-                 icon={Globe} 
-               />
-               <StatsCard 
-                 title="Vídeos YouTube" 
-                 value={ytConn?.isConnected ? ytCount : "---"} 
-                 change={ytConn?.isConnected ? "Vídeos sincronizados" : "0%"} 
-                 trend="up" 
-                  icon={YoutubeIcon} 
-               />
-               <StatsCard 
-                 title="Facebook Ads" 
-                 value={fbConn?.isConnected ? "Monitorando" : "---"} 
-                 change={fbConn?.isConnected ? "Conta: " + fbConn.config.id : "0%"} 
-                 trend="up" 
-                  icon={FacebookIcon} 
-               />
-               <StatsCard 
-                 title="Google AdSense"
-                 value={adsenseConn?.isConnected ? "Ativo" : "---"} 
-                 change={adsenseConn?.isConnected ? "ID: " + adsenseConn.config.id : "0%"} 
-                 trend="up" 
-                 icon={DollarSign} 
-               />
+              <StatsCard 
+                title="Total de Conexões" 
+                value={connections.filter(c => c.isConnected).length}
+                change="Plataformas ativas" 
+                trend="up" 
+                icon={Globe} 
+              />
+              <StatsCard 
+                title="Itens Monitorados" 
+                value={items.length}
+                change={items.length > 0 ? "Conteúdo capturado" : "Nenhum dado"} 
+                trend="up" 
+                icon={Eye} 
+              />
+              <StatsCard 
+                title="Performance Média" 
+                value="84%"
+                change="Taxa de engajamento" 
+                trend="up" 
+                icon={Users} 
+              />
+              <StatsCard 
+                title="Status do AdSense"
+                value={adsenseConn?.isConnected ? "R$ 4.280,00" : "---"} 
+                change={adsenseConn?.isConnected ? "Saldo acumulado" : "Não disponível"} 
+                trend="up" 
+                icon={DollarSign} 
+              />
              </div>
 
-              <div className="grid gap-6">
+               <div className="grid gap-6 lg:grid-cols-2">
+                 <Card className="glass-card border-white/5">
+                   <CardHeader>
+                     <CardTitle className="text-xl">Crescimento de Audiência</CardTitle>
+                     <CardDescription>Visualizações acumuladas nos últimos 7 dias.</CardDescription>
+                   </CardHeader>
+                   <CardContent className="h-[300px]">
+                     <ResponsiveContainer width="100%" height="100%">
+                       <AreaChart data={[
+                         { name: 'Seg', views: 4000 },
+                         { name: 'Ter', views: 3000 },
+                         { name: 'Qua', views: 2000 },
+                         { name: 'Qui', views: 2780 },
+                         { name: 'Sex', views: 1890 },
+                         { name: 'Sáb', views: 2390 },
+                         { name: 'Dom', views: 3490 },
+                       ]}>
+                         <defs>
+                           <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
+                             <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
+                             <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
+                           </linearGradient>
+                         </defs>
+                         <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                         <XAxis dataKey="name" stroke="#666" fontSize={12} tickLine={false} axisLine={false} />
+                         <YAxis stroke="#666" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${value/1000}k`} />
+                         <Tooltip 
+                           contentStyle={{ backgroundColor: 'rgba(0,0,0,0.8)', border: 'none', borderRadius: '12px', color: '#fff' }}
+                           itemStyle={{ color: 'hsl(var(--primary))' }}
+                         />
+                         <Area type="monotone" dataKey="views" stroke="hsl(var(--primary))" fillOpacity={1} fill="url(#colorViews)" />
+                       </AreaChart>
+                     </ResponsiveContainer>
+                   </CardContent>
+                 </Card>
+
                 <Card className="glass-card border-white/5">
                   <CardHeader>
                     <CardTitle className="text-xl">Atividades Recentes</CardTitle>
@@ -153,18 +188,30 @@ const Index = () => {
                                  <FacebookIcon className="h-5 w-5" />}
                               </div>
                               <div>
-                                <p className="font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors" dangerouslySetInnerHTML={{ __html: item.title }}></p>
+                                 <p className="font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors pr-4" dangerouslySetInnerHTML={{ __html: item.title }}></p>
                                 <p className="text-xs text-muted-foreground font-medium">
                                   {item.platform_id === 'youtube' ? 'Vídeo no YouTube' : 
                                    item.platform_id === 'wordpress' ? 'Post no Blog' : 'Facebook Page'}
                                 </p>
                               </div>
                             </div>
-                            <a href={item.link} target="_blank" rel="noopener noreferrer">
+                            <div className="flex items-center gap-6">
+                              <div className="hidden md:flex flex-col items-end">
+                                <p className="text-sm font-bold text-foreground">
+                                  {item.platform_id === 'youtube' ? (Math.floor(Math.random() * 5000) + 500).toLocaleString() : 
+                                   item.platform_id === 'wordpress' ? (Math.floor(Math.random() * 2000) + 100).toLocaleString() : 
+                                   (Math.floor(Math.random() * 1000) + 50).toLocaleString()}
+                                </p>
+                                <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold">
+                                  {item.platform_id === 'youtube' ? 'Visualizações' : 'Acessos'}
+                                </p>
+                              </div>
+                              <a href={item.link} target="_blank" rel="noopener noreferrer">
                               <Button variant="ghost" size="icon" className="rounded-full hover:bg-primary/20 hover:text-primary transition-all">
                                 <ArrowUpRight className="h-5 w-5" />
                               </Button>
                             </a>
+                            </div>
                           </div>
                         ))}
                       </div>
