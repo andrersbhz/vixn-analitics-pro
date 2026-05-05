@@ -34,7 +34,7 @@ export const useConnections = () => {
             id: item.id,
             name: item.name,
             isConnected: item.is_connected,
-            config: item.config,
+            config: (item.config as Record<string, string>) || {},
             sync_interval_minutes: item.sync_interval_minutes,
             next_sync_at: item.next_sync_at
           }));
