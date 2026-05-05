@@ -43,38 +43,39 @@
     const baseUrl = url.replace(/\/$/, '');
     const auth = btoa(`${user}:${appPass}`);
 
-   try {
-     const [siteInfoRes, postsRes, commentsRes, categoriesRes, tagsRes, usersRes] = await Promise.all([
-       fetch(`${baseUrl}/wp-json/`, {
-         headers: { 'Authorization': `Basic ${auth}` }
-       }),
-       fetch(`${baseUrl}/wp-json/wp/v2/posts?per_page=5`, {
-         headers: { 'Authorization': `Basic ${auth}` }
-       }),
-       fetch(`${baseUrl}/wp-json/wp/v2/comments?per_page=1`, {
-         headers: { 'Authorization': `Basic ${auth}` }
-       }),
-       fetch(`${baseUrl}/wp-json/wp/v2/categories?per_page=10&orderby=count&order=desc`, {
-         headers: { 'Authorization': `Basic ${auth}` }
-       }),
-       fetch(`${baseUrl}/wp-json/wp/v2/tags?per_page=1`, {
-         headers: { 'Authorization': `Basic ${auth}` }
-       }),
-       fetch(`${baseUrl}/wp-json/wp/v2/users?per_page=1`, {
-         headers: { 'Authorization': `Basic ${auth}` }
-       })
-     ]);
+    try {
+      const fetchWithAuth = (endpoint: string) => 
+        fetch(`${baseUrl}/wp-json/${endpoint}`, {
+          headers: { 'Authorization': `Basic ${auth}` },
+          signal: AbortSignal.timeout(10000) // 10s timeout
+        }).catch(err => {
+          console.warn(`Failed to fetch ${endpoint}:`, err);
+          return null;
+        });
 
-     const siteInfo = await siteInfoRes.json();
-     const posts = await postsRes.json();
-     const categories = categoriesRes.ok ? await categoriesRes.json() : [];
+      const [siteInfoRes, postsRes, commentsRes, categoriesRes, tagsRes, usersRes] = await Promise.all([
+        fetchWithAuth(''),
+        fetchWithAuth('wp/v2/posts?per_page=5'),
+        fetchWithAuth('wp/v2/comments?per_page=1'),
+        fetchWithAuth('wp/v2/categories?per_page=10&orderby=count&order=desc'),
+        fetchWithAuth('wp/v2/tags?per_page=1'),
+        fetchWithAuth('wp/v2/users?per_page=1')
+      ]);
+
+      if (!siteInfoRes?.ok && !postsRes?.ok) {
+        throw new Error('Não foi possível conectar ao WordPress. Verifique a URL e as credenciais.');
+      }
+
+      const siteInfo = siteInfoRes?.ok ? await siteInfoRes.json() : { name: 'Blog' };
+      const posts = postsRes?.ok ? await postsRes.json() : [];
+      const categories = categoriesRes?.ok ? await categoriesRes.json() : [];
      
      // Get total posts from headers if available
-     const totalPosts = postsRes.headers.get('X-WP-Total') || posts.length;
-     const totalComments = commentsRes.headers.get('X-WP-Total') || 0;
-     const totalCategories = categoriesRes.headers.get('X-WP-Total') || 0;
-     const totalTags = tagsRes.headers.get('X-WP-Total') || 0;
-     const totalUsers = usersRes.headers.get('X-WP-Total') || 0;
+      const totalPosts = postsRes?.headers.get('X-WP-Total') || posts.length;
+      const totalComments = commentsRes?.headers.get('X-WP-Total') || 0;
+      const totalCategories = categoriesRes?.headers.get('X-WP-Total') || 0;
+      const totalTags = tagsRes?.headers.get('X-WP-Total') || 0;
+      const totalUsers = usersRes?.headers.get('X-WP-Total') || 0;
 
      return {
        postCount: parseInt(totalPosts.toString()),
