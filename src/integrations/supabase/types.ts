@@ -58,34 +58,46 @@ export type Database = {
       }
       platform_items: {
         Row: {
+          clicks: number | null
           created_at: string | null
+          earnings: number | null
           external_id: string
           id: string
           link: string | null
           metadata: Json | null
           platform_id: string
+          rpm: number | null
           title: string
           updated_at: string | null
+          views: number | null
         }
         Insert: {
+          clicks?: number | null
           created_at?: string | null
+          earnings?: number | null
           external_id: string
           id?: string
           link?: string | null
           metadata?: Json | null
           platform_id: string
+          rpm?: number | null
           title: string
           updated_at?: string | null
+          views?: number | null
         }
         Update: {
+          clicks?: number | null
           created_at?: string | null
+          earnings?: number | null
           external_id?: string
           id?: string
           link?: string | null
           metadata?: Json | null
           platform_id?: string
+          rpm?: number | null
           title?: string
           updated_at?: string | null
+          views?: number | null
         }
         Relationships: []
       }
