@@ -72,54 +72,37 @@ const AdSenseAnalytics = () => {
     return () => { mounted = false; };
   }, [isSyncing]);
 
-  // Mock data for AdSense revenue
-  const allData = useMemo(() => {
-    const days = [];
-    const now = new Date();
-    for (let i = 90; i >= 0; i--) {
-      const date = subDays(now, i);
-      days.push({
-        date,
-        name: format(date, 'eee', { locale: ptBR }),
-        revenue: Math.random() * 50 + 20,
-      });
-    }
-    return days;
-  }, []);
+  const { items } = useConnections();
+  const adsenseItems = useMemo(() => items.filter(i => i.platform_id === 'adsense'), [items]);
 
   const revenueData = useMemo(() => {
-    try {
-      let start: Date;
-      let end = endOfDay(new Date());
+    const data = adsenseItems.map(item => ({
+      date: item.metadata?.date ? parseISO(item.metadata.date) : new Date(item.created_at),
+      name: item.metadata?.date ? format(parseISO(item.metadata.date), 'eee', { locale: ptBR }) : '',
+      revenue: item.earnings || 0,
+      views: item.views || 0,
+      clicks: item.clicks || 0
+    })).sort((a, b) => a.date.getTime() - b.date.getTime());
 
-      if (period === '7d') {
-        start = startOfDay(subDays(new Date(), 6));
-      } else if (period === '30d') {
-        start = startOfDay(subDays(new Date(), 29));
-      } else if (period === '90d') {
-        start = startOfDay(subDays(new Date(), 89));
-      } else {
-        if (!dateRange || !dateRange.from || !isValid(dateRange.from)) {
-          start = startOfDay(subDays(new Date(), 6));
-        } else {
-          start = startOfDay(dateRange.from);
-        }
-        
-        if (dateRange?.to && isValid(dateRange.to)) {
-          end = endOfDay(dateRange.to);
-        }
-      }
+    if (data.length === 0) return [];
 
-      return allData.filter(d => {
-        const date = d.date;
-        return (isAfter(date, start) || date.getTime() === start.getTime()) && 
-               (isBefore(date, end) || date.getTime() === end.getTime());
-      });
-    } catch (error) {
-      console.error("Error calculating revenueData:", error);
-      return [];
+    let start: Date;
+    let end = endOfDay(new Date());
+
+    if (period === '7d') {
+      start = startOfDay(subDays(new Date(), 6));
+    } else if (period === '30d') {
+      start = startOfDay(subDays(new Date(), 29));
+    } else if (period === '90d') {
+      start = startOfDay(subDays(new Date(), 89));
+    } else {
+      start = dateRange?.from ? startOfDay(dateRange.from) : startOfDay(subDays(new Date(), 6));
+      if (dateRange?.to) end = endOfDay(dateRange.to);
     }
-  }, [period, dateRange, allData]);
+
+    return data.filter(d => (isAfter(d.date, start) || d.date.getTime() === start.getTime()) && 
+                           (isBefore(d.date, end) || d.date.getTime() === end.getTime()));
+  }, [adsenseItems, period, dateRange]);
 
   const totals = useMemo(() => {
     return revenueData.reduce((acc, curr) => acc + curr.revenue, 0);
