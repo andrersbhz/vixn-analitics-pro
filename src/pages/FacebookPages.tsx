@@ -43,8 +43,8 @@ const FacebookIcon = ({ className }: { className?: string }) => (
                <FacebookIcon className="h-8 w-8 text-indigo-500" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-foreground">Facebook Analytics</h1>
-              <p className="text-muted-foreground mt-1">Dados reais da sua conta: {fbConn.config.id}</p>
+               <h1 className="text-3xl font-extralight text-foreground tracking-tight">Facebook Analytics</h1>
+               <p className="text-muted-foreground mt-1 font-light italic opacity-80">Dados reais da sua conta: {fbConn.config.id}</p>
             </div>
          </div>
  
@@ -55,7 +55,7 @@ const FacebookIcon = ({ className }: { className?: string }) => (
                    <AlertCircle className="h-6 w-6 text-emerald-500" />
                  </div>
                  <div>
-                   <h3 className="font-bold">Pronto para Sincronização</h3>
+                    <h3 className="font-light text-foreground uppercase tracking-widest text-sm">Pronto para Sincronização</h3>
                    <p className="text-sm text-muted-foreground">O ID foi validado. Os dados aparecerão aqui após a próxima sincronização automática ou manual.</p>
                  </div>
                </div>
