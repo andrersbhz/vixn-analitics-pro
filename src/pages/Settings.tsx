@@ -156,7 +156,7 @@ const ConnectionItem = ({ conn, onUpdate, onTestSync }: { conn: any, onUpdate: a
                 value={config.id || ""}
                 onChange={(e) => updateConfig('id', e.target.value)}
                 placeholder={conn.placeholder}
-                className="bg-background border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                className="bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/40 outline-none transition-all focus:bg-white/10"
               />
             )}
             <div className="flex flex-col sm:flex-row gap-2">

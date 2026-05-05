@@ -36,20 +36,22 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const StatsCard = ({ title, value, change, trend, icon: Icon }: any) => (
-  <Card>
-     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-       <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
-       <Icon className="h-4 w-4 text-muted-foreground" />
-     </CardHeader>
+  <Card className="glass-card dashboard-card-hover border-white/5">
+    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+      <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
+      <div className="p-2 bg-primary/10 rounded-lg">
+        <Icon className="h-4 w-4 text-primary" />
+      </div>
+    </CardHeader>
     <CardContent>
-      <div className="text-2xl font-bold">{value}</div>
-      <p className={cn(
-         "text-xs mt-1 flex items-center",
-         trend === "up" ? "text-emerald-500" : "text-rose-500"
-       )}>
+      <div className="text-3xl font-bold tracking-tight">{value}</div>
+      <div className={cn(
+        "text-xs mt-2 flex items-center px-2 py-1 rounded-full w-fit font-medium",
+        trend === "up" ? "bg-emerald-500/10 text-emerald-500" : "bg-rose-500/10 text-rose-500"
+      )}>
         {trend === "up" ? <ArrowUpRight className="h-3 w-3 mr-1" /> : <ArrowDownRight className="h-3 w-3 mr-1" />}
-        {change} em relação ao mês anterior
-      </p>
+        {change}
+      </div>
     </CardContent>
   </Card>
 );
@@ -70,9 +72,9 @@ const Index = () => {
   return (
     <DashboardLayout>
       <div className="space-y-8">
-         <div>
-           <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
-           <p className="text-muted-foreground mt-2">Visão geral do seu crescimento em todas as plataformas.</p>
+          <div className="relative">
+            <h1 className="text-4xl font-bold text-foreground tracking-tight">Dashboard</h1>
+            <p className="text-muted-foreground mt-2 text-lg">Visão geral do seu crescimento em todas as plataformas.</p>
          </div>
 
         {!isAnyConnected ? (
@@ -121,55 +123,55 @@ const Index = () => {
                />
              </div>
 
-             <div className="grid gap-6">
-               <Card className="shadow-sm border-muted/20">
-                 <CardHeader>
-                   <CardTitle>Atividades Recentes</CardTitle>
-                   <CardDescription>Últimos itens sincronizados de todas as plataformas.</CardDescription>
-                 </CardHeader>
-                 <CardContent>
-                   {loading ? (
-                     <div className="py-8 text-center text-muted-foreground">Carregando atividades...</div>
-                   ) : items.length === 0 ? (
-                     <div className="py-12 text-center text-muted-foreground">
-                       Nenhuma atividade real sincronizada ainda. 
-                       <Link to="/settings" className="text-primary ml-1 hover:underline">Vá para configurações para sincronizar.</Link>
-                     </div>
-                   ) : (
-                     <div className="space-y-4">
-                       {items.slice(0, 6).map((item) => (
-                         <div key={item.id} className="flex items-center justify-between p-4 border rounded-xl hover:bg-accent/30 transition-all">
-                           <div className="flex items-center gap-4">
-                             <div className={cn(
-                               "p-2 rounded-lg",
-                               item.platform_id === 'youtube' ? "bg-red-500/10 text-red-500" :
-                               item.platform_id === 'wordpress' ? "bg-blue-500/10 text-blue-500" :
-                               "bg-indigo-500/10 text-indigo-500"
-                             )}>
-                               {item.platform_id === 'youtube' ? <YoutubeIcon className="h-5 w-5" /> : 
-                                item.platform_id === 'wordpress' ? <Globe className="h-5 w-5" /> : 
-                                <FacebookIcon className="h-5 w-5" />}
-                             </div>
-                             <div>
-                               <p className="font-medium text-foreground line-clamp-1" dangerouslySetInnerHTML={{ __html: item.title }}></p>
-                               <p className="text-xs text-muted-foreground">
-                                 {item.platform_id === 'youtube' ? 'Vídeo no YouTube' : 
-                                  item.platform_id === 'wordpress' ? 'Post no Blog' : 'Facebook Page'}
-                               </p>
-                             </div>
-                           </div>
-                           <a href={item.link} target="_blank" rel="noopener noreferrer">
-                             <Button variant="ghost" size="sm">
-                               <ArrowUpRight className="h-4 w-4" />
-                             </Button>
-                           </a>
-                         </div>
-                       ))}
-                     </div>
-                   )}
-                 </CardContent>
-               </Card>
-             </div>
+              <div className="grid gap-6">
+                <Card className="glass-card border-white/5">
+                  <CardHeader>
+                    <CardTitle className="text-xl">Atividades Recentes</CardTitle>
+                    <CardDescription>Últimos itens sincronizados de todas as plataformas.</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {loading ? (
+                      <div className="py-8 text-center text-muted-foreground">Carregando atividades...</div>
+                    ) : items.length === 0 ? (
+                      <div className="py-12 text-center text-muted-foreground">
+                        Nenhuma atividade real sincronizada ainda. 
+                        <Link to="/settings" className="text-primary ml-1 hover:underline">Vá para configurações para sincronizar.</Link>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {items.slice(0, 6).map((item) => (
+                          <div key={item.id} className="flex items-center justify-between p-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/5 transition-all duration-300 group">
+                            <div className="flex items-center gap-4">
+                              <div className={cn(
+                                "p-3 rounded-xl shadow-sm",
+                                item.platform_id === 'youtube' ? "bg-red-500/20 text-red-500" :
+                                item.platform_id === 'wordpress' ? "bg-blue-500/20 text-blue-500" :
+                                "bg-indigo-500/20 text-indigo-500"
+                              )}>
+                                {item.platform_id === 'youtube' ? <YoutubeIcon className="h-5 w-5" /> : 
+                                 item.platform_id === 'wordpress' ? <Globe className="h-5 w-5" /> : 
+                                 <FacebookIcon className="h-5 w-5" />}
+                              </div>
+                              <div>
+                                <p className="font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors" dangerouslySetInnerHTML={{ __html: item.title }}></p>
+                                <p className="text-xs text-muted-foreground font-medium">
+                                  {item.platform_id === 'youtube' ? 'Vídeo no YouTube' : 
+                                   item.platform_id === 'wordpress' ? 'Post no Blog' : 'Facebook Page'}
+                                </p>
+                              </div>
+                            </div>
+                            <a href={item.link} target="_blank" rel="noopener noreferrer">
+                              <Button variant="ghost" size="icon" className="rounded-full hover:bg-primary/20 hover:text-primary transition-all">
+                                <ArrowUpRight className="h-5 w-5" />
+                              </Button>
+                            </a>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
           </>
         )}
       </div>

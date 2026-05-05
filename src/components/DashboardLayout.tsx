@@ -56,7 +56,11 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   ];
 
    return (
-     <div className="min-h-screen bg-background flex overflow-hidden">
+      <div className="min-h-screen bg-background flex overflow-hidden relative">
+        {/* Decorative Background Elements */}
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/10 blur-[120px] rounded-full z-0 pointer-events-none" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-500/10 blur-[120px] rounded-full z-0 pointer-events-none" />
+        
        {/* Mobile sidebar */}
       <div
         className={cn(
@@ -65,7 +69,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         )}
       >
         <div className="fixed inset-0 bg-gray-600 bg-opacity-75" onClick={() => setSidebarOpen(false)} />
-         <div className="fixed inset-y-0 left-0 flex w-64 flex-col bg-card border-r">
+          <div className="fixed inset-y-0 left-0 flex w-64 flex-col bg-card/80 backdrop-blur-xl border-r border-white/10">
            <div className="flex h-16 items-center justify-between px-6 border-b">
              <span className="text-xl font-bold text-primary tracking-tight">GrowthSuite Pro</span>
             <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(false)}>
@@ -99,9 +103,9 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       </div>
 
        {/* Static sidebar for desktop */}
-       <div className="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0 border-r bg-card">
-         <div className="flex h-16 items-center px-6 border-b">
-           <span className="text-xl font-bold text-primary tracking-tight">GrowthSuite Pro</span>
+        <div className="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0 border-r border-white/5 bg-card/40 backdrop-blur-xl z-10">
+          <div className="flex h-16 items-center px-6 border-b border-white/5">
+            <span className="text-xl font-bold gradient-text tracking-tight">GrowthSuite Pro</span>
          </div>
         <nav className="flex-1 space-y-1 px-4 py-6 overflow-y-auto">
           {navigation.map((item) => (
@@ -109,10 +113,10 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
               key={item.name}
               to={item.href}
               className={cn(
-               location.pathname === item.href
-                 ? "bg-primary text-primary-foreground"
-                 : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
-                "group flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200"
+                location.pathname === item.href
+                  ? "bg-primary/20 text-primary border border-primary/20 shadow-[0_0_15px_rgba(139,92,246,0.1)]"
+                : "text-muted-foreground hover:bg-white/5 hover:text-foreground",
+                "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 mb-1"
               )}
             >
               <item.icon className={cn(
@@ -153,9 +157,9 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       </div>
 
        {/* Main content */}
-       <div className="lg:pl-64 flex flex-col flex-1 w-full min-h-screen">
-         <header className="sticky top-0 z-40 lg:hidden flex h-16 items-center justify-between border-b bg-card px-4">
-           <span className="text-xl font-bold text-primary tracking-tight">GrowthSuite Pro</span>
+        <div className="lg:pl-64 flex flex-col flex-1 w-full min-h-screen relative z-1">
+          <header className="sticky top-0 z-40 lg:hidden flex h-16 items-center justify-between border-b border-white/5 bg-background/60 backdrop-blur-md px-4">
+            <span className="text-xl font-bold gradient-text tracking-tight">GrowthSuite Pro</span>
            <div className="flex items-center gap-2">
              <Button
                variant="ghost"
