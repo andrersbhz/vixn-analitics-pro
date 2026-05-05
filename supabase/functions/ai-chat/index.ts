@@ -25,7 +25,25 @@ serve(async (req) => {
       }
 
       console.log('Calling Google Generative Language API...');
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`, {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        return new Response(JSON.stringify({ error: 'ListModels error', details: errorData }), {
+          status: response.status,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const modelsData = await response.json();
+      return new Response(JSON.stringify({ models: modelsData }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+
+      const _original_call = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
