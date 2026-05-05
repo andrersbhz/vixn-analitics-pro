@@ -12,7 +12,11 @@ import {
   ArrowUp,
   ExternalLink,
   AlertCircle,
-  FileText
+  FileText,
+  MessageSquare,
+  Tag,
+  FolderOpen,
+  BarChart3
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -81,32 +85,74 @@ const BlogAnalytics = () => {
            </div>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-4">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
            {[
-            { label: "Total de Posts", value: loading ? "..." : data?.postCount || "0", icon: FileText, color: "text-blue-600" },
-            { label: "Site", value: loading ? "..." : data?.siteName || "N/A", icon: Globe, color: "text-emerald-600" },
-            { label: "Status API", value: error ? "Erro" : "Ativo", icon: AlertCircle, color: error ? "text-rose-600" : "text-emerald-600" },
-            { label: "Última Sinc.", value: "Agora", icon: Clock, color: "text-indigo-600" },
+            { label: "Total de Posts", value: loading ? "..." : data?.postCount || "0", icon: FileText, color: "text-blue-500", bg: "bg-blue-500/10" },
+            { label: "Comentários", value: loading ? "..." : data?.totalComments || "0", icon: MessageSquare, color: "text-emerald-500", bg: "bg-emerald-500/10" },
+            { label: "Categorias", value: loading ? "..." : data?.categoriesCount || "0", icon: FolderOpen, color: "text-orange-500", bg: "bg-orange-500/10" },
+            { label: "Tags Ativas", value: loading ? "..." : data?.tagsCount || "0", icon: Tag, color: "text-purple-500", bg: "bg-purple-500/10" },
           ].map((stat, i) => (
-             <div key={i} className="bg-card p-5 rounded-xl border shadow-sm">
-               <div className="flex justify-between items-start mb-4">
-                 <div className="p-2 bg-accent/50 rounded-lg">
-                   <stat.icon className={stat.color + " h-5 w-5"} />
-                 </div>
-                 {!loading && !error && (
-                   <div className="flex items-center text-xs font-medium text-emerald-500 bg-emerald-500/10 px-2 py-1 rounded">
-                     Sincronizado
-                   </div>
-                 )}
-               </div>
-               <p className="text-sm font-medium text-muted-foreground">{stat.label}</p>
-               <p className="text-2xl font-bold text-foreground mt-1">{stat.value}</p>
-             </div>
+              <div key={i} className="glass-card p-6 rounded-2xl border border-white/10 shadow-xl">
+                <div className="flex items-center gap-4">
+                  <div className={`p-3 ${stat.bg} rounded-xl`}>
+                    <stat.icon className={`${stat.color} h-6 w-6`} />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">{stat.label}</p>
+                    <p className="text-2xl font-bold text-foreground">{stat.value}</p>
+                  </div>
+                </div>
+              </div>
+          ))}
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+           {[
+            { label: "Usuários", value: loading ? "..." : data?.usersCount || "0", icon: Users, color: "text-cyan-500", bg: "bg-cyan-500/10" },
+            { label: "Site", value: loading ? "..." : data?.siteName || "N/A", icon: Globe, color: "text-indigo-500", bg: "bg-indigo-500/10" },
+            { label: "Status API", value: error ? "Erro" : "Ativo", icon: AlertCircle, color: error ? "text-rose-500" : "text-emerald-500", bg: error ? "bg-rose-500/10" : "bg-emerald-500/10" },
+            { label: "Sincronização", value: "Real-time", icon: Clock, color: "text-amber-500", bg: "bg-amber-500/10" },
+          ].map((stat, i) => (
+              <div key={i} className="glass-card p-6 rounded-2xl border border-white/10 shadow-xl">
+                <div className="flex items-center gap-4">
+                  <div className={`p-3 ${stat.bg} rounded-xl`}>
+                    <stat.icon className={`${stat.color} h-6 w-6`} />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">{stat.label}</p>
+                    <p className="text-2xl font-bold text-foreground">{stat.value}</p>
+                  </div>
+                </div>
+              </div>
           ))}
         </div>
 
         <div className="grid gap-6 lg:grid-cols-3">
-          <AnalyticsCard title="Últimas Publicações" className="lg:col-span-2">
+          <div className="lg:col-span-2 space-y-6">
+            <AnalyticsCard title="Categorias Mais Postadas">
+               {loading ? (
+                  <div className="py-8 text-center text-muted-foreground">Carregando categorias...</div>
+               ) : (
+                 <div className="space-y-4">
+                    {data?.topCategories.map((cat, i) => (
+                      <div key={i} className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span className="font-medium">{cat.name}</span>
+                          <span className="text-muted-foreground">{cat.count} posts</span>
+                        </div>
+                        <div className="h-2 bg-accent/30 rounded-full overflow-hidden">
+                          <div 
+                            className="h-full bg-blue-500 rounded-full transition-all duration-500" 
+                            style={{ width: `${(cat.count / (data?.postCount || 1)) * 100}%` }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                 </div>
+               )}
+            </AnalyticsCard>
+
+            <AnalyticsCard title="Últimas Publicações">
             {loading ? (
                <div className="py-8 text-center text-muted-foreground">Carregando posts...</div>
             ) : error ? (
@@ -133,22 +179,44 @@ const BlogAnalytics = () => {
               </div>
             )}
           </AnalyticsCard>
+          </div>
 
-          <AnalyticsCard title="Configuração da Conexão">
-            <div className="space-y-4">
-               <div className="p-4 bg-primary/5 rounded-xl border border-primary/10">
-                 <p className="text-sm font-medium text-primary mb-1">Status da URL</p>
-                 <p className="text-xs text-muted-foreground truncate">{wpConn.config.url}</p>
-               </div>
-               <div className="p-4 bg-emerald-500/5 rounded-xl border border-emerald-500/10">
-                 <p className="text-sm font-medium text-emerald-500 mb-1">Usuário Autenticado</p>
-                 <p className="text-xs text-muted-foreground">{wpConn.config.user}</p>
-               </div>
-               <Link to="/settings" className="block w-full">
-                 <Button variant="outline" className="w-full">Alterar Conexão</Button>
-               </Link>
-            </div>
-          </AnalyticsCard>
+          <div className="space-y-6">
+            <AnalyticsCard title="Resumo Geral">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-3 bg-accent/20 rounded-xl">
+                  <div className="flex items-center gap-3">
+                    <BarChart3 className="h-5 w-5 text-blue-500" />
+                    <span className="text-sm font-medium">Média de Posts/Mês</span>
+                  </div>
+                  <span className="font-bold">{(data?.postCount || 0) > 0 ? Math.round(data!.postCount / 12) : 0}</span>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-accent/20 rounded-xl">
+                  <div className="flex items-center gap-3">
+                    <Users className="h-5 w-5 text-emerald-500" />
+                    <span className="text-sm font-medium">Autores Ativos</span>
+                  </div>
+                  <span className="font-bold">{data?.usersCount || 0}</span>
+                </div>
+              </div>
+            </AnalyticsCard>
+
+            <AnalyticsCard title="Configuração da Conexão">
+              <div className="space-y-4">
+                 <div className="p-4 bg-primary/5 rounded-xl border border-primary/10">
+                   <p className="text-sm font-medium text-primary mb-1">Status da URL</p>
+                   <p className="text-xs text-muted-foreground truncate">{wpConn.config.url}</p>
+                 </div>
+                 <div className="p-4 bg-emerald-500/5 rounded-xl border border-emerald-500/10">
+                   <p className="text-sm font-medium text-emerald-500 mb-1">Usuário Autenticado</p>
+                   <p className="text-xs text-muted-foreground">{wpConn.config.user}</p>
+                 </div>
+                 <Link to="/settings" className="block w-full">
+                   <Button variant="outline" className="w-full">Alterar Conexão</Button>
+                 </Link>
+              </div>
+            </AnalyticsCard>
+          </div>
         </div>
       </div>
     </DashboardLayout>
