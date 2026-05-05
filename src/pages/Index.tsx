@@ -45,20 +45,15 @@ const StatsCard = ({ title, value, change, trend, icon: Icon }: any) => (
 );
 
 const Index = () => {
-  const { connections, getConnection } = useConnections();
-  const [wpData, setWpData] = useState<WordPressStats | null>(null);
-  const wpConn = getConnection('wordpress');
-  const ytConn = getConnection('youtube');
-  const fbConn = getConnection('facebook');
-  const adsenseConn = getConnection('adsense');
-
-  useEffect(() => {
-    if (wpConn?.isConnected && wpConn.config.url) {
-      fetchWordPressData(wpConn.config.url, wpConn.config.user, wpConn.config.password)
-        .then(setWpData)
-        .catch(console.error);
-    }
-  }, [wpConn]);
+   const { connections, getConnection, items, loading } = useConnections();
+   const wpConn = getConnection('wordpress');
+   const ytConn = getConnection('youtube');
+   const fbConn = getConnection('facebook');
+   const adsenseConn = getConnection('adsense');
+ 
+   const ytCount = items.filter(i => i.platform_id === 'youtube').length;
+   const wpCount = items.filter(i => i.platform_id === 'wordpress').length;
+   const fbCount = items.filter(i => i.platform_id === 'facebook').length;
 
   const isAnyConnected = connections.some(c => c.isConnected);
 
@@ -85,96 +80,86 @@ const Index = () => {
           </div>
         ) : (
           <>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5">
-              <StatsCard 
-                title="Posts no Blog" 
-                value={wpConn?.isConnected ? (wpData?.postCount || "...") : "---"} 
-                change={wpConn?.isConnected ? "+0%" : "0%"} 
-                trend="up" 
-                icon={Globe} 
-              />
-              <StatsCard 
-                title="Canal YouTube" 
-                value={ytConn?.isConnected ? "Conectado" : "---"} 
-                change={ytConn?.isConnected ? "ID: " + ytConn.config.id?.substring(0,8) + "..." : "0%"} 
-                trend="up" 
-                icon={Youtube} 
-              />
-              <StatsCard 
-                title="Contas Facebook" 
-                value={fbConn?.isConnected ? "Ativo" : "---"} 
-                change={fbConn?.isConnected ? "Monitorando" : "0%"} 
-                trend="up" 
-                icon={Facebook} 
-              />
-              <StatsCard 
-                title={
-                  <Link to="/adsense" className="hover:text-primary transition-colors flex items-center gap-1">AdSense <ArrowUpRight className="h-3 w-3" /></Link>
-                }
-                value={adsenseConn?.isConnected ? "Ativo" : "---"} 
-                change={adsenseConn?.isConnected ? "R$ 0,00" : "0%"} 
-                trend="up" 
-                icon={DollarSign} 
-              />
-              <StatsCard 
-                title="Sincronização" 
-                value={isAnyConnected ? "Real-time" : "---"} 
-                change="Status OK" 
-                trend="up" 
-                icon={Users} 
-              />
-            </div>
+             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+               <StatsCard 
+                 title="Posts no Blog" 
+                 value={wpConn?.isConnected ? wpCount : "---"} 
+                 change={wpConn?.isConnected ? "Posts reais" : "0%"} 
+                 trend="up" 
+                 icon={Globe} 
+               />
+               <StatsCard 
+                 title="Vídeos YouTube" 
+                 value={ytConn?.isConnected ? ytCount : "---"} 
+                 change={ytConn?.isConnected ? "Vídeos sincronizados" : "0%"} 
+                 trend="up" 
+                 icon={Youtube} 
+               />
+               <StatsCard 
+                 title="Facebook Ads" 
+                 value={fbConn?.isConnected ? "Monitorando" : "---"} 
+                 change={fbConn?.isConnected ? "Conta: " + fbConn.config.id : "0%"} 
+                 trend="up" 
+                 icon={Facebook} 
+               />
+               <StatsCard 
+                 title="Google AdSense"
+                 value={adsenseConn?.isConnected ? "Ativo" : "---"} 
+                 change={adsenseConn?.isConnected ? "ID: " + adsenseConn.config.id : "0%"} 
+                 trend="up" 
+                 icon={DollarSign} 
+               />
+             </div>
 
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-6">
-              <Card className="lg:col-span-4 shadow-sm border-muted/20">
-                <CardHeader>
-                  <CardTitle>Crescimento de Canais</CardTitle>
-                  <CardDescription>Análise comparativa de crescimento por plataforma.</CardDescription>
-                </CardHeader>
-                <CardContent className="h-[350px] p-6 pt-2">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={[
-                      { name: 'Seg', yt: ytConn?.isConnected ? 4000 : 0, blog: wpConn?.isConnected ? 2400 : 0, fb: fbConn?.isConnected ? 2400 : 0 },
-                      { name: 'Ter', yt: ytConn?.isConnected ? 3000 : 0, blog: wpConn?.isConnected ? 1398 : 0, fb: fbConn?.isConnected ? 2210 : 0 },
-                      { name: 'Qua', yt: ytConn?.isConnected ? 2000 : 0, blog: wpConn?.isConnected ? 9800 : 0, fb: fbConn?.isConnected ? 2290 : 0 },
-                      { name: 'Qui', yt: ytConn?.isConnected ? 2780 : 0, blog: wpConn?.isConnected ? 3908 : 0, fb: fbConn?.isConnected ? 2000 : 0 },
-                    ]}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted))" />
-                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: 'hsl(var(--muted-foreground))', fontSize: 12}} />
-                      <YAxis hide />
-                      <Tooltip contentStyle={{backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))', borderRadius: '8px', color: 'hsl(var(--foreground))'}} />
-                      <Area type="monotone" dataKey="yt" stackId="1" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.1} strokeWidth={2} />
-                      <Area type="monotone" dataKey="blog" stackId="1" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.1} strokeWidth={2} />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
-
-              <Card className="lg:col-span-2 shadow-sm border-muted/20">
-                <CardHeader className="pb-2">
-                  <CardTitle>Últimas Atualizações</CardTitle>
-                  <CardDescription>Eventos recentes sincronizados.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-6">
-                     {wpData?.latestPosts.slice(0, 3).map((post, i) => (
-                       <div key={i} className="flex items-center">
-                         <div className={cn("p-2 rounded-lg mr-4 bg-blue-500/10")}>
-                           <Globe className={cn("h-4 w-4 text-blue-500")} />
+             <div className="grid gap-6">
+               <Card className="shadow-sm border-muted/20">
+                 <CardHeader>
+                   <CardTitle>Atividades Recentes</CardTitle>
+                   <CardDescription>Últimos itens sincronizados de todas as plataformas.</CardDescription>
+                 </CardHeader>
+                 <CardContent>
+                   {loading ? (
+                     <div className="py-8 text-center text-muted-foreground">Carregando atividades...</div>
+                   ) : items.length === 0 ? (
+                     <div className="py-12 text-center text-muted-foreground">
+                       Nenhuma atividade real sincronizada ainda. 
+                       <Link to="/settings" className="text-primary ml-1 hover:underline">Vá para configurações para sincronizar.</Link>
+                     </div>
+                   ) : (
+                     <div className="space-y-4">
+                       {items.slice(0, 6).map((item) => (
+                         <div key={item.id} className="flex items-center justify-between p-4 border rounded-xl hover:bg-accent/30 transition-all">
+                           <div className="flex items-center gap-4">
+                             <div className={cn(
+                               "p-2 rounded-lg",
+                               item.platform_id === 'youtube' ? "bg-red-500/10 text-red-500" :
+                               item.platform_id === 'wordpress' ? "bg-blue-500/10 text-blue-500" :
+                               "bg-indigo-500/10 text-indigo-500"
+                             )}>
+                               {item.platform_id === 'youtube' ? <Youtube className="h-5 w-5" /> : 
+                                item.platform_id === 'wordpress' ? <Globe className="h-5 w-5" /> : 
+                                <Facebook className="h-5 w-5" />}
+                             </div>
+                             <div>
+                               <p className="font-medium text-foreground line-clamp-1" dangerouslySetInnerHTML={{ __html: item.title }}></p>
+                               <p className="text-xs text-muted-foreground">
+                                 {item.platform_id === 'youtube' ? 'Vídeo no YouTube' : 
+                                  item.platform_id === 'wordpress' ? 'Post no Blog' : 'Facebook Page'}
+                               </p>
+                             </div>
+                           </div>
+                           <a href={item.link} target="_blank" rel="noopener noreferrer">
+                             <Button variant="ghost" size="sm">
+                               <ArrowUpRight className="h-4 w-4" />
+                             </Button>
+                           </a>
                          </div>
-                         <div className="flex-1">
-                           <p className="text-sm font-medium text-foreground line-clamp-1" dangerouslySetInnerHTML={{ __html: post.title?.rendered || "Sem título" }}></p>
-                           <p className="text-xs text-muted-foreground">Postado no Blog</p>
-                         </div>
-                       </div>
-                     ))}
-                     {!wpData && (
-                       <p className="text-sm text-muted-foreground text-center py-8">Nenhuma atualização recente encontrada.</p>
-                     )}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+                       ))}
+                     </div>
+                   )}
+                 </CardContent>
+               </Card>
+             </div>
           </>
         )}
       </div>

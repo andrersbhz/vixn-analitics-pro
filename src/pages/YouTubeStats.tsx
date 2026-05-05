@@ -13,9 +13,10 @@ import {
   Share2 
 } from "lucide-react";
 
-const YouTubeStats = () => {
-  const { getConnection } = useConnections();
-  const ytConn = getConnection('youtube');
+ const YouTubeStats = () => {
+   const { getConnection, items, loading } = useConnections();
+   const ytConn = getConnection('youtube');
+   const ytVideos = items.filter(item => item.platform_id === 'youtube');
 
   if (!ytConn?.isConnected) {
     return (
@@ -67,53 +68,35 @@ const YouTubeStats = () => {
           ))}
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-3">
-          <AnalyticsCard title="Retenção por Vídeo" className="lg:col-span-2">
-            <div className="h-[300px] mt-4">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={[
-                  { name: 'Vídeo A', retention: 75 },
-                  { name: 'Vídeo B', retention: 62 },
-                  { name: 'Vídeo C', retention: 88 },
-                  { name: 'Vídeo D', retention: 54 },
-                  { name: 'Vídeo E', retention: 68 },
-                ]}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted))" />
-                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: 'hsl(var(--muted-foreground))', fontSize: 12}} />
-                  <YAxis axisLine={false} tickLine={false} tick={{fill: 'hsl(var(--muted-foreground))', fontSize: 12}} />
-                  <RechartsTooltip cursor={{fill: 'hsl(var(--accent)/0.5)'}} contentStyle={{backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))', borderRadius: '8px'}} />
-                  <Bar dataKey="retention" radius={[4, 4, 0, 0]}>
-                    {[0, 1, 2, 3, 4].map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={index === 2 ? 'hsl(var(--primary))' : 'hsl(var(--primary)/0.6)'} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </AnalyticsCard>
-
-          <AnalyticsCard title="Vídeos Mais Populares">
-            <div className="space-y-5">
-              {[
-                { title: "Como crescer no YouTube em 2024", views: "45.2k", watchTime: "2.1k hrs", ctr: "12.4%" },
-                { title: "Review: Melhores Câmeras para Vlogs", views: "32.1k", watchTime: "1.8k hrs", ctr: "9.2%" },
-                { title: "Setup de Iluminação Barato", views: "28.5k", watchTime: "1.4k hrs", ctr: "8.7%" },
-              ].map((video, i) => (
-                <div key={i} className="flex items-center justify-between group cursor-pointer border-b pb-4 last:border-0 last:pb-0">
-                   <div className="flex-1 min-w-0">
-                     <p className="font-medium text-foreground truncate group-hover:text-primary transition-colors">{video.title}</p>
-                     <div className="flex gap-4 mt-1 text-xs text-muted-foreground">
-                       <span>{video.views} visualizações</span>
-                       <span>{video.watchTime} tempo de exibição</span>
+         <div className="grid gap-6 lg:grid-cols-1">
+           <AnalyticsCard title="Vídeos Sincronizados">
+             {loading ? (
+               <div className="py-8 text-center text-muted-foreground">Carregando vídeos...</div>
+             ) : ytVideos.length === 0 ? (
+               <div className="py-12 text-center text-muted-foreground">
+                 Nenhum vídeo sincronizado ainda. Clique em sincronizar nas configurações.
+               </div>
+             ) : (
+               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                 {ytVideos.map((video) => (
+                   <div key={video.id} className="p-4 border rounded-xl hover:bg-accent/30 transition-all flex flex-col gap-3">
+                     <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
+                       <Youtube className="h-8 w-8 text-red-500/20" />
                      </div>
+                     <div>
+                       <h3 className="font-medium text-foreground line-clamp-2 min-h-[3rem]">{video.title}</h3>
+                       <p className="text-xs text-muted-foreground mt-2">
+                         Sincronizado em: {new Date(video.created_at).toLocaleDateString('pt-BR')}
+                       </p>
+                     </div>
+                     <a href={video.link} target="_blank" rel="noopener noreferrer" className="mt-auto">
+                       <Button variant="outline" size="sm" className="w-full">Ver no YouTube</Button>
+                     </a>
                    </div>
-                   <div className="text-right">
-                     <p className="text-sm font-semibold text-emerald-500">{video.ctr} CTR</p>
-                   </div>
-                </div>
-              ))}
-            </div>
-          </AnalyticsCard>
+                 ))}
+               </div>
+             )}
+           </AnalyticsCard>
 
           <AnalyticsCard title="Sugestões de Crescimento">
             <div className="space-y-4">

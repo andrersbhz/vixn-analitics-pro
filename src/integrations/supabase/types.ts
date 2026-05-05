@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       platform_connections: {
         Row: {
+          cached_data: Json | null
           config: Json
           created_at: string
           id: string
@@ -28,6 +29,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          cached_data?: Json | null
           config?: Json
           created_at?: string
           id: string
@@ -40,6 +42,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          cached_data?: Json | null
           config?: Json
           created_at?: string
           id?: string
@@ -50,6 +53,39 @@ export type Database = {
           next_sync_at?: string | null
           sync_interval_minutes?: number | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      platform_items: {
+        Row: {
+          created_at: string | null
+          external_id: string
+          id: string
+          link: string | null
+          metadata: Json | null
+          platform_id: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          external_id: string
+          id?: string
+          link?: string | null
+          metadata?: Json | null
+          platform_id: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          external_id?: string
+          id?: string
+          link?: string | null
+          metadata?: Json | null
+          platform_id?: string
+          title?: string
+          updated_at?: string | null
         }
         Relationships: []
       }

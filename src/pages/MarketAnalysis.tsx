@@ -66,26 +66,26 @@ const MarketAnalysis = () => {
 
         {analyzed && (
           <div className="grid gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="grid gap-6 md:grid-cols-3">
-              <AnalyticsCard title="Tamanho do Mercado">
-                <div className="flex flex-col">
-                  <span className="text-3xl font-bold text-foreground">R$ 4.2 Bi</span>
-                  <span className="text-emerald-500 text-sm font-semibold mt-1">+12% crescimento anual</span>
-                </div>
-              </AnalyticsCard>
-              <AnalyticsCard title="Competitividade">
-                <div className="flex flex-col">
-                  <span className="text-3xl font-bold text-foreground">Alta</span>
-                  <span className="text-amber-500 text-sm font-semibold mt-1">Saturação em 65%</span>
-                </div>
-              </AnalyticsCard>
-              <AnalyticsCard title="CAC Médio do Nicho">
-                <div className="flex flex-col">
-                  <span className="text-3xl font-bold text-foreground">R$ 45,20</span>
-                  <span className="text-muted-foreground text-sm mt-1">Referência do mercado</span>
-                </div>
-              </AnalyticsCard>
-            </div>
+             <div className="grid gap-6 md:grid-cols-3">
+               <AnalyticsCard title="Tamanho do Mercado">
+                 <div className="flex flex-col">
+                   <span className="text-3xl font-bold text-foreground">---</span>
+                   <span className="text-muted-foreground text-sm mt-1">Aguardando análise</span>
+                 </div>
+               </AnalyticsCard>
+               <AnalyticsCard title="Competitividade">
+                 <div className="flex flex-col">
+                   <span className="text-3xl font-bold text-foreground">---</span>
+                   <span className="text-muted-foreground text-sm mt-1">Calculando saturação</span>
+                 </div>
+               </AnalyticsCard>
+               <AnalyticsCard title="CAC Médio do Nicho">
+                 <div className="flex flex-col">
+                   <span className="text-3xl font-bold text-foreground">---</span>
+                   <span className="text-muted-foreground text-sm mt-1">Referência pendente</span>
+                 </div>
+               </AnalyticsCard>
+             </div>
 
             <div className="grid gap-6 lg:grid-cols-2">
               <AnalyticsCard title="Análise Estratégica Completa">
