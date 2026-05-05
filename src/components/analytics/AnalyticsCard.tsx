@@ -9,8 +9,8 @@ interface AnalyticsCardProps {
 
 export const AnalyticsCard = ({ title, children, className }: AnalyticsCardProps) => (
   <Card className={cn("glass-card border-white/5 overflow-hidden", className)}>
-    <CardHeader className="border-b border-white/5 bg-white/5 py-4 px-6">
-      <CardTitle className="text-lg font-semibold text-foreground">{title}</CardTitle>
+    <CardHeader className="border-b border-white/5 bg-white/2 py-4 px-6">
+      <CardTitle className="text-sm font-light uppercase tracking-widest text-muted-foreground">{title}</CardTitle>
     </CardHeader>
     <CardContent className="p-6">
       {children}
