@@ -1,7 +1,7 @@
  import DashboardLayout from "@/components/DashboardLayout";
  import { AnalyticsCard } from "@/components/analytics/AnalyticsCard";
  import { useConnections } from "@/hooks/use-connections";
- import { Facebook, AlertCircle } from "lucide-react";
+import { AlertCircle } from "lucide-react";
  import { Link } from "react-router-dom";
  import { Button } from "@/components/ui/button";
  
