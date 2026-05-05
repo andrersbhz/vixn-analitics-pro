@@ -128,7 +128,31 @@ const BlogAnalytics = () => {
         </div>
 
         <div className="grid gap-6 lg:grid-cols-3">
-          <AnalyticsCard title="Últimas Publicações" className="lg:col-span-2">
+          <div className="lg:col-span-2 space-y-6">
+            <AnalyticsCard title="Categorias Mais Postadas">
+               {loading ? (
+                  <div className="py-8 text-center text-muted-foreground">Carregando categorias...</div>
+               ) : (
+                 <div className="space-y-4">
+                    {data?.topCategories.map((cat, i) => (
+                      <div key={i} className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span className="font-medium">{cat.name}</span>
+                          <span className="text-muted-foreground">{cat.count} posts</span>
+                        </div>
+                        <div className="h-2 bg-accent/30 rounded-full overflow-hidden">
+                          <div 
+                            className="h-full bg-blue-500 rounded-full transition-all duration-500" 
+                            style={{ width: `${(cat.count / (data?.postCount || 1)) * 100}%` }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                 </div>
+               )}
+            </AnalyticsCard>
+
+            <AnalyticsCard title="Últimas Publicações">
             {loading ? (
                <div className="py-8 text-center text-muted-foreground">Carregando posts...</div>
             ) : error ? (
@@ -155,22 +179,44 @@ const BlogAnalytics = () => {
               </div>
             )}
           </AnalyticsCard>
+          </div>
 
-          <AnalyticsCard title="Configuração da Conexão">
-            <div className="space-y-4">
-               <div className="p-4 bg-primary/5 rounded-xl border border-primary/10">
-                 <p className="text-sm font-medium text-primary mb-1">Status da URL</p>
-                 <p className="text-xs text-muted-foreground truncate">{wpConn.config.url}</p>
-               </div>
-               <div className="p-4 bg-emerald-500/5 rounded-xl border border-emerald-500/10">
-                 <p className="text-sm font-medium text-emerald-500 mb-1">Usuário Autenticado</p>
-                 <p className="text-xs text-muted-foreground">{wpConn.config.user}</p>
-               </div>
-               <Link to="/settings" className="block w-full">
-                 <Button variant="outline" className="w-full">Alterar Conexão</Button>
-               </Link>
-            </div>
-          </AnalyticsCard>
+          <div className="space-y-6">
+            <AnalyticsCard title="Resumo Geral">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-3 bg-accent/20 rounded-xl">
+                  <div className="flex items-center gap-3">
+                    <BarChart3 className="h-5 w-5 text-blue-500" />
+                    <span className="text-sm font-medium">Média de Posts/Mês</span>
+                  </div>
+                  <span className="font-bold">{(data?.postCount || 0) > 0 ? Math.round(data!.postCount / 12) : 0}</span>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-accent/20 rounded-xl">
+                  <div className="flex items-center gap-3">
+                    <Users className="h-5 w-5 text-emerald-500" />
+                    <span className="text-sm font-medium">Autores Ativos</span>
+                  </div>
+                  <span className="font-bold">{data?.usersCount || 0}</span>
+                </div>
+              </div>
+            </AnalyticsCard>
+
+            <AnalyticsCard title="Configuração da Conexão">
+              <div className="space-y-4">
+                 <div className="p-4 bg-primary/5 rounded-xl border border-primary/10">
+                   <p className="text-sm font-medium text-primary mb-1">Status da URL</p>
+                   <p className="text-xs text-muted-foreground truncate">{wpConn.config.url}</p>
+                 </div>
+                 <div className="p-4 bg-emerald-500/5 rounded-xl border border-emerald-500/10">
+                   <p className="text-sm font-medium text-emerald-500 mb-1">Usuário Autenticado</p>
+                   <p className="text-xs text-muted-foreground">{wpConn.config.user}</p>
+                 </div>
+                 <Link to="/settings" className="block w-full">
+                   <Button variant="outline" className="w-full">Alterar Conexão</Button>
+                 </Link>
+              </div>
+            </AnalyticsCard>
+          </div>
         </div>
       </div>
     </DashboardLayout>
