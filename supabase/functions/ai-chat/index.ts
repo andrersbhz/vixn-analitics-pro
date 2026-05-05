@@ -14,7 +14,17 @@ serve(async (req) => {
     const { prompt, model = 'gemini' } = await req.json()
     
     if (model === 'gemini') {
+      console.log('Gemini model selection, checking API Key...');
       const apiKey = Deno.env.get('GEMINI_API_KEY')
+      if (!apiKey) {
+        console.error('GEMINI_API_KEY not found in environment');
+        return new Response(JSON.stringify({ error: 'GEMINI_API_KEY missing' }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      console.log('Calling Google Generative Language API...');
       const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -22,7 +32,18 @@ serve(async (req) => {
           contents: [{ parts: [{ text: prompt }] }]
         })
       })
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Google API error:', errorData);
+        return new Response(JSON.stringify({ error: 'Google API error', details: errorData }), {
+          status: response.status,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
       const data = await response.json()
+      console.log('Google API response received successfully');
       const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "Erro ao processar com Gemini"
       return new Response(JSON.stringify({ text }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
