@@ -11,16 +11,16 @@ export interface Connection {
   next_sync_at?: string;
 }
 
- export interface PlatformItem {
-   id: string;
-   platform_id: string;
-   external_id: string;
-   title: string;
-   link: string;
-   metadata: any;
-   created_at: string;
- }
- 
+export interface PlatformItem {
+  id: string;
+  platform_id: string;
+  external_id: string;
+  title: string;
+  link: string;
+  metadata: any;
+  created_at: string;
+}
+
 export const useConnections = () => {
   const [connections, setConnections] = useState<Connection[]>([
     { id: 'youtube', name: 'YouTube', isConnected: false, config: {} },
@@ -28,52 +28,51 @@ export const useConnections = () => {
     { id: 'facebook', name: 'Facebook Ads', isConnected: false, config: {} },
     { id: 'adsense', name: 'Google AdSense', isConnected: false, config: {} },
   ]);
-   const [loading, setLoading] = useState(true);
-   const [items, setItems] = useState<PlatformItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [items, setItems] = useState<PlatformItem[]>([]);
+
+  const fetchItems = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('platform_items')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      setItems(data || []);
+    } catch (error) {
+      console.error('Error fetching items:', error);
+    }
+  };
+
+  const fetchConnections = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('platform_connections')
+        .select('*');
+
+      if (error) throw error;
+
+      if (data && data.length > 0) {
+        const formattedData = data.map(item => ({
+          id: item.id,
+          name: item.name,
+          isConnected: item.is_connected,
+          config: (item.config as Record<string, string>) || {},
+          sync_interval_minutes: item.sync_interval_minutes,
+          next_sync_at: item.next_sync_at
+        }));
+        setConnections(formattedData);
+      }
+    } catch (error) {
+      console.error('Error fetching connections:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchConnections = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('platform_connections')
-          .select('*');
-
-        if (error) throw error;
-
-        if (data && data.length > 0) {
-          const formattedData = data.map(item => ({
-            id: item.id,
-            name: item.name,
-            isConnected: item.is_connected,
-            config: (item.config as Record<string, string>) || {},
-            sync_interval_minutes: item.sync_interval_minutes,
-            next_sync_at: item.next_sync_at
-          }));
-          setConnections(formattedData);
-        }
-      } catch (error) {
-        console.error('Error fetching connections:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-     fetchConnections();
-     fetchItems();
-   }, []);
- 
-   const fetchItems = async () => {
-     try {
-       const { data, error } = await supabase
-         .from('platform_items')
-         .select('*')
-         .order('created_at', { ascending: false });
-       if (error) throw error;
-       setItems(data || []);
-     } catch (error) {
-       console.error('Error fetching items:', error);
-     }
-   };
+    fetchConnections();
+    fetchItems();
   }, []);
 
   const updateConnection = async (id: string, config: Record<string, string>, isConnected: boolean) => {
@@ -123,34 +122,34 @@ export const useConnections = () => {
     }
   };
 
-   const testSync = async (id: string) => {
-     const conn = getConnection(id);
-     if (!conn) return { success: false, log: 'Conexão não encontrada' };
- 
-     try {
-       const { data, error } = await supabase.functions.invoke('sync-platforms', {
-         body: { platformId: id }
-       });
- 
-       if (error) throw error;
-       
-       await fetchItems();
-       return { success: true, log: `Sincronização realizada com sucesso! ${data.count} itens encontrados.` };
-     } catch (error: any) {
-       return { success: false, log: `Erro: ${error.message}` };
-     }
-   };
-
   const getConnection = (id: string) => connections.find(c => c.id === id);
 
-   return { 
-     connections, 
-     items, 
-     updateConnection, 
-     getConnection, 
-     testSync, 
-     updateSyncSettings, 
-     loading,
-     refreshItems: fetchItems
-   };
+  const testSync = async (id: string) => {
+    const conn = getConnection(id);
+    if (!conn) return { success: false, log: 'Conexão não encontrada' };
+
+    try {
+      const { data, error } = await supabase.functions.invoke('sync-platforms', {
+        body: { platformId: id }
+      });
+
+      if (error) throw error;
+      
+      await fetchItems();
+      return { success: true, log: `Sincronização realizada com sucesso! ${data.count} itens encontrados.` };
+    } catch (error: any) {
+      return { success: false, log: `Erro: ${error.message}` };
+    }
+  };
+
+  return { 
+    connections, 
+    items, 
+    updateConnection, 
+    getConnection, 
+    testSync, 
+    updateSyncSettings, 
+    loading,
+    refreshItems: fetchItems
+  };
 };
