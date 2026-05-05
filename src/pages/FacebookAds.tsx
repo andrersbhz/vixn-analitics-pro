@@ -1,6 +1,6 @@
 import DashboardLayout from "@/components/DashboardLayout";
 import { AnalyticsCard } from "@/components/analytics/AnalyticsCard";
-import { Facebook, BarChart3, Target, ArrowUpRight, Megaphone, AlertCircle, Sparkles } from "lucide-react";
+import { BarChart3, Target, ArrowUpRight, Megaphone, AlertCircle, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const FacebookAds = () => {
