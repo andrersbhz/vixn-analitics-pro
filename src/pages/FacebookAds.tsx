@@ -12,34 +12,34 @@ const FacebookAds = () => {
             <Megaphone className="h-8 w-8 text-indigo-500" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Campanhas Facebook</h1>
-            <p className="text-muted-foreground mt-1">Análise de performance e insights de IA para seus anúncios.</p>
+            <h1 className="text-3xl font-extralight text-foreground tracking-tight">Campanhas Facebook</h1>
+            <p className="text-muted-foreground mt-1 font-light italic opacity-80">Análise de performance e insights de IA para seus anúncios.</p>
           </div>
         </div>
 
         <div className="grid gap-6 md:grid-cols-4">
           <AnalyticsCard title="Investimento Total">
             <div className="flex flex-col">
-              <span className="text-3xl font-bold text-foreground">R$ 12.450</span>
-              <span className="text-emerald-500 text-sm font-semibold mt-1">+5.2% no período</span>
+              <span className="text-3xl font-extralight text-foreground tracking-tight">R$ 12.450</span>
+              <span className="text-emerald-500 text-[10px] font-light uppercase tracking-wider mt-1">+5.2% no período</span>
             </div>
           </AnalyticsCard>
           <AnalyticsCard title="Cliques">
             <div className="flex flex-col">
-              <span className="text-3xl font-bold text-foreground">8.420</span>
-              <span className="text-emerald-500 text-sm font-semibold mt-1">+12.1% no período</span>
+              <span className="text-3xl font-extralight text-foreground tracking-tight">8.420</span>
+              <span className="text-emerald-500 text-[10px] font-light uppercase tracking-wider mt-1">+12.1% no período</span>
             </div>
           </AnalyticsCard>
           <AnalyticsCard title="CPA Médio">
             <div className="flex flex-col">
-              <span className="text-3xl font-bold text-foreground">R$ 1,48</span>
-              <span className="text-emerald-500 text-sm font-semibold mt-1">-2.4% melhora</span>
+              <span className="text-3xl font-extralight text-foreground tracking-tight">R$ 1,48</span>
+              <span className="text-emerald-500 text-[10px] font-light uppercase tracking-wider mt-1">-2.4% melhora</span>
             </div>
           </AnalyticsCard>
           <AnalyticsCard title="ROAS">
             <div className="flex flex-col">
-              <span className="text-3xl font-bold text-foreground">4.2x</span>
-              <span className="text-emerald-500 text-sm font-semibold mt-1">Acima da meta</span>
+              <span className="text-3xl font-extralight text-foreground tracking-tight">4.2x</span>
+              <span className="text-emerald-500 text-[10px] font-light uppercase tracking-wider mt-1">Acima da meta</span>
             </div>
           </AnalyticsCard>
         </div>
