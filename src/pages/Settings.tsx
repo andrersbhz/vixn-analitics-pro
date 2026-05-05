@@ -221,7 +221,7 @@ const Settings = () => {
       name: "Google AdSense", 
       icon: <DollarSign className="h-6 w-6 text-yellow-600" />, 
       link: "https://adsense.google.com/start/management-api/",
-      instructions: "Ative a API do AdSense no Google Cloud Console e gere um ID de Cliente OAuth ou use seu ID de publicador para identificação.",
+      instructions: "Insira seu ID de publicador do AdSense para identificação e acompanhamento de ganhos.",
       placeholder: "Ex: pub-xxxxxxxxxxxxxxxx"
     },
   ];
