@@ -7,8 +7,8 @@ import {
   CardHeader, 
   CardTitle 
 } from "@/components/ui/card";
-import { useState, useEffect } from "react";
-import { useConnections } from "@/hooks/use-connections";
+import { useState, useEffect, useCallback } from "react";
+import { useConnections, Connection } from "@/hooks/use-connections";
 import { fetchWordPressData, WordPressStats } from "@/lib/wordpress";
 import { 
   ArrowUpRight, 
@@ -36,6 +36,20 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { toast } from "sonner";
+import { Plus, Loader2 } from "lucide-react";
+
 const StatsCard = ({ title, value, change, trend, icon: Icon }: any) => (
   <Card className="glass-card border-white/5">
     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -58,7 +72,42 @@ const StatsCard = ({ title, value, change, trend, icon: Icon }: any) => (
 );
 
 const Index = () => {
-   const { connections, getConnection, items, loading } = useConnections();
+   const { connections, getConnection, items, loading, addConnection, updateConnection } = useConnections();
+   const [isNewProjectOpen, setIsNewProjectOpen] = useState(false);
+   const [projectName, setProjectName] = useState("");
+   const [projectPlatform, setProjectPlatform] = useState("");
+   const [platformId, setPlatformId] = useState("");
+   const [isCreating, setIsCreating] = useState(false);
+
+   const handleCreateProject = async () => {
+     if (!projectName || !projectPlatform || !platformId) {
+       toast.error("Por favor, preencha todos os campos.");
+       return;
+     }
+
+     setIsCreating(true);
+     try {
+       // Logic to add a new connection or "project"
+       // In this context, a "project" seems to be a new platform connection
+       await addConnection({
+         platform_id: projectPlatform as any,
+         platform_name: projectName,
+         config: { id: platformId },
+         isConnected: true
+       });
+       
+       toast.success(`Projeto "${projectName}" criado com sucesso!`);
+       setIsNewProjectOpen(false);
+       setProjectName("");
+       setProjectPlatform("");
+       setPlatformId("");
+     } catch (error) {
+       toast.error("Erro ao criar projeto.");
+     } finally {
+       setIsCreating(false);
+     }
+   };
+
    const wpConn = getConnection('wordpress');
    const ytConn = getConnection('youtube');
    const fbConn = getConnection('facebook');
@@ -73,10 +122,19 @@ const Index = () => {
   return (
     <DashboardLayout>
       <div className="space-y-8">
-          <div className="relative">
+        <div className="flex items-center justify-between relative">
+          <div>
             <h1 className="text-4xl font-extralight text-foreground tracking-tight">Dashboard</h1>
             <p className="text-muted-foreground mt-2 text-lg font-light italic opacity-80">Visão geral do seu crescimento em todas as plataformas.</p>
           </div>
+          <Button 
+            onClick={() => setIsNewProjectOpen(true)}
+            className="gap-2 bg-primary/20 text-primary hover:bg-primary/30 border border-primary/20 rounded-xl px-6"
+          >
+            <Plus className="h-4 w-4" />
+            Novo Projeto
+          </Button>
+        </div>
 
         {!isAnyConnected ? (
           <div className="p-12 border-2 border-dashed rounded-3xl flex flex-col items-center justify-center text-center space-y-4 bg-accent/20">
@@ -225,6 +283,63 @@ const Index = () => {
           </>
         )}
       </div>
+
+      <Dialog open={isNewProjectOpen} onOpenChange={setIsNewProjectOpen}>
+        <DialogContent className="glass-card border-white/10 sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-light tracking-tight">Criar Novo Projeto</DialogTitle>
+            <DialogDescription className="font-light">
+              Adicione uma nova fonte de dados para monitorar sua performance.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-6 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="name" className="text-xs font-light uppercase tracking-widest text-muted-foreground">Nome do Projeto</Label>
+              <Input
+                id="name"
+                placeholder="Ex: Meu Canal Principal"
+                className="bg-white/5 border-white/10 focus:border-primary/50 transition-all rounded-xl"
+                value={projectName}
+                onChange={(e) => setProjectName(e.target.value)}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="platform" className="text-xs font-light uppercase tracking-widest text-muted-foreground">Plataforma</Label>
+              <Select onValueChange={setProjectPlatform} value={projectPlatform}>
+                <SelectTrigger className="bg-white/5 border-white/10 focus:border-primary/50 transition-all rounded-xl">
+                  <SelectValue placeholder="Selecione a plataforma" />
+                </SelectTrigger>
+                <SelectContent className="glass-card border-white/10">
+                  <SelectItem value="youtube">YouTube</SelectItem>
+                  <SelectItem value="wordpress">Blog (WordPress)</SelectItem>
+                  <SelectItem value="facebook">Facebook Ads</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="platformId" className="text-xs font-light uppercase tracking-widest text-muted-foreground">ID da Plataforma</Label>
+              <Input
+                id="platformId"
+                placeholder="ID do Canal ou URL do Site"
+                className="bg-white/5 border-white/10 focus:border-primary/50 transition-all rounded-xl"
+                value={platformId}
+                onChange={(e) => setPlatformId(e.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button 
+              type="submit" 
+              onClick={handleCreateProject} 
+              disabled={isCreating}
+              className="w-full rounded-xl bg-primary hover:bg-primary/90 transition-all"
+            >
+              {isCreating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+              Criar Projeto
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 };
