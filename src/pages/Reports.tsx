@@ -21,8 +21,8 @@ const Reports = () => {
                <FileText className="h-8 w-8 text-muted-foreground" />
              </div>
              <div>
-               <h1 className="text-3xl font-bold text-foreground">Relatórios</h1>
-               <p className="text-muted-foreground mt-1">Gere e exporte dados detalhados de performance.</p>
+               <h1 className="text-3xl font-extralight text-foreground tracking-tight">Relatórios</h1>
+               <p className="text-muted-foreground mt-1 font-light italic opacity-80">Gere e exporte dados detalhados de performance.</p>
              </div>
           </div>
           <div className="flex gap-2">
@@ -46,7 +46,7 @@ const Reports = () => {
                   <Download className="h-4 w-4" />
                 </Button>
               </div>
-               <h3 className="font-bold text-foreground">{report.name}</h3>
+               <h3 className="font-light text-foreground uppercase tracking-wide">{report.name}</h3>
                <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
                  <Calendar className="h-3 w-3" />
                  <span>{report.date}</span>
