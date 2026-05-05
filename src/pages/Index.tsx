@@ -37,20 +37,20 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const StatsCard = ({ title, value, change, trend, icon: Icon }: any) => (
-  <Card className="glass-card dashboard-card-hover border-white/5">
+  <Card className="glass-card border-white/5">
     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-      <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
-      <div className="p-2 bg-primary/10 rounded-lg">
+      <CardTitle className="text-sm font-light uppercase tracking-widest text-muted-foreground">{title}</CardTitle>
+      <div className="p-2 bg-primary/5 rounded-full border border-primary/10">
         <Icon className="h-4 w-4 text-primary" />
       </div>
     </CardHeader>
     <CardContent>
-      <div className="text-3xl font-bold tracking-tight">{value}</div>
+      <div className="text-3xl font-extralight tracking-tight">{value}</div>
       <div className={cn(
-        "text-xs mt-2 flex items-center px-2 py-1 rounded-full w-fit font-medium",
-        trend === "up" ? "bg-emerald-500/10 text-emerald-500" : "bg-rose-500/10 text-rose-500"
+        "text-[10px] mt-2 flex items-center px-2 py-0.5 rounded-full w-fit font-light tracking-wide",
+        trend === "up" ? "bg-emerald-500/5 text-emerald-500/80 border border-emerald-500/10" : "bg-rose-500/5 text-rose-500/80 border border-rose-500/10"
       )}>
-        {trend === "up" ? <ArrowUpRight className="h-3 w-3 mr-1" /> : <ArrowDownRight className="h-3 w-3 mr-1" />}
+        {trend === "up" ? <ArrowUpRight className="h-3 w-3 mr-0.5" /> : <ArrowDownRight className="h-3 w-3 mr-0.5" />}
         {change}
       </div>
     </CardContent>
@@ -74,9 +74,9 @@ const Index = () => {
     <DashboardLayout>
       <div className="space-y-8">
           <div className="relative">
-            <h1 className="text-4xl font-bold text-foreground tracking-tight">Dashboard</h1>
-            <p className="text-muted-foreground mt-2 text-lg">Visão geral do seu crescimento em todas as plataformas.</p>
-         </div>
+            <h1 className="text-4xl font-extralight text-foreground tracking-tight">Dashboard</h1>
+            <p className="text-muted-foreground mt-2 text-lg font-light italic opacity-80">Visão geral do seu crescimento em todas as plataformas.</p>
+          </div>
 
         {!isAnyConnected ? (
           <div className="p-12 border-2 border-dashed rounded-3xl flex flex-col items-center justify-center text-center space-y-4 bg-accent/20">

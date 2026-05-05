@@ -96,7 +96,7 @@ const ConnectionItem = ({ conn, onUpdate, onTestSync, autoSyncTrigger }: { conn:
             {conn.icon}
           </div>
           <div>
-            <p className="font-bold text-foreground text-lg">{conn.name}</p>
+            <p className="font-light text-foreground text-lg tracking-wide uppercase">{conn.name}</p>
             <div className="flex items-center gap-2">
               <span className={`h-2 w-2 rounded-full ${conn.isConnected ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`}></span>
               <span className="text-xs font-medium text-muted-foreground">
@@ -276,8 +276,8 @@ const Settings = () => {
              <SettingsIcon className="h-8 w-8 text-muted-foreground" />
            </div>
            <div>
-             <h1 className="text-3xl font-bold text-foreground">Configurações</h1>
-             <p className="text-muted-foreground mt-1">Gerencie sua conta e conexões de plataforma.</p>
+             <h1 className="text-3xl font-extralight text-foreground tracking-tight">Configurações</h1>
+             <p className="text-muted-foreground mt-1 font-light italic opacity-80">Gerencie sua conta e conexões de plataforma.</p>
            </div>
         </div>
 

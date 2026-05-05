@@ -71,7 +71,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         <div className="fixed inset-0 bg-gray-600 bg-opacity-75" onClick={() => setSidebarOpen(false)} />
           <div className="fixed inset-y-0 left-0 flex w-64 flex-col bg-card/80 backdrop-blur-xl border-r border-white/10">
            <div className="flex h-16 items-center justify-between px-6 border-b">
-             <span className="text-xl font-bold text-primary tracking-tight">GrowthSuite Pro</span>
+             <span className="text-xl font-light text-primary tracking-widest uppercase">GrowthSuite Pro</span>
             <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(false)}>
               <X className="h-6 w-6" />
             </Button>
@@ -105,7 +105,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
        {/* Static sidebar for desktop */}
         <div className="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0 border-r border-white/5 bg-card/40 backdrop-blur-xl z-10">
           <div className="flex h-16 items-center px-6 border-b border-white/5">
-            <span className="text-xl font-bold gradient-text tracking-tight">GrowthSuite Pro</span>
+            <span className="text-xl font-extralight gradient-text tracking-widest uppercase">GrowthSuite Pro</span>
          </div>
         <nav className="flex-1 space-y-1 px-4 py-6 overflow-y-auto">
           {navigation.map((item) => (
@@ -141,11 +141,11 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
              </Button>
            </div>
            <div className="flex items-center gap-3 px-4 py-3">
-             <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xs font-bold">
+              <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center text-primary text-xs font-light border border-primary/20">
               AD
             </div>
              <div className="flex-1 min-w-0">
-               <p className="text-sm font-medium text-foreground truncate">Admin User</p>
+                <p className="text-sm font-light text-foreground truncate">Admin User</p>
                <p className="text-xs text-muted-foreground truncate">admin@growthsuite.pro</p>
              </div>
            </div>
@@ -159,7 +159,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
        {/* Main content */}
         <div className="lg:pl-64 flex flex-col flex-1 w-full min-h-screen relative z-1">
           <header className="sticky top-0 z-40 lg:hidden flex h-16 items-center justify-between border-b border-white/5 bg-background/60 backdrop-blur-md px-4">
-            <span className="text-xl font-bold gradient-text tracking-tight">GrowthSuite Pro</span>
+            <span className="text-xl font-extralight gradient-text tracking-widest uppercase">GrowthSuite Pro</span>
            <div className="flex items-center gap-2">
              <Button
                variant="ghost"

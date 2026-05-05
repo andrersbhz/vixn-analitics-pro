@@ -67,8 +67,8 @@ const MarketAnalysis = () => {
             <Globe className="h-8 w-8 text-purple-500" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Estudo de Mercado</h1>
-            <p className="text-muted-foreground mt-1">Análise completa de nichos e empresas para estratégias vencedoras.</p>
+            <h1 className="text-3xl font-extralight text-foreground tracking-tight">Estudo de Mercado</h1>
+            <p className="text-muted-foreground mt-1 font-light italic opacity-80">Análise completa de nichos e empresas para estratégias vencedoras.</p>
           </div>
         </div>
 
@@ -108,20 +108,20 @@ const MarketAnalysis = () => {
              <div className="grid gap-6 md:grid-cols-3">
                 <AnalyticsCard title="Tamanho do Mercado">
                   <div className="flex flex-col">
-                    <span className="text-3xl font-bold text-foreground">{analysisResult?.marketSize}</span>
-                    <span className="text-muted-foreground text-sm mt-1">Estimativa de mercado</span>
+                    <span className="text-3xl font-extralight text-foreground">{analysisResult?.marketSize}</span>
+                    <span className="text-[10px] font-light uppercase tracking-widest text-muted-foreground mt-1">Estimativa de mercado</span>
                   </div>
                 </AnalyticsCard>
                 <AnalyticsCard title="Competitividade">
                   <div className="flex flex-col">
-                    <span className="text-3xl font-bold text-foreground">{analysisResult?.competitiveness}</span>
-                    <span className="text-muted-foreground text-sm mt-1">Nível de saturação</span>
+                    <span className="text-3xl font-extralight text-foreground">{analysisResult?.competitiveness}</span>
+                    <span className="text-[10px] font-light uppercase tracking-widest text-muted-foreground mt-1">Nível de saturação</span>
                   </div>
                 </AnalyticsCard>
                 <AnalyticsCard title="CAC Médio do Nicho">
                   <div className="flex flex-col">
-                    <span className="text-3xl font-bold text-foreground">{analysisResult?.avgCac}</span>
-                    <span className="text-muted-foreground text-sm mt-1">Custo de Aquisição</span>
+                    <span className="text-3xl font-extralight text-foreground">{analysisResult?.avgCac}</span>
+                    <span className="text-[10px] font-light uppercase tracking-widest text-muted-foreground mt-1">Custo de Aquisição</span>
                   </div>
                 </AnalyticsCard>
              </div>
