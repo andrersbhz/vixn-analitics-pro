@@ -103,14 +103,14 @@ const Index = () => {
                  value={ytConn?.isConnected ? ytCount : "---"} 
                  change={ytConn?.isConnected ? "Vídeos sincronizados" : "0%"} 
                  trend="up" 
-                 icon={Youtube} 
+                  icon={YoutubeIcon} 
                />
                <StatsCard 
                  title="Facebook Ads" 
                  value={fbConn?.isConnected ? "Monitorando" : "---"} 
                  change={fbConn?.isConnected ? "Conta: " + fbConn.config.id : "0%"} 
                  trend="up" 
-                 icon={Facebook} 
+                  icon={FacebookIcon} 
                />
                <StatsCard 
                  title="Google AdSense"
@@ -146,9 +146,9 @@ const Index = () => {
                                item.platform_id === 'wordpress' ? "bg-blue-500/10 text-blue-500" :
                                "bg-indigo-500/10 text-indigo-500"
                              )}>
-                               {item.platform_id === 'youtube' ? <Youtube className="h-5 w-5" /> : 
+                               {item.platform_id === 'youtube' ? <YoutubeIcon className="h-5 w-5" /> : 
                                 item.platform_id === 'wordpress' ? <Globe className="h-5 w-5" /> : 
-                                <Facebook className="h-5 w-5" />}
+                                <FacebookIcon className="h-5 w-5" />}
                              </div>
                              <div>
                                <p className="font-medium text-foreground line-clamp-1" dangerouslySetInnerHTML={{ __html: item.title }}></p>
