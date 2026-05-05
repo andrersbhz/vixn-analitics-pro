@@ -76,8 +76,8 @@ const YoutubeIcon = ({ className }: { className?: string }) => (
                <YoutubeIcon className="h-8 w-8 text-red-500" />
              </div>
              <div>
-               <h1 className="text-3xl font-bold text-foreground">YouTube Stats</h1>
-               <p className="text-muted-foreground mt-1">Análise detalhada do seu canal e vídeos.</p>
+               <h1 className="text-3xl font-extralight text-foreground tracking-tight">YouTube Stats</h1>
+               <p className="text-muted-foreground mt-1 font-light italic opacity-80">Análise detalhada do seu canal e vídeos.</p>
              </div>
           </div>
           <Button 
@@ -97,13 +97,13 @@ const YoutubeIcon = ({ className }: { className?: string }) => (
             { label: "Engajamento", value: "12.4%", icon: ThumbsUp, color: "text-emerald-600" },
             { label: "Compartilhamentos", value: "842", icon: Share2, color: "text-purple-600" },
           ].map((stat, i) => (
-             <div key={i} className="bg-card p-6 rounded-xl border flex items-center gap-4 shadow-sm">
-               <div className="p-3 bg-accent/50 rounded-lg">
+             <div key={i} className="glass-card p-6 flex items-center gap-4">
+               <div className="p-3 bg-accent/30 rounded-full border border-white/10">
                  <stat.icon className={stat.color + " h-6 w-6"} />
                </div>
                <div>
-                 <p className="text-sm font-medium text-muted-foreground">{stat.label}</p>
-                 <p className="text-2xl font-bold text-foreground">{stat.value}</p>
+                 <p className="text-[10px] font-light uppercase tracking-widest text-muted-foreground">{stat.label}</p>
+                 <p className="text-2xl font-extralight text-foreground">{stat.value}</p>
                </div>
              </div>
           ))}
