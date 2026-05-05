@@ -17,7 +17,8 @@ import {
   Eye, 
   MousePointer2, 
   Globe, 
-  DollarSign
+   DollarSign,
+   FileText
 } from "lucide-react";
 
 const YoutubeIcon = ({ className }: { className?: string }) => (
