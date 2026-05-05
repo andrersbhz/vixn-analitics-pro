@@ -97,8 +97,8 @@ const Diagnostics = () => {
               <Terminal className="h-8 w-8" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-foreground">Centro de Diagnóstico</h1>
-              <p className="text-muted-foreground mt-1">Verifique a integridade do sistema e visualize logs em tempo real.</p>
+               <h1 className="text-3xl font-extralight text-foreground tracking-tight">Centro de Diagnóstico</h1>
+               <p className="text-muted-foreground mt-1 font-light italic opacity-80">Verifique a integridade do sistema e visualize logs em tempo real.</p>
             </div>
           </div>
           <div className="flex gap-2">
@@ -110,19 +110,19 @@ const Diagnostics = () => {
 
         <div className="grid gap-6 md:grid-cols-3">
           {healthChecks.map((check, i) => (
-            <div key={i} className="bg-card border rounded-xl p-5 shadow-sm relative overflow-hidden">
+            <div key={i} className="glass-card p-5 relative overflow-hidden">
               <div className="flex items-start justify-between">
-                <div className="p-2 bg-muted rounded-lg">
+                <div className="p-2 bg-muted/30 rounded-full border border-white/5">
                   <check.icon className="h-5 w-5 text-muted-foreground" />
                 </div>
-                {check.status === "ok" && <CheckCircle className="h-5 w-5 text-emerald-500" />}
-                {check.status === "error" && <AlertTriangle className="h-5 w-5 text-rose-500" />}
-                {check.status === "warn" && <AlertTriangle className="h-5 w-5 text-amber-500" />}
+                {check.status === "ok" && <CheckCircle className="h-5 w-5 text-emerald-500/80" />}
+                {check.status === "error" && <AlertTriangle className="h-5 w-5 text-rose-500/80" />}
+                {check.status === "warn" && <AlertTriangle className="h-5 w-5 text-amber-500/80" />}
                 {check.status === "checking" && <RefreshCw className="h-5 w-5 text-primary animate-spin" />}
               </div>
               <div className="mt-4">
-                <h3 className="font-bold text-foreground">{check.name}</h3>
-                <p className="text-sm text-muted-foreground mt-1">{check.desc}</p>
+                <h3 className="font-light text-foreground uppercase tracking-widest text-sm">{check.name}</h3>
+                <p className="text-sm text-muted-foreground mt-1 font-light italic">{check.desc}</p>
               </div>
             </div>
           ))}
