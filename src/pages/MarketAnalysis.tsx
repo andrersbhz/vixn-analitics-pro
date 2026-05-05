@@ -105,43 +105,37 @@ const MarketAnalysis = () => {
 
         {analyzed && (
           <div className="grid gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-             <div className="grid gap-6 md:grid-cols-3">
-                <AnalyticsCard title="Tamanho do Mercado">
-                  <div className="flex flex-col">
-                    <span className="text-3xl font-extralight text-foreground">{analysisResult?.marketSize}</span>
-                    <span className="text-[10px] font-light uppercase tracking-widest text-muted-foreground mt-1">Estimativa de mercado</span>
-                  </div>
-                </AnalyticsCard>
-                <AnalyticsCard title="Competitividade">
-                  <div className="flex flex-col">
-                    <span className="text-3xl font-extralight text-foreground">{analysisResult?.competitiveness}</span>
-                    <span className="text-[10px] font-light uppercase tracking-widest text-muted-foreground mt-1">Nível de saturação</span>
-                  </div>
-                </AnalyticsCard>
-                <AnalyticsCard title="CAC Médio do Nicho">
-                  <div className="flex flex-col">
-                    <span className="text-3xl font-extralight text-foreground">{analysisResult?.avgCac}</span>
-                    <span className="text-[10px] font-light uppercase tracking-widest text-muted-foreground mt-1">Custo de Aquisição</span>
-                  </div>
-                </AnalyticsCard>
-             </div>
+              <div className="grid gap-4 md:grid-cols-3">
+                <div className="p-5 rounded-2xl bg-background/40 backdrop-blur-xl border border-white/10 shadow-glass flex flex-col gap-2">
+                  <span className="text-[10px] font-medium uppercase tracking-wider text-purple-400/80">Tamanho do Mercado</span>
+                  <span className="text-xl font-light text-foreground" style={{ fontSize: '0.9rem' }}>{analysisResult?.marketSize}</span>
+                </div>
+                <div className="p-5 rounded-2xl bg-background/40 backdrop-blur-xl border border-white/10 shadow-glass flex flex-col gap-2">
+                  <span className="text-[10px] font-medium uppercase tracking-wider text-purple-400/80">Competitividade</span>
+                  <span className="text-xl font-light text-foreground" style={{ fontSize: '0.9rem' }}>{analysisResult?.competitiveness}</span>
+                </div>
+                <div className="p-5 rounded-2xl bg-background/40 backdrop-blur-xl border border-white/10 shadow-glass flex flex-col gap-2">
+                  <span className="text-[10px] font-medium uppercase tracking-wider text-purple-400/80">CAC Médio</span>
+                  <span className="text-xl font-light text-foreground" style={{ fontSize: '0.9rem' }}>{analysisResult?.avgCac}</span>
+                </div>
+              </div>
 
             <div className="grid gap-6 lg:grid-cols-2">
               <AnalyticsCard title="Análise Estratégica Completa">
                 <div className="space-y-6">
-                  <div>
-                    <h4 className="font-bold flex items-center gap-2 text-foreground mb-3">
-                      <Target className="h-5 w-5 text-purple-500" /> Oportunidade Identificada
+                  <div className="p-4 rounded-xl bg-white/5 border border-white/5">
+                    <h4 className="text-[11px] font-semibold flex items-center gap-2 text-purple-400 uppercase tracking-widest mb-3">
+                      <Target className="h-4 w-4" /> Oportunidade
                     </h4>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
+                    <p className="text-muted-foreground leading-relaxed" style={{ fontSize: '0.9rem' }}>
                       {analysisResult?.opportunity}
                     </p>
                   </div>
-                  <div>
-                    <h4 className="font-bold flex items-center gap-2 text-foreground mb-3">
-                      <TrendingUp className="h-5 w-5 text-purple-500" /> Tendências de Busca
+                  <div className="p-4 rounded-xl bg-white/5 border border-white/5">
+                    <h4 className="text-[11px] font-semibold flex items-center gap-2 text-purple-400 uppercase tracking-widest mb-3">
+                      <TrendingUp className="h-4 w-4" /> Tendências
                     </h4>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
+                    <p className="text-muted-foreground leading-relaxed" style={{ fontSize: '0.9rem' }}>
                       {analysisResult?.trends}
                     </p>
                   </div>
@@ -150,13 +144,13 @@ const MarketAnalysis = () => {
 
               <AnalyticsCard title="Plano de Ação para Performance">
                 <div className="space-y-4">
-                  <div className="p-4 bg-purple-500/10 rounded-lg border border-purple-500/20">
-                    <h5 className="font-bold text-sm text-purple-500 mb-1">Estratégia de Anúncios</h5>
-                    <p className="text-xs text-foreground">{analysisResult?.adsStrategy}</p>
+                  <div className="p-4 bg-purple-500/5 rounded-xl border border-purple-500/10">
+                    <h5 className="font-medium text-[11px] text-purple-400 uppercase tracking-widest mb-2">Estratégia de Anúncios</h5>
+                    <p className="text-foreground/80 leading-relaxed" style={{ fontSize: '0.9rem' }}>{analysisResult?.adsStrategy}</p>
                   </div>
-                  <div className="p-4 bg-purple-500/10 rounded-lg border border-purple-500/20">
-                    <h5 className="font-bold text-sm text-purple-500 mb-1">Canais Recomendados</h5>
-                    <p className="text-xs text-foreground">{analysisResult?.channels}</p>
+                  <div className="p-4 bg-purple-500/5 rounded-xl border border-purple-500/10">
+                    <h5 className="font-medium text-[11px] text-purple-400 uppercase tracking-widest mb-2">Canais Recomendados</h5>
+                    <p className="text-foreground/80 leading-relaxed" style={{ fontSize: '0.9rem' }}>{analysisResult?.channels}</p>
                   </div>
                   <Button className="w-full bg-purple-600 hover:bg-purple-700">
                     Exportar Relatório PDF <Briefcase className="ml-2 h-4 w-4" />
