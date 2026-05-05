@@ -32,6 +32,8 @@
      const config = connection.config
      let results = []
  
+     let channelName = ''
+ 
      if (platformId === 'youtube') {
        const channelId = config.id
        if (!channelId) throw new Error('ID do Canal YouTube não configurado')
@@ -39,6 +41,9 @@
        const rssUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`
        const response = await fetch(rssUrl)
        const xml = await response.text()
+ 
+       const channelTitleMatch = xml.match(/<title>(.*?)<\/title>/)
+       if (channelTitleMatch) channelName = channelTitleMatch[1]
  
        // Simple XML parsing for entries
        const entries = xml.matchAll(/<entry>[\s\S]*?<title>(.*?)<\/title>[\s\S]*?<link rel="alternate" href="(.*?)"\/>[\s\S]*?<yt:videoId>(.*?)<\/yt:videoId>[\s\S]*?<\/entry>/g)
@@ -78,13 +83,19 @@
        if (upsertError) throw upsertError
      }
  
-     // Update connection status
+     // Update connection status and cached metadata
+     const updateData: any = { 
+       last_sync_at: new Date().toISOString(),
+       is_connected: true 
+     }
+ 
+     if (channelName) {
+       updateData.name = channelName
+     }
+ 
      await supabaseClient
        .from('platform_connections')
-       .update({ 
-         last_sync_at: new Date().toISOString(),
-         is_connected: true 
-       })
+       .update(updateData)
        .eq('id', platformId)
  
      return new Response(JSON.stringify({ success: true, count: results.length }), {
