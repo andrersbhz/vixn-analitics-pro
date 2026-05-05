@@ -216,8 +216,8 @@ const AdSenseAnalytics = () => {
               <DollarSign className="h-8 w-8 text-yellow-600" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-foreground">Google AdSense</h1>
-              <p className="text-muted-foreground mt-1">Visão detalhada de ganhos e performance de monetização.</p>
+              <h1 className="text-3xl font-extralight text-foreground tracking-tight">Google AdSense</h1>
+              <p className="text-muted-foreground mt-1 font-light italic opacity-80">Visão detalhada de ganhos e performance de monetização.</p>
             </div>
           </div>
            <div className="flex items-center gap-2">
@@ -277,20 +277,20 @@ const AdSenseAnalytics = () => {
         </div>
 
         <div className="grid gap-6 md:grid-cols-4">
-          <div className="bg-card p-5 rounded-xl border shadow-sm">
-            <p className="text-sm font-medium text-muted-foreground">Ganhos no Período</p>
+          <div className="glass-card p-5">
+            <p className="text-[10px] font-light uppercase tracking-widest text-muted-foreground">Ganhos no Período</p>
             <div className="flex items-baseline gap-2 mt-1">
-              <p className="text-2xl font-bold text-foreground">R$ {totals.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
-              <span className="text-xs font-semibold px-1.5 py-0.5 rounded text-emerald-500 bg-emerald-500/10">
+              <p className="text-2xl font-extralight text-foreground">R$ {totals.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+              <span className="text-[10px] font-light px-1.5 py-0.5 rounded-full text-emerald-500 bg-emerald-500/5 border border-emerald-500/10">
                 Atualizado
               </span>
             </div>
           </div>
-          <div className="bg-card p-5 rounded-xl border shadow-sm">
-            <p className="text-sm font-medium text-muted-foreground">Visualizações Totais</p>
+          <div className="glass-card p-5">
+            <p className="text-[10px] font-light uppercase tracking-widest text-muted-foreground">Visualizações Totais</p>
             <div className="flex items-baseline gap-2 mt-1">
-              <p className="text-2xl font-bold text-foreground">{revenueData.reduce((acc, curr) => acc + curr.views, 0).toLocaleString('pt-BR')}</p>
-              <span className="text-xs font-semibold px-1.5 py-0.5 rounded text-blue-500 bg-blue-500/10">
+              <p className="text-2xl font-extralight text-foreground">{revenueData.reduce((acc, curr) => acc + curr.views, 0).toLocaleString('pt-BR')}</p>
+              <span className="text-[10px] font-light px-1.5 py-0.5 rounded-full text-blue-500 bg-blue-500/5 border border-blue-500/10">
                 Período
               </span>
             </div>
