@@ -18,6 +18,10 @@ export interface PlatformItem {
   title: string;
   link: string;
   metadata: any;
+  earnings?: number;
+  views?: number;
+  clicks?: number;
+  rpm?: number;
   created_at: string;
 }
 

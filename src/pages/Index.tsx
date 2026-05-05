@@ -116,8 +116,10 @@ const Index = () => {
               />
               <StatsCard 
                 title="Status do AdSense"
-                value={adsenseConn?.isConnected ? "R$ 4.280,00" : "---"} 
-                change={adsenseConn?.isConnected ? "Saldo acumulado" : "Não disponível"} 
+                value={adsenseConn?.isConnected 
+                  ? `R$ ${items.filter(i => i.platform_id === 'adsense').reduce((acc, curr) => acc + (curr.earnings || 0), 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` 
+                  : "---"} 
+                change={adsenseConn?.isConnected ? "Total acumulado (30d)" : "Não disponível"} 
                 trend="up" 
                 icon={DollarSign} 
               />
