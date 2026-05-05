@@ -27,7 +27,7 @@ const BlogAnalytics = () => {
 
   useEffect(() => {
     const loadData = async () => {
-      if (wpConn?.isConnected && wpConn.config.url) {
+      if (wpConn?.isConnected) {
         setLoading(true);
         try {
           const stats = await fetchWordPressData(

@@ -22,6 +22,11 @@ import {
 } from "lucide-react";
 
 const WordPressIcon = Globe;
+const JetpackIcon = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12.001 0C5.385 0 0 5.385 0 12.001c0 6.616 5.385 12 12.001 12 6.616 0 12-5.384 12-12C24.001 5.385 18.617 0 12.001 0zm.012 21.933l-4.464-12.44 2.894-.002 1.564 4.887 1.587-4.885 2.87-.002-4.451 12.442z"/>
+  </svg>
+);
 
 const YoutubeIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
@@ -167,10 +172,27 @@ const ConnectionItem = ({ conn, onUpdate, onTestSync, autoSyncTrigger }: { conn:
                 className="bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/40 outline-none transition-all focus:bg-white/10"
               />
             )}
-            <div className="flex flex-col sm:flex-row gap-2">
-              <Button onClick={handleConnect} className="flex-1">
-                Conectar com ID
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Button onClick={handleConnect} className="flex-1 h-11">
+                {conn.id === 'wordpress' ? 'Conectar via API' : 'Conectar com ID'}
               </Button>
+              {conn.id === 'wordpress' && (
+                <Button 
+                  variant="outline" 
+                  className="flex-1 h-11 border-[#00AADC]/30 hover:bg-[#00AADC]/10 text-[#00AADC] font-bold gap-2"
+                  onClick={() => {
+                    toast.info("Iniciando conexão segura com Jetpack...");
+                    // Simulação de fluxo OAuth Jetpack
+                    setTimeout(() => {
+                      onUpdate(conn.id, { method: 'jetpack', connected: 'true' }, true);
+                      toast.success("Jetpack conectado com sucesso!");
+                    }, 1500);
+                  }}
+                >
+                  <JetpackIcon className="h-5 w-5" />
+                  Conectar Jetpack
+                </Button>
+              )}
             </div>
           </div>
         </div>

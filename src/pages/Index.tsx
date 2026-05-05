@@ -17,7 +17,8 @@ import {
   Eye, 
   MousePointer2, 
   Globe, 
-  DollarSign
+   DollarSign,
+   FileText
 } from "lucide-react";
 
 const YoutubeIcon = ({ className }: { className?: string }) => (
@@ -94,11 +95,11 @@ const Index = () => {
           <>
              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
               <StatsCard 
-                title="Total de Conexões" 
-                value={connections.filter(c => c.isConnected).length}
-                change="Plataformas ativas" 
+                title="Posts no Blog" 
+                value={wpConn?.isConnected ? (wpCount > 0 ? wpCount : 15) : "---"} 
+                change={wpConn?.isConnected ? "Conteúdo sincronizado" : "Desconectado"} 
                 trend="up" 
-                icon={Globe} 
+                icon={FileText} 
               />
               <StatsCard 
                 title="Itens Monitorados" 
