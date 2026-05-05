@@ -11,10 +11,17 @@ import {
   Clock, 
   ThumbsUp, 
   MessageSquare, 
-  Share2,
-  RefreshCw,
-  Loader2
-} from "lucide-react";
+   Share2,
+   RefreshCw,
+   Loader2,
+   ChevronDown
+ } from "lucide-react";
+ import {
+   Accordion,
+   AccordionContent,
+   AccordionItem,
+   AccordionTrigger,
+ } from "@/components/ui/accordion";
 
 const YoutubeIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
@@ -139,21 +146,47 @@ const YoutubeIcon = ({ className }: { className?: string }) => (
              )}
            </AnalyticsCard>
 
-          <AnalyticsCard title="Sugestões de Crescimento">
-            <div className="space-y-4">
-              {[
-                "Otimize os títulos dos seus 3 últimos vídeos para aumentar o CTR.",
-                "Crie uma nova playlist para o conteúdo de 'Tutoriais'.",
-                "Responda aos comentários mais curtidos do vídeo mais recente.",
-                "Analise o pico de retenção aos 2:15 do último vídeo."
-              ].map((tip, i) => (
-               <div key={i} className="flex gap-3 p-3 bg-accent/50 rounded-lg border border-border">
-                 <TrendingUp className="h-5 w-5 text-primary shrink-0" />
-                 <p className="text-sm text-foreground">{tip}</p>
-               </div>
-              ))}
-            </div>
-          </AnalyticsCard>
+           <div className="glass-card p-0 overflow-hidden">
+             <Accordion type="single" collapsible className="w-full">
+               <AccordionItem value="suggestions" className="border-none">
+                 <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-white/5 transition-colors">
+                   <div className="flex items-center gap-2">
+                     <TrendingUp className="h-5 w-5 text-red-500" />
+                     <span className="text-lg font-light tracking-tight">Sugestões de Crescimento</span>
+                   </div>
+                 </AccordionTrigger>
+                 <AccordionContent className="px-6 pb-6 pt-2">
+                   <div className="space-y-4">
+                     {[
+                       {
+                         title: "Otimização de CTR",
+                         description: "Otimize os títulos e miniaturas dos seus 3 últimos vídeos para aumentar o CTR. Títulos com perguntas tendem a performar 15% melhor."
+                       },
+                       {
+                         title: "Organização de Conteúdo",
+                         description: "Crie uma nova playlist para o conteúdo de 'Tutoriais'. Isso aumenta o tempo de sessão do usuário no seu canal."
+                       },
+                       {
+                         title: "Engajamento com Comunidade",
+                         description: "Responda aos comentários mais curtidos do vídeo mais recente. Isso sinaliza ao algoritmo que seu canal é ativo."
+                       },
+                       {
+                         title: "Retenção de Audiência",
+                         description: "Analise o pico de retenção aos 2:15 do último vídeo. Tente replicar o elemento visual ou tópico abordado nesse momento."
+                       }
+                     ].map((suggestion, i) => (
+                       <div key={i} className="flex flex-col gap-1 p-3 bg-accent/30 rounded-lg border border-white/5">
+                         <h4 className="text-sm font-medium text-foreground/90">{suggestion.title}</h4>
+                         <p className="text-foreground/70 leading-relaxed font-light" style={{ fontSize: '0.9rem' }}>
+                           {suggestion.description}
+                         </p>
+                       </div>
+                     ))}
+                   </div>
+                 </AccordionContent>
+               </AccordionItem>
+             </Accordion>
+           </div>
         </div>
       </div>
     </DashboardLayout>
