@@ -29,22 +29,6 @@ const ConnectionItem = ({ conn, onUpdate, onTestSync }: { conn: any, onUpdate: a
   const [isTesting, setIsTesting] = useState(false);
   const [syncLog, setSyncLog] = useState<string | null>(null);
   
-  const handleOAuth = () => {
-    const oauthUrls: Record<string, string> = {
-      youtube: `https://accounts.google.com/o/oauth2/v2/auth?client_id=YOUR_GOOGLE_ID&redirect_uri=${window.location.origin}/auth/callback&response_type=code&scope=https://www.googleapis.com/auth/youtube.readonly`,
-      facebook: `https://www.facebook.com/v12.0/dialog/oauth?client_id=YOUR_FB_ID&redirect_uri=${window.location.origin}/auth/callback&state=facebook`,
-    };
-
-    if (oauthUrls[conn.id]) {
-      toast.info(`Redirecionando para autenticação segura do ${conn.name}...`);
-      // Para demonstração, simularemos o retorno em 2 segundos
-      setTimeout(() => {
-        onUpdate(conn.id, { id: 'auth_success_token' }, true);
-        toast.success(`${conn.name} autenticado via OAuth!`);
-      }, 2000);
-    }
-  };
-
   const handleConnect = () => {
     if (conn.id === 'wordpress') {
       if (!config.url || !config.user || !config.password) {
@@ -168,12 +152,6 @@ const ConnectionItem = ({ conn, onUpdate, onTestSync }: { conn: any, onUpdate: a
               <Button onClick={handleConnect} className="flex-1">
                 Conectar com ID
               </Button>
-              {(conn.id === 'youtube' || conn.id === 'facebook') && (
-                <Button onClick={handleOAuth} variant="outline" className="flex-1 gap-2 border-primary/30 text-primary">
-                  <Lock className="h-4 w-4" />
-                  Autenticar OAuth
-                </Button>
-              )}
             </div>
           </div>
         </div>
@@ -243,7 +221,7 @@ const Settings = () => {
       name: "Google AdSense", 
       icon: <DollarSign className="h-6 w-6 text-yellow-600" />, 
       link: "https://adsense.google.com/start/management-api/",
-      instructions: "Ative a API do AdSense no Google Cloud Console e gere um ID de Cliente OAuth ou use seu ID de publicador para identificação.",
+      instructions: "Insira seu ID de publicador do AdSense para identificação e acompanhamento de ganhos.",
       placeholder: "Ex: pub-xxxxxxxxxxxxxxxx"
     },
   ];
