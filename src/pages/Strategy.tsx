@@ -60,32 +60,19 @@ const Strategy = () => {
 
         <div className="grid gap-6 lg:grid-cols-3">
           <div className="lg:col-span-2 space-y-6">
-            <AnalyticsCard title="Objetivos Ativos">
-              <div className="space-y-6">
-                {[
-                  { title: "Alcançar 15k inscritos no YouTube", progress: 82, current: "12,245", target: "15,000", deadline: "30 dias" },
-                  { title: "Aumentar tráfego orgânico do blog em 20%", progress: 45, current: "1,240", target: "1,500", deadline: "15 dias" },
-                  { title: "Melhorar engajamento no Facebook", progress: 60, current: "8.2k", target: "10k", deadline: "20 dias" },
-                ].map((goal, i) => (
-                  <div key={i} className="space-y-3">
-                    <div className="flex justify-between items-center">
-                       <h4 className="font-semibold text-foreground">{goal.title}</h4>
-                       <span className="text-xs font-medium bg-muted px-2 py-1 rounded text-muted-foreground">Faltam {goal.deadline}</span>
-                     </div>
-                     <div className="h-3 w-full bg-muted rounded-full overflow-hidden">
-                      <div 
-                        className="h-full bg-emerald-500 transition-all duration-1000" 
-                        style={{ width: `${goal.progress}%` }}
-                      />
-                    </div>
-                     <div className="flex justify-between text-xs text-muted-foreground">
-                       <span>Atual: {goal.current}</span>
-                       <span>Meta: {goal.target}</span>
-                     </div>
-                  </div>
-                ))}
-              </div>
-            </AnalyticsCard>
+             <AnalyticsCard title="Objetivos Ativos">
+               <div className="flex flex-col items-center justify-center py-12 text-center space-y-4">
+                 <div className="p-3 bg-emerald-500/10 rounded-full">
+                   <Target className="h-8 w-8 text-emerald-500" />
+                 </div>
+                 <div>
+                   <h3 className="font-bold">Aguardando Sincronização de Métricas</h3>
+                   <p className="text-sm text-muted-foreground max-w-xs mt-1">
+                     As metas e o progresso serão calculados automaticamente assim que os dados de desempenho forem coletados.
+                   </p>
+                 </div>
+               </div>
+             </AnalyticsCard>
 
             <AnalyticsCard title="Plano de Ação Semanal">
               <div className="space-y-4">
@@ -111,28 +98,13 @@ const Strategy = () => {
             </AnalyticsCard>
           </div>
 
-          <div className="space-y-6">
-             <AnalyticsCard title="Insights da GrowthSuite" className="bg-slate-900 dark:bg-slate-950 border-slate-800 text-white">
-               <div className="space-y-6">
-                <div className="flex gap-4">
-                  <Target className="h-8 w-8 text-emerald-400 shrink-0" />
-                  <div>
-                    <p className="font-semibold text-emerald-400">Oportunidade SEO</p>
-                    <p className="text-sm text-slate-300 mt-1">Detectamos uma baixa competição para a palavra-chave "Marketing para SaaS". Você deve criar um post sobre isso.</p>
-                  </div>
+           <div className="space-y-6">
+              <AnalyticsCard title="Insights de IA" className="bg-slate-900 dark:bg-slate-950 border-slate-800 text-white">
+                <div className="py-8 text-center">
+                  <Zap className="h-10 w-10 text-emerald-400 mx-auto mb-4" />
+                  <p className="text-sm text-slate-300">A IA está processando seus dados para gerar novos insights estratégicos.</p>
                 </div>
-                <div className="flex gap-4">
-                  <Youtube className="h-8 w-8 text-red-400 shrink-0" />
-                  <div>
-                    <p className="font-semibold text-red-400">Padrão Identificado</p>
-                    <p className="text-sm text-slate-300 mt-1">Seus vídeos com duração entre 8-12 minutos têm 40% mais retenção do que os vídeos mais longos.</p>
-                  </div>
-                </div>
-                <Button className="w-full bg-slate-800 hover:bg-slate-700 text-white border-slate-700">
-                  Ver Todos os Insights <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </div>
-            </AnalyticsCard>
+             </AnalyticsCard>
 
             <AnalyticsCard title="Rank de Nicho">
               <div className="flex flex-col items-center py-4">
