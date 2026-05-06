@@ -14,8 +14,9 @@ import {
    Share2,
    RefreshCw,
    Loader2,
-   ChevronDown
- } from "lucide-react";
+   ChevronDown,
+   Eye
+  } from "lucide-react";
  import {
    Accordion,
    AccordionContent,
@@ -126,22 +127,51 @@ const YoutubeIcon = ({ className }: { className?: string }) => (
                </div>
              ) : (
                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                 {ytVideos.map((video) => (
-                   <div key={video.id} className="p-4 border rounded-xl hover:bg-accent/30 transition-all flex flex-col gap-3">
-                     <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
-                        <YoutubeIcon className="h-8 w-8 text-red-500/20" />
-                     </div>
-                     <div>
-                       <h3 className="font-medium text-foreground line-clamp-2 min-h-[3rem]">{video.title}</h3>
-                       <p className="text-xs text-muted-foreground mt-2">
-                         Sincronizado em: {new Date(video.created_at).toLocaleDateString('pt-BR')}
-                       </p>
-                     </div>
-                     <a href={video.link} target="_blank" rel="noopener noreferrer" className="mt-auto">
-                       <Button variant="outline" size="sm" className="w-full">Ver no YouTube</Button>
-                     </a>
-                   </div>
-                 ))}
+                  {ytVideos.map((video) => {
+                    const videoId = video.external_id || video.metadata?.video_id;
+                    const thumbnailUrl = videoId ? `https://img.youtube.com/vi/${videoId}/mqdefault.jpg` : null;
+                    
+                    return (
+                      <div key={video.id} className="p-4 border border-white/10 glass-card hover:bg-white/5 transition-all flex flex-col gap-3 group">
+                        <div className="aspect-video bg-muted rounded-lg overflow-hidden relative border border-white/5">
+                          {thumbnailUrl ? (
+                            <img 
+                              src={thumbnailUrl} 
+                              alt={video.title} 
+                              className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <YoutubeIcon className="h-8 w-8 text-red-500/20" />
+                            </div>
+                          )}
+                          <div className="absolute bottom-2 right-2 bg-black/70 backdrop-blur-md px-2 py-1 rounded text-[10px] text-white flex items-center gap-1 font-light">
+                            <Eye className="h-3 w-3" />
+                            {video.views?.toLocaleString('pt-BR') || 0}
+                          </div>
+                        </div>
+                        <div>
+                          <h3 className="font-light text-foreground line-clamp-2 min-h-[2.5rem] text-sm leading-tight group-hover:text-red-400 transition-colors">
+                            {video.title}
+                          </h3>
+                          <div className="flex items-center justify-between mt-3">
+                            <p className="text-[10px] text-muted-foreground font-light italic opacity-70">
+                              {new Date(video.created_at).toLocaleDateString('pt-BR')}
+                            </p>
+                            <div className="flex items-center gap-1 text-[10px] text-red-500/80 font-medium">
+                               <Eye className="h-3 w-3" />
+                               <span>{video.views?.toLocaleString('pt-BR') || 0} views</span>
+                            </div>
+                          </div>
+                        </div>
+                        <a href={video.link} target="_blank" rel="noopener noreferrer" className="mt-auto">
+                          <Button variant="outline" size="sm" className="w-full text-[11px] font-light h-8 glass-card border-white/10 hover:bg-red-500/10">
+                            Assistir no YouTube
+                          </Button>
+                        </a>
+                      </div>
+                    );
+                  })}
                </div>
              )}
            </AnalyticsCard>
