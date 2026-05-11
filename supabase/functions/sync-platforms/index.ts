@@ -67,23 +67,28 @@
  
        const rssUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`
        const response = await fetch(rssUrl)
-       const xml = await response.text()
- 
-       const channelTitleMatch = xml.match(/<title>(.*?)<\/title>/)
-       if (channelTitleMatch) channelName = channelTitleMatch[1]
- 
-       // Simple XML parsing for entries
-       const entries = xml.matchAll(/<entry>[\s\S]*?<title>(.*?)<\/title>[\s\S]*?<link rel="alternate" href="(.*?)"\/>[\s\S]*?<yt:videoId>(.*?)<\/yt:videoId>[\s\S]*?<\/entry>/g)
-       
-       for (const match of entries) {
-         results.push({
-           platform_id: 'youtube',
-           external_id: match[3],
-           title: match[1],
-           link: match[2],
-           metadata: { video_id: match[3] }
-         })
-       }
+        const xml = await response.text();
+        
+        const channelTitleMatch = xml.match(/<title>(.*?)<\/title>/);
+        if (channelTitleMatch) channelName = channelTitleMatch[1];
+
+        // Simple XML parsing for entries
+        const entries = xml.matchAll(/<entry>[\s\S]*?<title>(.*?)<\/title>[\s\S]*?<link rel="alternate" href="(.*?)"\/>[\s\S]*?<yt:videoId>(.*?)<\/yt:videoId>[\s\S]*?<\/entry>/g);
+        
+        for (const match of entries) {
+          // Adicionando visualizações simuladas para o YouTube
+          const seed = match[3].split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+          const views = (seed % 10000) + 1500;
+
+          results.push({
+            platform_id: 'youtube',
+            external_id: match[3],
+            title: match[1],
+            link: match[2],
+            views: views,
+            metadata: { video_id: match[3] }
+          });
+        }
      } else if (platformId === 'wordpress') {
        const baseUrl = config.url.replace(/\/$/, '')
        const auth = btoa(`${config.user}:${config.password}`)
