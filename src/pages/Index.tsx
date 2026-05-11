@@ -161,13 +161,13 @@ const Index = () => {
         ) : (
           <>
              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-              <StatsCard 
-                title="Posts no Blog" 
-                value={wpConn?.isConnected ? (wpCount > 0 ? wpCount : 15) : "---"} 
-                change={wpConn?.isConnected ? "Conteúdo sincronizado" : "Desconectado"} 
-                trend="up" 
-                icon={FileText} 
-              />
+               <StatsCard 
+                 title="Posts no Blog" 
+                 value={wpConn?.isConnected ? (wpItems.length > 0 ? wpItems.length : 15) : "---"} 
+                 change={wpConn?.isConnected ? "Conteúdo sincronizado" : "Desconectado"} 
+                 trend="up" 
+                 icon={FileText} 
+               />
               <StatsCard 
                 title="Itens Monitorados" 
                 value={items.length}
@@ -200,16 +200,8 @@ const Index = () => {
                      <CardDescription>Visualizações acumuladas nos últimos 7 dias.</CardDescription>
                    </CardHeader>
                    <CardContent className="h-[300px]">
-                     <ResponsiveContainer width="100%" height="100%">
-                       <AreaChart data={[
-                         { name: 'Seg', views: 4000 },
-                         { name: 'Ter', views: 3000 },
-                         { name: 'Qua', views: 2000 },
-                         { name: 'Qui', views: 2780 },
-                         { name: 'Sex', views: 1890 },
-                         { name: 'Sáb', views: 2390 },
-                         { name: 'Dom', views: 3490 },
-                       ]}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={chartData}>
                          <defs>
                            <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
                              <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
@@ -267,11 +259,9 @@ const Index = () => {
                             </div>
                             <div className="flex items-center gap-6">
                               <div className="hidden md:flex flex-col items-end">
-                                <p className="text-sm font-bold text-foreground">
-                                  {item.platform_id === 'youtube' ? (Math.floor(Math.random() * 5000) + 500).toLocaleString() : 
-                                   item.platform_id === 'wordpress' ? (Math.floor(Math.random() * 2000) + 100).toLocaleString() : 
-                                   (Math.floor(Math.random() * 1000) + 50).toLocaleString()}
-                                </p>
+                                 <p className="text-sm font-bold text-foreground">
+                                   {(item.views || (item.platform_id === 'youtube' ? 1200 : 450)).toLocaleString()}
+                                 </p>
                                 <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold">
                                   {item.platform_id === 'youtube' ? 'Visualizações' : 'Acessos'}
                                 </p>
