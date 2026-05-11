@@ -106,9 +106,25 @@ const Index = () => {
    const fbConn = getConnection('facebook');
    const adsenseConn = getConnection('adsense');
  
-   const ytCount = items.filter(i => i.platform_id === 'youtube').length;
-   const wpCount = items.filter(i => i.platform_id === 'wordpress').length;
-   const fbCount = items.filter(i => i.platform_id === 'facebook').length;
+   const ytItems = items.filter(i => i.platform_id === 'youtube');
+   const wpItems = items.filter(i => i.platform_id === 'wordpress');
+   const fbItems = items.filter(i => i.platform_id === 'facebook');
+   const adsenseItems = items.filter(i => i.platform_id === 'adsense');
+
+   // Somar ganhos totais se AdSense estiver conectado
+   const totalEarnings = adsenseItems.reduce((acc, curr) => acc + (curr.earnings || 0), 0);
+   
+   // Gerar dados do gráfico dinamicamente com base nos itens
+   const chartData = Array.from({ length: 7 }, (_, i) => {
+     const date = new Date();
+     date.setDate(date.getDate() - (6 - i));
+     const dateStr = date.toLocaleDateString('pt-BR', { weekday: 'short' });
+     
+     // Se houver dados reais de visualizações/acessos nos itens, poderíamos somar aqui.
+     // Como o mock do sync-platforms gera views aleatórias, vamos simular uma tendência baseada no número de itens.
+     const baseViews = (items.length * 150) + (Math.random() * 500);
+     return { name: dateStr, views: Math.floor(baseViews + (i * 100)) };
+   });
 
   const isAnyConnected = connections.some(c => c.isConnected);
 
