@@ -19,9 +19,13 @@ export interface PlatformItem {
   link: string;
   metadata: any;
   earnings?: number;
-  views?: number;
-  clicks?: number;
-  rpm?: number;
+   views?: number;
+   clicks?: number;
+   rpm?: number;
+   impressions?: number;
+   ctr?: number;
+   engagement_rate?: number;
+   avg_watch_time?: number;
   created_at: string;
 }
 
