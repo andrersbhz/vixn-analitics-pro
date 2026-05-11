@@ -58,11 +58,15 @@ export type Database = {
       }
       platform_items: {
         Row: {
+          avg_watch_time: number | null
           clicks: number | null
           created_at: string | null
+          ctr: number | null
           earnings: number | null
+          engagement_rate: number | null
           external_id: string
           id: string
+          impressions: number | null
           link: string | null
           metadata: Json | null
           platform_id: string
@@ -72,11 +76,15 @@ export type Database = {
           views: number | null
         }
         Insert: {
+          avg_watch_time?: number | null
           clicks?: number | null
           created_at?: string | null
+          ctr?: number | null
           earnings?: number | null
+          engagement_rate?: number | null
           external_id: string
           id?: string
+          impressions?: number | null
           link?: string | null
           metadata?: Json | null
           platform_id: string
@@ -86,11 +94,15 @@ export type Database = {
           views?: number | null
         }
         Update: {
+          avg_watch_time?: number | null
           clicks?: number | null
           created_at?: string | null
+          ctr?: number | null
           earnings?: number | null
+          engagement_rate?: number | null
           external_id?: string
           id?: string
+          impressions?: number | null
           link?: string | null
           metadata?: Json | null
           platform_id?: string

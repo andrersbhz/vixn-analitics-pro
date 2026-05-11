@@ -168,13 +168,20 @@ const Index = () => {
                  trend="up" 
                  icon={FileText} 
                />
-              <StatsCard 
-                title="Itens Monitorados" 
-                value={items.length}
-                change={items.length > 0 ? "Conteúdo capturado" : "Nenhum dado"} 
-                trend="up" 
-                icon={Eye} 
-              />
+               <StatsCard 
+                 title="Visualizações Totais" 
+                 value={items.reduce((acc, curr) => acc + (curr.views || 0), 0).toLocaleString('pt-BR')}
+                 change={items.length > 0 ? `${items.length} itens ativos` : "Nenhum dado"} 
+                 trend="up" 
+                 icon={Eye} 
+               />
+               <StatsCard 
+                 title="CTR Médio" 
+                 value={items.length > 0 ? `${(items.reduce((acc, curr) => acc + (Number(curr.ctr) || 0), 0) / items.length).toFixed(1)}%` : "---"}
+                 change="Média global" 
+                 trend="up" 
+                 icon={MousePointer2} 
+               />
               <StatsCard 
                 title="Performance Média" 
                 value="84%"

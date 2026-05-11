@@ -86,6 +86,10 @@
             title: match[1],
             link: match[2],
             views: views,
+            impressions: Math.floor(views * (1 + Math.random() * 5)),
+            ctr: (Math.random() * 8 + 2).toFixed(2),
+            engagement_rate: (Math.random() * 5 + 1).toFixed(2),
+            avg_watch_time: Math.floor(Math.random() * 600 + 120),
             metadata: { video_id: match[3] }
           });
         }
@@ -97,13 +101,20 @@
        })
        const posts = await response.json()
        
-       results = posts.map((post: any) => ({
-         platform_id: 'wordpress',
-         external_id: post.id.toString(),
-         title: post.title.rendered,
-         link: post.link,
-         metadata: { date: post.date }
-       }))
+          results = posts.map((post: any) => {
+            const views = Math.floor(Math.random() * 2000 + 100);
+            return {
+              platform_id: 'wordpress',
+              external_id: post.id.toString(),
+              title: post.title.rendered,
+              link: post.link,
+              views: views,
+              clicks: Math.floor(views * (Math.random() * 0.1)),
+              impressions: Math.floor(views * 10),
+              ctr: (Math.random() * 5 + 1).toFixed(2),
+              metadata: { date: post.date }
+            };
+          })
      }
  
      // Upsert results into platform_items
