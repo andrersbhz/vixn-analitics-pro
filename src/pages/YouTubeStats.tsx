@@ -101,30 +101,30 @@ const YoutubeIcon = ({ className }: { className?: string }) => (
 
          <div className="grid gap-6 md:grid-cols-4">
            {[
-             { 
-               label: "Retenção Média", 
-               value: ytVideos.length > 0 ? `${Math.floor(ytVideos.reduce((acc, curr) => acc + (curr.avg_watch_time || 0), 0) / ytVideos.length / 60)} min` : "---", 
-               icon: Clock, 
-               color: "text-blue-600" 
-             },
-             { 
-               label: "Engajamento", 
-               value: ytVideos.length > 0 ? `${(ytVideos.reduce((acc, curr) => acc + (Number(curr.engagement_rate) || 0), 0) / ytVideos.length).toFixed(1)}%` : "---", 
-               icon: ThumbsUp, 
-               color: "text-emerald-600" 
-             },
-             { 
-               label: "Impressões", 
-               value: ytVideos.length > 0 ? ytVideos.reduce((acc, curr) => acc + (curr.impressions || 0), 0).toLocaleString('pt-BR') : "---", 
-               icon: Share2, 
-               color: "text-purple-600" 
-             },
-             { 
-               label: "CTR Médio", 
-               value: ytVideos.length > 0 ? `${(ytVideos.reduce((acc, curr) => acc + (Number(curr.ctr) || 0), 0) / ytVideos.length).toFixed(1)}%` : "---", 
-               icon: TrendingUp, 
-               color: "text-rose-600" 
-             },
+              { 
+                label: "Retenção Média", 
+                value: ytVideos.length > 0 ? `${Math.floor(ytVideos.reduce((acc, curr) => acc + (curr.avg_watch_time || 0), 0) / ytVideos.length / 60)} min` : "0 min", 
+                icon: Clock, 
+                color: "text-blue-600" 
+              },
+              { 
+                label: "Engajamento", 
+                value: ytVideos.length > 0 ? `${(ytVideos.reduce((acc, curr) => acc + (Number(curr.engagement_rate) || 0), 0) / ytVideos.length).toFixed(1)}%` : "0.0%", 
+                icon: ThumbsUp, 
+                color: "text-emerald-600" 
+              },
+              { 
+                label: "Impressões", 
+                value: ytVideos.length > 0 ? ytVideos.reduce((acc, curr) => acc + (curr.impressions || 0), 0).toLocaleString('pt-BR') : "0", 
+                icon: Share2, 
+                color: "text-purple-600" 
+              },
+              { 
+                label: "CTR Médio", 
+                value: ytVideos.length > 0 ? `${(ytVideos.reduce((acc, curr) => acc + (Number(curr.ctr) || 0), 0) / ytVideos.length).toFixed(1)}%` : "0.0%", 
+                icon: TrendingUp, 
+                color: "text-rose-600" 
+              },
            ].map((stat, i) => (
              <div key={i} className="glass-card p-6 flex items-center gap-4">
                <div className="p-3 bg-accent/30 rounded-full border border-white/10">
