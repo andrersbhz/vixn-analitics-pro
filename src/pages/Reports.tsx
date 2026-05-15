@@ -1,17 +1,57 @@
-import DashboardLayout from "@/components/DashboardLayout";
-import { AnalyticsCard } from "@/components/analytics/AnalyticsCard";
-import { 
-  FileText, 
-  Download, 
-  Calendar, 
-  Filter,
-  BarChart,
-  PieChart as PieChartIcon,
-  Table as TableIcon
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
+ import DashboardLayout from "@/components/DashboardLayout";
+ import { AnalyticsCard } from "@/components/analytics/AnalyticsCard";
+ import { 
+   FileText, 
+   Download, 
+   Calendar, 
+   Filter,
+   BarChart,
+   PieChart as PieChartIcon,
+   Table as TableIcon,
+   TrendingUp,
+   TrendingDown,
+   DollarSign,
+   Eye,
+   MousePointer2,
+   Users,
+   ArrowRight
+ } from "lucide-react";
+ import { Button } from "@/components/ui/button";
+ import { useConnections } from "@/hooks/use-connections";
+ import { 
+   ResponsiveContainer, 
+   AreaChart, 
+   Area, 
+   XAxis, 
+   YAxis, 
+   CartesianGrid, 
+   Tooltip as RechartsTooltip,
+   BarChart as RechartsBarChart,
+   Bar,
+   Cell
+ } from 'recharts';
+ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+ import { Badge } from "@/components/ui/badge";
 
 const Reports = () => {
+   const { items, loading } = useConnections();
+ 
+   const totalEarnings = items.reduce((acc, curr) => acc + (curr.earnings || 0), 0);
+   const totalViews = items.reduce((acc, curr) => acc + (curr.views || 0), 0);
+   const totalClicks = items.reduce((acc, curr) => acc + (curr.clicks || 0), 0);
+   const totalImpressions = items.reduce((acc, curr) => acc + (curr.impressions || 0), 0);
+   
+   const avgCTR = items.length > 0 ? items.reduce((acc, curr) => acc + (Number(curr.ctr) || 0), 0) / items.length : 0;
+   const avgEngagement = items.length > 0 ? items.reduce((acc, curr) => acc + (Number(curr.engagement_rate) || 0), 0) / items.length : 0;
+ 
+   const platformData = [
+     { name: 'YouTube', value: items.filter(i => i.platform_id === 'youtube').length, color: '#EF4444' },
+     { name: 'Blog', value: items.filter(i => i.platform_id === 'wordpress').length, color: '#10B981' },
+     { name: 'AdSense', value: items.filter(i => i.platform_id === 'adsense').length, color: '#F59E0B' },
+     { name: 'Facebook', value: items.filter(i => i.platform_id === 'facebook').length, color: '#3B82F6' },
+   ];
+ 
   return (
     <DashboardLayout>
       <div className="space-y-8">
