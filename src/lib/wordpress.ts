@@ -18,36 +18,19 @@
   }
 
   export const fetchWordPressData = async (url?: string, user?: string, appPass?: string): Promise<WordPressStats> => {
-    // Fallback for simulation or missing config
-    if (!url || !user || !appPass) {
-      return {
-        postCount: 15,
-        siteName: 'Blog Growth Suite (Simulado)',
-        latestPosts: [
-          { id: 1, title: { rendered: 'Como Crescer seu Tráfego em 2024' }, date: new Date().toISOString(), link: '#', excerpt: { rendered: '' } },
-          { id: 2, title: { rendered: 'Guia Completo de SEO para WordPress' }, date: new Date().toISOString(), link: '#', excerpt: { rendered: '' } },
-          { id: 3, title: { rendered: 'As Melhores Estratégias de Monetização' }, date: new Date().toISOString(), link: '#', excerpt: { rendered: '' } }
-        ],
-        totalComments: 124,
-        categoriesCount: 8,
-        tagsCount: 45,
-        usersCount: 3,
-        topCategories: [
-          { name: 'Marketing', count: 12 },
-          { name: 'SEO', count: 8 },
-          { name: 'Vendas', count: 5 }
-        ]
-      };
+    if (!url) {
+      throw new Error('URL do WordPress não configurada');
     }
 
     const baseUrl = url.replace(/\/$/, '');
-    const auth = btoa(`${user}:${appPass}`);
+    const useAuth = Boolean(user && appPass);
+    const auth = useAuth ? btoa(`${user}:${appPass}`) : '';
 
     try {
-      const fetchWithAuth = (endpoint: string) => 
+      const fetchWithAuth = (endpoint: string) =>
         fetch(`${baseUrl}/wp-json/${endpoint}`, {
-          headers: { 'Authorization': `Basic ${auth}` },
-          signal: AbortSignal.timeout(10000) // 10s timeout
+          headers: useAuth ? { 'Authorization': `Basic ${auth}` } : {},
+          signal: AbortSignal.timeout(10000)
         }).catch(err => {
           console.warn(`Failed to fetch ${endpoint}:`, err);
           return null;
