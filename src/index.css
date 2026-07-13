@@ -27,25 +27,25 @@
   }
 
   .dark {
-    --background: 220 20% 5%;
+    --background: 224 30% 4%;
     --foreground: 210 20% 98%;
-    --card: 220 20% 8%;
+    --card: 224 30% 7%;
     --card-foreground: 210 20% 98%;
-    --popover: 220 20% 8%;
+    --popover: 224 30% 7%;
     --popover-foreground: 210 20% 98%;
-    --primary: 210 100% 60%;
+    --primary: 195 100% 55%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 220 20% 15%;
+    --secondary: 224 25% 12%;
     --secondary-foreground: 210 20% 98%;
-    --muted: 220 20% 15%;
+    --muted: 224 25% 12%;
     --muted-foreground: 210 10% 65%;
-    --accent: 210 100% 20%;
+    --accent: 195 100% 18%;
     --accent-foreground: 210 100% 90%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 220 20% 15%;
-    --input: 220 20% 15%;
-    --ring: 210 100% 60%;
+    --border: 224 25% 14%;
+    --input: 224 25% 14%;
+    --ring: 195 100% 55%;
   }
 }
 
@@ -56,14 +56,16 @@
   body {
     @apply bg-background text-foreground antialiased font-light;
     font-feature-settings: "rlig" 1, "calt" 1;
-    background-image: radial-gradient(at 0% 0%, hsla(210, 100%, 50%, 0.05) 0px, transparent 50%),
-                      radial-gradient(at 100% 100%, hsla(262, 83%, 58%, 0.05) 0px, transparent 50%);
+    background-image:
+      radial-gradient(circle at 15% 10%, hsla(195, 100%, 55%, 0.12) 0px, transparent 45%),
+      radial-gradient(circle at 85% 15%, hsla(262, 83%, 58%, 0.10) 0px, transparent 45%),
+      radial-gradient(circle at 50% 100%, hsla(220, 100%, 45%, 0.10) 0px, transparent 55%);
     background-attachment: fixed;
   }
 }
 
 .glass {
-  @apply bg-white/40 dark:bg-black/20 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-xl;
+  @apply bg-white/40 dark:bg-white/[0.03] backdrop-blur-2xl border border-white/20 dark:border-white/[0.08] shadow-xl;
 }
 
 .glass-dark {
@@ -71,13 +73,25 @@
 }
 
 .glass-card {
-  @apply bg-white/20 dark:bg-white/5 backdrop-blur-lg border border-white/30 dark:border-white/10 shadow-sm rounded-2xl transition-all duration-300 hover:shadow-md hover:bg-white/30 dark:hover:bg-white/10;
+  @apply relative bg-white/20 dark:bg-white/[0.04] backdrop-blur-2xl border border-white/30 dark:border-white/[0.08] shadow-[0_8px_32px_-8px_rgba(0,0,0,0.4)] rounded-2xl transition-all duration-500 hover:border-primary/30 hover:shadow-[0_12px_48px_-8px_hsl(var(--primary)/0.25)];
 }
 
 .neon-glow {
-  @apply shadow-[0_0_20px_rgba(139,92,246,0.3)];
+  @apply shadow-[0_0_40px_-8px_hsl(var(--primary)/0.5)];
 }
 
 .gradient-text {
-  @apply bg-clip-text text-transparent bg-gradient-to-r from-primary via-purple-400 to-indigo-500;
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-cyan-300 via-primary to-indigo-400;
+}
+
+/* subtle animated sheen for hero cards */
+.sheen::before {
+  content: "";
+  position: absolute; inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, hsl(var(--primary) / 0.4), transparent 40%, hsl(280 90% 70% / 0.3));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  pointer-events: none;
 }

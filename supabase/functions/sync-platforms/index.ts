@@ -37,30 +37,9 @@
       if (platformId === 'adsense') {
         const pubId = config.id
         if (!pubId) throw new Error('ID do AdSense não configurado')
-
-        // Simulando resposta da API do AdSense com dados baseados no ID da conta
-        // Em um cenário real, aqui faríamos uma chamada para a Google AdSense API
-        const now = new Date()
-        for (let i = 0; i < 30; i++) {
-          const date = new Date(now)
-          date.setDate(date.getDate() - i)
-          const dateStr = date.toISOString().split('T')[0]
-          
-          // Gerar dados "pseudo-reais" baseados no ID do AdSense para consistência
-          const seed = parseInt(pubId.replace(/\D/g, '') || '1') + i
-          const dayRevenue = (seed % 50) + 10 + Math.random() * 5
-          
-          results.push({
-            platform_id: 'adsense',
-            external_id: `adsense_${pubId}_${dateStr}`,
-            title: `Ganhos AdSense - ${dateStr}`,
-            link: 'https://www.google.com/adsense',
-            earnings: dayRevenue,
-            views: (seed % 1000) + 500,
-            clicks: (seed % 50) + 10,
-            metadata: { date: dateStr }
-          })
-        }
+        // Google AdSense API requer OAuth2. Sem token válido, não geramos dados fictícios.
+        // Retornamos vazio até que uma conexão OAuth real seja implementada.
+        throw new Error('Integração real com Google AdSense (OAuth2) ainda não configurada. Conecte via OAuth para obter dados reais.')
       } else if (platformId === 'youtube') {
        const channelId = config.id
        if (!channelId) throw new Error('ID do Canal YouTube não configurado')
@@ -76,20 +55,16 @@
         const entries = xml.matchAll(/<entry>[\s\S]*?<title>(.*?)<\/title>[\s\S]*?<link rel="alternate" href="(.*?)"\/>[\s\S]*?<yt:videoId>(.*?)<\/yt:videoId>[\s\S]*?<\/entry>/g);
         
         for (const match of entries) {
-          // Adicionando visualizações simuladas para o YouTube
-          const seed = match[3].split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-          const views = (seed % 10000) + 1500;
-
           results.push({
             platform_id: 'youtube',
             external_id: match[3],
             title: match[1],
             link: match[2],
-            views: views,
-            impressions: Math.floor(views * (1 + Math.random() * 5)),
-            ctr: (Math.random() * 8 + 2).toFixed(2),
-            engagement_rate: (Math.random() * 5 + 1).toFixed(2),
-            avg_watch_time: Math.floor(Math.random() * 600 + 120),
+            views: 0,
+            impressions: 0,
+            ctr: 0,
+            engagement_rate: 0,
+            avg_watch_time: 0,
             metadata: { video_id: match[3] }
           });
         }
@@ -97,19 +72,28 @@
         let posts = [];
         
         if (config.method === 'jetpack') {
-          // Simulação para o método Jetpack
-          posts = [
-            { id: 'jet_1', title: { rendered: 'Post via Jetpack 1' }, link: '#', date: new Date().toISOString() },
-            { id: 'jet_2', title: { rendered: 'Post via Jetpack 2' }, link: '#', date: new Date().toISOString() }
-          ];
+          // Jetpack usa a REST API pública do WordPress.com
+          const siteUrl = (config.url || '').replace(/^https?:\/\//, '').replace(/\/$/, '');
+          if (!siteUrl) throw new Error('URL do site Jetpack não configurada');
+          const response = await fetch(
+            `https://public-api.wordpress.com/wp/v2/sites/${encodeURIComponent(siteUrl)}/posts?per_page=20`,
+            { signal: AbortSignal.timeout(10000) }
+          );
+          if (!response.ok) {
+            const t = await response.text();
+            throw new Error(`Jetpack API (${response.status}): ${t.substring(0, 120)}`);
+          }
+          posts = await response.json();
         } else {
           const baseUrl = config.url.replace(/\/$/, '');
-          const auth = btoa(`${config.user}:${config.password}`);
+          const useAuth = Boolean(config.user && config.password);
+          const headers: Record<string,string> = {};
+          if (useAuth) headers['Authorization'] = `Basic ${btoa(`${config.user}:${config.password}`)}`;
           
           try {
-            const response = await fetch(`${baseUrl}/wp-json/wp/v2/posts?per_page=10`, {
-              headers: { 'Authorization': `Basic ${auth}` },
-              signal: AbortSignal.timeout(10000) // 10s timeout
+            const response = await fetch(`${baseUrl}/wp-json/wp/v2/posts?per_page=20`, {
+              headers,
+              signal: AbortSignal.timeout(10000)
             });
             
             if (!response.ok) {
@@ -120,27 +104,21 @@
             posts = await response.json();
           } catch (fetchError) {
              console.error('Fetch error:', fetchError);
-             // Fallback para demonstração se a URL for inválida ou site estiver offline
-             posts = [
-               { id: 'wp_fallback_1', title: { rendered: 'Post Exemplo (Fallback)' }, link: baseUrl, date: new Date().toISOString() }
-             ];
+             throw fetchError;
           }
         }
         
-        results = posts.map((post: any) => {
-          const views = Math.floor(Math.random() * 2000 + 100);
-          return {
-            platform_id: 'wordpress',
-            external_id: post.id.toString(),
-            title: post.title?.rendered || post.title || 'Post sem título',
-            link: post.link || '#',
-            views: views,
-            clicks: Math.floor(views * (Math.random() * 0.1)),
-            impressions: Math.floor(views * 10),
-            ctr: (Math.random() * 5 + 1).toFixed(2),
-            metadata: { date: post.date }
-          };
-        });
+        results = posts.map((post: any) => ({
+          platform_id: 'wordpress',
+          external_id: post.id.toString(),
+          title: post.title?.rendered || post.title || 'Post sem título',
+          link: post.link || '#',
+          views: 0,
+          clicks: 0,
+          impressions: 0,
+          ctr: 0,
+          metadata: { date: post.date }
+        }));
       }
  
      // Upsert results into platform_items

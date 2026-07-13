@@ -39,29 +39,27 @@ const BlogAnalytics = () => {
   const wpItems = useMemo(() => items.filter(i => i.platform_id === 'wordpress'), [items]);
   
   const [period, setPeriod] = useState("7d");
-  const [chartData, setChartData] = useState<any[]>([]);
-  useEffect(() => {
-    // Generate dummy historical data based on total posts if no real platform_items found
-    // This simulates "Analytics" over time
-    const generateData = () => {
-      const days = period === "7d" ? 7 : period === "30d" ? 30 : 90;
-      const data = [];
-      const now = new Date();
-      
-      for (let i = days; i >= 0; i--) {
-        const d = new Date();
-        d.setDate(now.getDate() - i);
-        data.push({
-          date: d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
-          posts: Math.floor(Math.random() * 3) + (i % 5 === 0 ? 1 : 0),
-          views: Math.floor(Math.random() * 500) + 100,
-        });
-      }
-      setChartData(data);
-    };
-    
-    generateData();
-  }, [period]);
+  const chartData = useMemo(() => {
+    const days = period === "7d" ? 7 : period === "30d" ? 30 : 90;
+    const now = new Date();
+    const buckets: { date: string; posts: number; views: number }[] = [];
+    for (let i = days; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(now.getDate() - i);
+      const key = d.toISOString().split('T')[0];
+      const dayItems = wpItems.filter(it => {
+        const meta: any = it.metadata || {};
+        const dt = meta.date || it.created_at;
+        return dt && new Date(dt).toISOString().split('T')[0] === key;
+      });
+      buckets.push({
+        date: d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+        posts: dayItems.length,
+        views: dayItems.reduce((a, it) => a + (it.views || 0), 0),
+      });
+    }
+    return buckets;
+  }, [period, wpItems]);
 
   const [data, setData] = useState<WordPressStats | null>(null);
   const [loading, setLoading] = useState(false);
