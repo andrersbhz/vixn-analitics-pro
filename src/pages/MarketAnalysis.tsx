@@ -117,6 +117,20 @@ const MarketAnalysis = () => {
 
   const COLORS = ['#8B5CF6', '#EC4899', '#10B981', '#F59E0B'];
 
+  const platformStyles: Record<string, { bg: string; border: string; text: string; chip: string; chipText: string }> = {
+    blue:    { bg: 'bg-blue-500/5',    border: 'border-blue-500/10',    text: 'text-blue-400',    chip: 'bg-blue-500/10 border-blue-500/20',       chipText: 'text-blue-300' },
+    pink:    { bg: 'bg-pink-500/5',    border: 'border-pink-500/10',    text: 'text-pink-400',    chip: 'bg-pink-500/10 border-pink-500/20',       chipText: 'text-pink-300' },
+    fuchsia: { bg: 'bg-fuchsia-500/5', border: 'border-fuchsia-500/10', text: 'text-fuchsia-400', chip: 'bg-fuchsia-500/10 border-fuchsia-500/20', chipText: 'text-fuchsia-300' },
+    indigo:  { bg: 'bg-indigo-500/5',  border: 'border-indigo-500/10',  text: 'text-indigo-400',  chip: 'bg-indigo-500/10 border-indigo-500/20',   chipText: 'text-indigo-300' },
+  };
+
+  const funnelStyles: Record<string, { grad: string; border: string; text: string; textSoft: string; chip: string; chipText: string }> = {
+    cyan:    { grad: 'from-cyan-500/10',    border: 'border-cyan-500/20',    text: 'text-cyan-400',    textSoft: 'text-cyan-300',    chip: 'bg-cyan-500/10 border-cyan-500/20',    chipText: 'text-cyan-200' },
+    purple:  { grad: 'from-purple-500/10',  border: 'border-purple-500/20',  text: 'text-purple-400',  textSoft: 'text-purple-300',  chip: 'bg-purple-500/10 border-purple-500/20',  chipText: 'text-purple-200' },
+    emerald: { grad: 'from-emerald-500/10', border: 'border-emerald-500/20', text: 'text-emerald-400', textSoft: 'text-emerald-300', chip: 'bg-emerald-500/10 border-emerald-500/20', chipText: 'text-emerald-200' },
+    amber:   { grad: 'from-amber-500/10',   border: 'border-amber-500/20',   text: 'text-amber-400',   textSoft: 'text-amber-300',   chip: 'bg-amber-500/10 border-amber-500/20',   chipText: 'text-amber-200' },
+  };
+
   return (
     <DashboardLayout>
       <div className="space-y-8">
@@ -325,12 +339,13 @@ const MarketAnalysis = () => {
                   { key: 'linkedinAds', label: 'LinkedIn Ads', color: 'indigo', icon: Briefcase },
                 ].map(({ key, label, color, icon: Icon }) => {
                   const d = analysisResult?.[key] || {};
+                  const st = platformStyles[color];
                   return (
-                    <div key={key} className={`p-4 rounded-xl bg-${color}-500/5 border border-${color}-500/10 flex flex-col gap-3`}>
+                    <div key={key} className={`p-4 rounded-xl ${st.bg} border ${st.border} flex flex-col gap-3`}>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <Icon className={`h-4 w-4 text-${color}-400`} />
-                          <span className={`text-[11px] font-bold uppercase tracking-wider text-${color}-400`}>{label}</span>
+                          <Icon className={`h-4 w-4 ${st.text}`} />
+                          <span className={`text-[11px] font-bold uppercase tracking-wider ${st.text}`}>{label}</span>
                         </div>
                         {d.budget && <span className="text-[10px] text-muted-foreground flex items-center gap-1"><DollarSign className="h-3 w-3" />{d.budget}</span>}
                       </div>
@@ -340,7 +355,7 @@ const MarketAnalysis = () => {
                       {Array.isArray(d.keywords) && d.keywords.length > 0 && (
                         <div className="flex flex-wrap gap-1">
                           {d.keywords.slice(0, 8).map((k: string, i: number) => (
-                            <span key={i} className={`text-[10px] px-2 py-0.5 rounded-full bg-${color}-500/10 text-${color}-300 border border-${color}-500/20`}>{k}</span>
+                            <span key={i} className={`text-[10px] px-2 py-0.5 rounded-full border ${st.chip} ${st.chipText}`}>{k}</span>
                           ))}
                         </div>
                       )}
@@ -403,24 +418,25 @@ const MarketAnalysis = () => {
                   ].map(({ key, label, color, icon: Icon }) => {
                     const s = analysisResult.salesFunnel[key];
                     if (!s) return null;
+                    const st = funnelStyles[color];
                     return (
-                      <div key={key} className={`p-4 rounded-2xl bg-gradient-to-b from-${color}-500/10 to-transparent border border-${color}-500/20 flex flex-col gap-3`}>
+                      <div key={key} className={`p-4 rounded-2xl bg-gradient-to-b ${st.grad} to-transparent border ${st.border} flex flex-col gap-3`}>
                         <div className="flex items-center gap-2">
-                          <Icon className={`h-4 w-4 text-${color}-400`} />
-                          <span className={`text-[10px] font-bold uppercase tracking-wider text-${color}-300`}>{label}</span>
+                          <Icon className={`h-4 w-4 ${st.text}`} />
+                          <span className={`text-[10px] font-bold uppercase tracking-wider ${st.textSoft}`}>{label}</span>
                         </div>
                         {s.objetivo && <div className="text-[0.82rem] text-foreground/85"><span className="text-muted-foreground/70 uppercase text-[9px] tracking-wider block mb-0.5">Objetivo</span>{s.objetivo}</div>}
                         {Array.isArray(s.canais) && s.canais.length > 0 && (
                           <div className="flex flex-wrap gap-1">
                             {s.canais.map((c: string, i: number) => (
-                              <span key={i} className={`text-[9px] px-2 py-0.5 rounded-full bg-${color}-500/10 text-${color}-200 border border-${color}-500/20`}>{c}</span>
+                              <span key={i} className={`text-[9px] px-2 py-0.5 rounded-full border ${st.chip} ${st.chipText}`}>{c}</span>
                             ))}
                           </div>
                         )}
                         {s.conteudo && <div className="text-[0.8rem] text-muted-foreground"><span className="text-muted-foreground/60 uppercase text-[9px] tracking-wider block mb-0.5">Conteúdo</span>{s.conteudo}</div>}
                         {s.oferta && <div className="text-[0.8rem] text-muted-foreground"><span className="text-muted-foreground/60 uppercase text-[9px] tracking-wider block mb-0.5">Oferta</span>{s.oferta}</div>}
                         {s.copy && <div className="text-[0.78rem] italic text-foreground/70 border-l-2 border-white/10 pl-2">"{s.copy}"</div>}
-                        {s.kpi && <div className={`text-[0.72rem] text-${color}-300 flex items-center gap-1 mt-auto`}><Target className="h-3 w-3" />{s.kpi}</div>}
+                        {s.kpi && <div className={`text-[0.72rem] ${st.textSoft} flex items-center gap-1 mt-auto`}><Target className="h-3 w-3" />{s.kpi}</div>}
                       </div>
                     );
                   })}
