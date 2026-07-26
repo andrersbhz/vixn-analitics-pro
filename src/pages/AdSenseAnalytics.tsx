@@ -81,36 +81,49 @@ const AdSenseAnalytics = () => {
   const adsenseItems = useMemo(() => items.filter(i => i.platform_id === 'adsense'), [items]);
 
   const revenueData = useMemo(() => {
-    const data = adsenseItems.map(item => ({
-      date: item.metadata?.date ? parseISO(item.metadata.date) : new Date(item.created_at),
-      name: item.metadata?.date ? format(parseISO(item.metadata.date), 'eee', { locale: ptBR }) : '',
-      revenue: item.earnings || 0,
-      views: item.views || 0,
-      clicks: item.clicks || 0,
-      impressions: item.impressions || 0,
-      ctr: item.ctr || 0,
-      cpc: (item.metadata as any)?.cpc || 0,
-      rpm: (item.metadata as any)?.page_rpm || 0,
-    })).sort((a, b) => a.date.getTime() - b.date.getTime());
+    // Compare dates as YYYY-MM-DD strings to avoid timezone shifts that would
+    // silently drop boundary days from the filter (e.g. 7d showing 6 items).
+    const toKey = (d: Date) => format(d, 'yyyy-MM-dd');
 
-    if (data.length === 0) return [];
-
-    let start: Date;
-    let end = endOfDay(new Date());
-
+    let startKey: string;
+    let endKey: string;
     if (period === '7d') {
-      start = startOfDay(subDays(new Date(), 6));
+      startKey = toKey(subDays(new Date(), 6));
+      endKey = toKey(new Date());
     } else if (period === '30d') {
-      start = startOfDay(subDays(new Date(), 29));
+      startKey = toKey(subDays(new Date(), 29));
+      endKey = toKey(new Date());
     } else if (period === '90d') {
-      start = startOfDay(subDays(new Date(), 89));
+      startKey = toKey(subDays(new Date(), 89));
+      endKey = toKey(new Date());
     } else {
-      start = dateRange?.from ? startOfDay(dateRange.from) : startOfDay(subDays(new Date(), 6));
-      if (dateRange?.to) end = endOfDay(dateRange.to);
+      startKey = toKey(dateRange?.from ?? subDays(new Date(), 6));
+      endKey = toKey(dateRange?.to ?? new Date());
     }
 
-    return data.filter(d => (isAfter(d.date, start) || d.date.getTime() === start.getTime()) && 
-                           (isBefore(d.date, end) || d.date.getTime() === end.getTime()));
+    const data = adsenseItems
+      .map(item => {
+        const key: string | undefined = item.metadata?.date;
+        const date = key ? parseISO(key) : new Date(item.created_at);
+        return {
+          key: key ?? format(date, 'yyyy-MM-dd'),
+          date,
+          name: key
+            ? format(parseISO(key), period === '90d' || period === 'custom' ? 'dd/MM' : 'eee dd/MM', { locale: ptBR })
+            : '',
+          revenue: item.earnings || 0,
+          views: item.views || 0,
+          clicks: item.clicks || 0,
+          impressions: item.impressions || 0,
+          ctr: item.ctr || 0,
+          cpc: (item.metadata as any)?.cpc || 0,
+          rpm: (item.metadata as any)?.page_rpm || 0,
+        };
+      })
+      .filter(d => d.key >= startKey && d.key <= endKey)
+      .sort((a, b) => (a.key < b.key ? -1 : 1));
+
+    return data;
   }, [adsenseItems, period, dateRange]);
 
   const totals = useMemo(() => {
