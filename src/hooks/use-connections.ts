@@ -85,10 +85,22 @@ export const useConnections = () => {
 
   const updateConnection = async (id: string, config: Record<string, string>, isConnected: boolean) => {
     try {
+      // Preserve server-managed fields (e.g. OAuth tokens for AdSense) that the
+      // Settings form doesn't know about. Without this merge, saving the form
+      // wipes the AdSense oauth credentials and the connection "para de conectar".
+      const existing = connections.find(c => c.id === id)?.config || {};
+      const preservedKeys = ['oauth'];
+      const merged: Record<string, any> = { ...existing, ...config };
+      for (const key of preservedKeys) {
+        if ((existing as any)[key] && !(config as any)[key]) {
+          merged[key] = (existing as any)[key];
+        }
+      }
+
       const { error } = await supabase
         .from('platform_connections')
         .update({ 
-          config, 
+          config: merged, 
           is_connected: isConnected, 
           updated_at: new Date().toISOString() 
         })
@@ -97,7 +109,7 @@ export const useConnections = () => {
       if (error) throw error;
 
       setConnections(prev => prev.map(conn => 
-        conn.id === id ? { ...conn, config, isConnected } : conn
+        conn.id === id ? { ...conn, config: merged as Record<string, string>, isConnected } : conn
       ));
     } catch (error) {
       console.error('Error updating connection:', error);
