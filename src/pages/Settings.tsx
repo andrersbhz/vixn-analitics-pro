@@ -109,6 +109,7 @@ const ConnectionItem = ({ conn, onUpdate, onTestSync, onRefresh, autoSyncTrigger
             await onRefresh?.();
             if (Date.now() - startedAt > 120000 || oauthWindow.closed) {
               window.clearInterval(refreshTimer);
+              await onRefresh?.();
             }
           }, 2500);
         } else {
@@ -276,7 +277,7 @@ const ConnectionItem = ({ conn, onUpdate, onTestSync, onRefresh, autoSyncTrigger
       )}
 
       {conn.id === 'adsense' && (
-        <div className="space-y-2 p-3 rounded-lg border border-yellow-500/20 bg-yellow-500/5">
+        <div className="space-y-2 p-3 rounded-lg border border-primary/20 bg-primary/5">
           <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
             URL de redirecionamento OAuth2 (cole no Google Cloud)
           </label>

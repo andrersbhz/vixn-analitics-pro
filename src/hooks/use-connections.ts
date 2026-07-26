@@ -63,6 +63,12 @@ export const useConnections = () => {
 
   const fetchConnections = async () => {
     try {
+      const { data: statusData, error: statusError } = await supabase.functions.invoke('connections-status');
+      if (!statusError && statusData?.connections) {
+        setConnections(statusData.connections.map(formatConnection));
+        return;
+      }
+
       const { data, error } = await supabase
         .from('platform_connections')
         .select('*');
@@ -75,15 +81,6 @@ export const useConnections = () => {
       }
     } catch (error) {
       console.error('Error fetching connections:', error);
-      try {
-        const { data, error: statusError } = await supabase.functions.invoke('connections-status');
-        if (statusError) throw statusError;
-        if (data?.connections) {
-          setConnections(data.connections.map(formatConnection));
-        }
-      } catch (statusError) {
-        console.error('Error fetching sanitized connection status:', statusError);
-      }
     } finally {
       setLoading(false);
     }
