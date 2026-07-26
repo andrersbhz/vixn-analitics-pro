@@ -132,15 +132,14 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 location.pathname === item.href
                   ? "bg-primary/20 text-primary border border-primary/20 shadow-[0_0_15px_rgba(139,92,246,0.1)]"
                 : "text-muted-foreground hover:bg-white/5 hover:text-foreground",
-                "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 mb-1"
+                "group flex flex-col items-center justify-center gap-1.5 px-2 py-3 text-[11px] font-medium rounded-xl transition-all duration-200 mb-1 text-center leading-tight"
               )}
             >
               <item.icon className={cn(
-               "mr-3 h-5 w-5",
+               "h-5 w-5 shrink-0",
                location.pathname === item.href ? "text-primary-foreground" : "text-muted-foreground group-hover:text-foreground"
              )} aria-hidden="true" />
-              {item.name}
-              {location.pathname === item.href && <ChevronRight className="ml-auto h-4 w-4" />}
+              <span className="block w-full break-words whitespace-normal">{item.name}</span>
             </Link>
           ))}
         </nav>
