@@ -19,6 +19,7 @@ import { Link, useLocation } from "react-router-dom";
  import { Button } from "@/components/ui/button";
  import { cn } from "@/lib/utils";
  import { useTheme } from "next-themes";
+import { useBrand } from "@/hooks/use-brand";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -32,6 +33,16 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
    useEffect(() => {
      setMounted(true);
    }, []);
+   const { profile } = useBrand();
+   const brandName = profile.brandName || "GrowthSuite Pro";
+   const BrandMark = () => (
+     <span className="flex items-center gap-2 min-w-0">
+       {profile.logoUrl ? (
+         <img src={profile.logoUrl} alt={brandName} className="h-7 w-7 rounded object-cover" />
+       ) : null}
+       <span className="text-xl font-extralight gradient-text tracking-widest uppercase truncate">{brandName}</span>
+     </span>
+   );
 
   const navigation = [
     { name: "Dashboard", href: "/", icon: LayoutDashboard },
@@ -71,7 +82,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         <div className="fixed inset-0 bg-gray-600 bg-opacity-75" onClick={() => setSidebarOpen(false)} />
           <div className="fixed inset-y-0 left-0 flex w-64 flex-col bg-card/80 backdrop-blur-xl border-r border-white/10">
            <div className="flex h-16 items-center justify-between px-6 border-b">
-             <span className="text-xl font-light text-primary tracking-widest uppercase">GrowthSuite Pro</span>
+             <BrandMark />
             <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(false)}>
               <X className="h-6 w-6" />
             </Button>
@@ -105,7 +116,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
        {/* Static sidebar for desktop */}
         <div className="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0 border-r border-white/5 bg-card/40 backdrop-blur-xl z-10">
           <div className="flex h-16 items-center px-6 border-b border-white/5">
-            <span className="text-xl font-extralight gradient-text tracking-widest uppercase">GrowthSuite Pro</span>
+            <BrandMark />
          </div>
         <nav className="flex-1 space-y-1 px-4 py-6 overflow-y-auto">
           {navigation.map((item) => (
@@ -145,8 +156,8 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
               AD
             </div>
              <div className="flex-1 min-w-0">
-                <p className="text-sm font-light text-foreground truncate">Admin User</p>
-               <p className="text-xs text-muted-foreground truncate">admin@growthsuite.pro</p>
+                <p className="text-sm font-light text-foreground truncate">{profile.fullName || "Usuário"}</p>
+               <p className="text-xs text-muted-foreground truncate">{profile.email || "—"}</p>
              </div>
            </div>
            <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:text-destructive hover:bg-destructive/10">
@@ -159,7 +170,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
        {/* Main content */}
         <div className="lg:pl-64 flex flex-col flex-1 w-full min-h-screen relative z-1">
           <header className="sticky top-0 z-40 lg:hidden flex h-16 items-center justify-between border-b border-white/5 bg-background/60 backdrop-blur-md px-4">
-            <span className="text-xl font-extralight gradient-text tracking-widest uppercase">GrowthSuite Pro</span>
+            <BrandMark />
            <div className="flex items-center gap-2">
              <Button
                variant="ghost"
