@@ -154,21 +154,34 @@
         const channelTitleMatch = xml.match(/<title>(.*?)<\/title>/);
         if (channelTitleMatch) channelName = channelTitleMatch[1];
 
-        // Simple XML parsing for entries
-        const entries = xml.matchAll(/<entry>[\s\S]*?<title>(.*?)<\/title>[\s\S]*?<link rel="alternate" href="(.*?)"\/>[\s\S]*?<yt:videoId>(.*?)<\/yt:videoId>[\s\S]*?<\/entry>/g);
-        
-        for (const match of entries) {
+        // Parse each <entry> block individually — the RSS order is
+        // yt:videoId → title → link, so a single cross-field regex on the
+        // whole document mis-aligns fields across entries.
+        const entryBlocks = xml.match(/<entry>[\s\S]*?<\/entry>/g) || [];
+        for (const block of entryBlocks) {
+          const videoId = block.match(/<yt:videoId>([^<]+)<\/yt:videoId>/)?.[1];
+          if (!videoId) continue;
+          const title = block.match(/<title>([\s\S]*?)<\/title>/)?.[1]?.trim() || 'Sem título';
+          const link = block.match(/<link rel="alternate" href="([^"]+)"/)?.[1]
+            || `https://www.youtube.com/watch?v=${videoId}`;
+          const views = parseInt(block.match(/<media:statistics[^>]*views="(\d+)"/)?.[1] || '0');
+          const rating = parseFloat(block.match(/<media:starRating[^>]*average="([\d.]+)"/)?.[1] || '0');
+          const ratingCount = parseInt(block.match(/<media:starRating[^>]*count="(\d+)"/)?.[1] || '0');
+          const description = block.match(/<media:description>([\s\S]*?)<\/media:description>/)?.[1]?.trim() || '';
+          const published = block.match(/<published>([^<]+)<\/published>/)?.[1] || null;
+          const engagement = views > 0 ? (ratingCount / views) * 100 : 0;
+
           results.push({
             platform_id: 'youtube',
-            external_id: match[3],
-            title: match[1],
-            link: match[2],
-            views: 0,
+            external_id: videoId,
+            title,
+            link,
+            views,
             impressions: 0,
             ctr: 0,
-            engagement_rate: 0,
+            engagement_rate: Number(engagement.toFixed(2)),
             avg_watch_time: 0,
-            metadata: { video_id: match[3] }
+            metadata: { video_id: videoId, rating, rating_count: ratingCount, description, published }
           });
         }
       } else if (platformId === 'wordpress') {
