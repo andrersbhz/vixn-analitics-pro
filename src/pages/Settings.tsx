@@ -87,7 +87,10 @@ const ConnectionItem = ({ conn, onUpdate, onTestSync, autoSyncTrigger }: { conn:
     try {
       const { supabase } = await import("@/integrations/supabase/client");
       const { data, error } = await supabase.functions.invoke("adsense-oauth-start", {
-        body: { return_to: window.location.origin + "/settings" }
+        body: {
+          return_to: window.location.origin + "/settings",
+          redirect_uri: window.location.origin + "/adsense/oauth/callback"
+        }
       });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
@@ -97,6 +100,12 @@ const ConnectionItem = ({ conn, onUpdate, onTestSync, autoSyncTrigger }: { conn:
     } finally {
       setOauthLoading(false);
     }
+  };
+
+  const copyAdsenseCallbackUrl = async () => {
+    const callbackUrl = `${window.location.origin}/adsense/oauth/callback`;
+    await navigator.clipboard.writeText(callbackUrl);
+    toast.success("URL OAuth copiada");
   };
 
   useEffect(() => {
@@ -181,6 +190,21 @@ const ConnectionItem = ({ conn, onUpdate, onTestSync, autoSyncTrigger }: { conn:
                   />
                 </div>
               </>
+            ) : conn.id === 'adsense' ? (
+              <div className="space-y-2">
+                <label className="text-xs font-medium text-muted-foreground">URL de redirecionamento OAuth2</label>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <input
+                    type="text"
+                    value={`${window.location.origin}/adsense/oauth/callback`}
+                    readOnly
+                    className="flex-1 bg-background border rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                  />
+                  <Button type="button" variant="outline" size="sm" onClick={copyAdsenseCallbackUrl} className="h-10">
+                    Copiar URL
+                  </Button>
+                </div>
+              </div>
             ) : (
               <input 
                 type="text" 
@@ -191,9 +215,11 @@ const ConnectionItem = ({ conn, onUpdate, onTestSync, autoSyncTrigger }: { conn:
               />
             )}
             <div className="flex flex-col sm:flex-row gap-3">
-              <Button onClick={handleConnect} className="flex-1 h-11">
-                {conn.id === 'wordpress' ? 'Conectar via API' : 'Conectar com ID'}
-              </Button>
+              {conn.id !== 'adsense' && (
+                <Button onClick={handleConnect} className="flex-1 h-11">
+                  {conn.id === 'wordpress' ? 'Conectar via API' : 'Conectar com ID'}
+                </Button>
+              )}
               {conn.id === 'wordpress' && (
                 <Button 
                   variant="outline" 
@@ -213,7 +239,7 @@ const ConnectionItem = ({ conn, onUpdate, onTestSync, autoSyncTrigger }: { conn:
               )}
               {conn.id === 'adsense' && (
                 <Button
-                  variant="outline"
+                  variant="default"
                   className="flex-1 h-11 border-yellow-500/30 hover:bg-yellow-500/10 text-yellow-500 gap-2"
                   onClick={handleAdsenseOAuth}
                   disabled={oauthLoading}
@@ -292,7 +318,7 @@ const Settings = () => {
       name: "Google AdSense", 
       icon: <DollarSign className="h-6 w-6 text-yellow-600" />, 
       link: "https://adsense.google.com/start/management-api/",
-      instructions: "Insira seu ID de publicador do AdSense para identificação e acompanhamento de ganhos.",
+      instructions: "Copie a URL OAuth2 abaixo para o Google Cloud, salve no Client ID e conecte para buscar ganhos reais.",
       placeholder: "Ex: pub-xxxxxxxxxxxxxxxx"
     },
   ];

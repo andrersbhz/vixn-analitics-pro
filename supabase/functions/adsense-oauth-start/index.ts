@@ -1,9 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors'
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+const callbackPath = '/adsense/oauth/callback'
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
@@ -18,10 +16,14 @@ serve(async (req) => {
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
     const projectRef = supabaseUrl.match(/https:\/\/([^.]+)\./)?.[1] ?? ''
-    const redirectUri = `https://${projectRef}.supabase.co/functions/v1/adsense-oauth-callback`
+    const legacyRedirectUri = `https://${projectRef}.supabase.co/functions/v1/adsense-oauth-callback`
 
     const url = new URL(req.url)
-    const returnTo = url.searchParams.get('return_to') || ''
+    const body = await readJsonBody(req)
+    const returnTo = getString(body.return_to) || url.searchParams.get('return_to') || ''
+    const requestedRedirectUri = getString(body.redirect_uri) || url.searchParams.get('redirect_uri') || ''
+    const origin = getAllowedOrigin(requestedRedirectUri || returnTo || req.headers.get('origin') || '')
+    const redirectUri = origin ? `${origin}${callbackPath}` : legacyRedirectUri
 
     const authUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth')
     authUrl.searchParams.set('client_id', clientId)
@@ -30,7 +32,8 @@ serve(async (req) => {
     authUrl.searchParams.set('access_type', 'offline')
     authUrl.searchParams.set('prompt', 'consent')
     authUrl.searchParams.set('scope', 'https://www.googleapis.com/auth/adsense.readonly')
-    authUrl.searchParams.set('state', btoa(JSON.stringify({ return_to: returnTo })))
+    authUrl.searchParams.set('include_granted_scopes', 'true')
+    authUrl.searchParams.set('state', btoa(JSON.stringify({ return_to: returnTo, redirect_uri: redirectUri })))
 
     return new Response(JSON.stringify({ auth_url: authUrl.toString(), redirect_uri: redirectUri }), {
       status: 200,
@@ -42,3 +45,29 @@ serve(async (req) => {
     })
   }
 })
+
+async function readJsonBody(req: Request) {
+  if (req.method === 'GET') return {}
+  const text = await req.text()
+  if (!text) return {}
+  try {
+    return JSON.parse(text) as Record<string, unknown>
+  } catch {
+    return {}
+  }
+}
+
+function getString(value: unknown) {
+  return typeof value === 'string' ? value : ''
+}
+
+function getAllowedOrigin(value: string) {
+  try {
+    const url = new URL(value)
+    const hostname = url.hostname.toLowerCase()
+    const allowed = hostname === 'localhost' || hostname.endsWith('.lovable.app') || hostname === 'analitics.a3solucoesdigitais.com'
+    return allowed ? url.origin : ''
+  } catch {
+    return ''
+  }
+}
