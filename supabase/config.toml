@@ -1,1 +1,7 @@
 project_id = "orifwrskrtafulrmckhw"
+
+[functions.adsense-oauth-start]
+verify_jwt = false
+
+[functions.adsense-oauth-callback]
+verify_jwt = false
