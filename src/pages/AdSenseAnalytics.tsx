@@ -19,7 +19,12 @@ import {
   XAxis, 
   YAxis, 
   CartesianGrid, 
-  Tooltip 
+  Tooltip,
+  BarChart,
+  Bar,
+  Legend,
+  LineChart,
+  Line
 } from 'recharts';
 import { useConnections } from "@/hooks/use-connections";
 import { Link } from "react-router-dom";
@@ -81,7 +86,11 @@ const AdSenseAnalytics = () => {
       name: item.metadata?.date ? format(parseISO(item.metadata.date), 'eee', { locale: ptBR }) : '',
       revenue: item.earnings || 0,
       views: item.views || 0,
-      clicks: item.clicks || 0
+      clicks: item.clicks || 0,
+      impressions: item.impressions || 0,
+      ctr: item.ctr || 0,
+      cpc: (item.metadata as any)?.cpc || 0,
+      rpm: (item.metadata as any)?.page_rpm || 0,
     })).sort((a, b) => a.date.getTime() - b.date.getTime());
 
     if (data.length === 0) return [];
