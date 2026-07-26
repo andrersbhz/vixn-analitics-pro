@@ -140,6 +140,32 @@ const AdSenseAnalytics = () => {
     return { sumImp, sumClicks, sumViews, avgCtr, avgCpc, avgRpm };
   }, [revenueData, totals]);
 
+  // Métricas do dia atual (com fallback para o dia mais recente sincronizado)
+  const todayMetrics = useMemo(() => {
+    const todayKey = format(new Date(), 'yyyy-MM-dd');
+    const byDate = adsenseItems
+      .map(i => ({ key: (i.metadata as any)?.date as string | undefined, item: i }))
+      .filter(x => !!x.key)
+      .sort((a, b) => (a.key! < b.key! ? 1 : -1));
+    const todayEntry = byDate.find(x => x.key === todayKey) ?? byDate[0];
+    const i = todayEntry?.item;
+    const impressions = i?.impressions || 0;
+    const clicks = i?.clicks || 0;
+    const views = i?.views || 0;
+    const earnings = i?.earnings || 0;
+    return {
+      dateKey: todayEntry?.key ?? todayKey,
+      isToday: todayEntry?.key === todayKey,
+      earnings,
+      clicks,
+      impressions,
+      views,
+      ctr: Number(i?.ctr || (impressions > 0 ? (clicks / impressions) * 100 : 0)),
+      rpm: Number((i?.metadata as any)?.page_rpm || (views > 0 ? (earnings / views) * 1000 : 0)),
+      cpc: Number((i?.metadata as any)?.cpc || (clicks > 0 ? earnings / clicks : 0)),
+    };
+  }, [adsenseItems]);
+
   // Totais que NÃO dependem do filtro de período
   const allTimeTotals = useMemo(() => {
     const lifetime = (adsenseConn?.config as any)?.lifetime;
@@ -328,6 +354,70 @@ const AdSenseAnalytics = () => {
             <RefreshCw className={cn("h-4 w-4", isSyncing && "animate-spin")} />
             {isSyncing ? "Sincronizando..." : "Sincronizar Agora"}
           </Button>
+        </div>
+
+        {/* Métricas do Dia */}
+        <div>
+          <div className="flex items-baseline justify-between mb-3">
+            <h2 className="text-sm font-light uppercase tracking-widest text-muted-foreground">
+              Métricas do Dia
+            </h2>
+            <span className="text-[10px] text-muted-foreground">
+              {todayMetrics.isToday
+                ? `Hoje · ${format(parseISO(todayMetrics.dateKey), "dd 'de' MMMM", { locale: ptBR })}`
+                : `Último dia sincronizado · ${format(parseISO(todayMetrics.dateKey), "dd/MM/yyyy")}`}
+            </span>
+          </div>
+          <div className="grid gap-6 md:grid-cols-4">
+            <div className="glass-card p-5">
+              <p className="text-[10px] font-light uppercase tracking-widest text-muted-foreground">Ganhos Hoje</p>
+              <p className="text-2xl font-extralight text-foreground mt-1">
+                R$ {todayMetrics.earnings.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              </p>
+            </div>
+            <div className="glass-card p-5">
+              <p className="text-[10px] font-light uppercase tracking-widest text-muted-foreground">Cliques Hoje</p>
+              <p className="text-2xl font-extralight text-foreground mt-1">
+                {todayMetrics.clicks.toLocaleString('pt-BR')}
+              </p>
+            </div>
+            <div className="glass-card p-5">
+              <p className="text-[10px] font-light uppercase tracking-widest text-muted-foreground">Impressões Hoje</p>
+              <p className="text-2xl font-extralight text-foreground mt-1">
+                {todayMetrics.impressions.toLocaleString('pt-BR')}
+              </p>
+            </div>
+            <div className="glass-card p-5">
+              <p className="text-[10px] font-light uppercase tracking-widest text-muted-foreground">Page views Hoje</p>
+              <p className="text-2xl font-extralight text-foreground mt-1">
+                {todayMetrics.views.toLocaleString('pt-BR')}
+              </p>
+            </div>
+            <div className="glass-card p-5">
+              <p className="text-[10px] font-light uppercase tracking-widest text-muted-foreground">CTR Hoje</p>
+              <p className="text-2xl font-extralight text-foreground mt-1">
+                {todayMetrics.ctr.toFixed(2)}%
+              </p>
+            </div>
+            <div className="glass-card p-5">
+              <p className="text-[10px] font-light uppercase tracking-widest text-muted-foreground">CPC Hoje</p>
+              <p className="text-2xl font-extralight text-foreground mt-1">
+                R$ {todayMetrics.cpc.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              </p>
+            </div>
+            <div className="glass-card p-5">
+              <p className="text-[10px] font-light uppercase tracking-widest text-muted-foreground">RPM Hoje</p>
+              <p className="text-2xl font-extralight text-foreground mt-1">
+                R$ {todayMetrics.rpm.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              </p>
+            </div>
+            <div className="glass-card p-5 flex flex-col justify-center">
+              <p className="text-[10px] font-light uppercase tracking-widest text-muted-foreground">Status</p>
+              <p className="text-sm font-light text-foreground mt-1">
+                {todayMetrics.isToday ? '✓ Dados de hoje disponíveis' : 'Aguardando dados de hoje'}
+              </p>
+            </div>
+          </div>
         </div>
 
         <div className="grid gap-6 md:grid-cols-4">
