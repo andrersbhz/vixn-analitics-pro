@@ -2,9 +2,10 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardLayout from "@/components/DashboardLayout";
 import { AnalyticsCard } from "@/components/analytics/AnalyticsCard";
-import { Search, Briefcase, TrendingUp, Users, Target, Rocket, Loader2, Sparkles, Globe, AlertCircle, BarChart3, PieChart, Info, ArrowUpRight, MessageCircle, Play, Share2, Megaphone, Filter, DollarSign, Zap, FileText } from "lucide-react";
+import { Search, Briefcase, TrendingUp, Users, Target, Rocket, Loader2, Sparkles, Globe, AlertCircle, BarChart3, PieChart, Info, ArrowUpRight, MessageCircle, Play, Share2, Megaphone, Filter, DollarSign, Zap, FileText, ImagePlus, X, Wand2, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
   AreaChart, Area, PieChart as RePieChart, Pie, Cell 
@@ -20,6 +21,55 @@ const MarketAnalysis = () => {
   const [analyzed, setAnalyzed] = useState(false);
   const [query, setQuery] = useState("");
   const [analysisResult, setAnalysisResult] = useState<any>(null);
+
+  // Product knowledge → ad creatives
+  const [productName, setProductName] = useState("");
+  const [productDescription, setProductDescription] = useState("");
+  const [productImages, setProductImages] = useState<Array<{ preview: string; data: string; mimeType: string; name: string }>>([]);
+  const [generatingCreatives, setGeneratingCreatives] = useState(false);
+  const [creativesResult, setCreativesResult] = useState<{ creatives: any[]; adCopies: any[] } | null>(null);
+  const [creativesError, setCreativesError] = useState<string | null>(null);
+
+  const handleImageUpload = async (files: FileList | null) => {
+    if (!files) return;
+    const arr = Array.from(files).slice(0, 4 - productImages.length);
+    const converted = await Promise.all(arr.map(f => new Promise<{ preview: string; data: string; mimeType: string; name: string }>((resolve, reject) => {
+      if (f.size > 4 * 1024 * 1024) return reject(new Error('imagem >4MB'));
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result as string;
+        const [, base64 = ''] = result.split(',');
+        resolve({ preview: result, data: base64, mimeType: f.type || 'image/png', name: f.name });
+      };
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(f);
+    })));
+    setProductImages(prev => [...prev, ...converted]);
+  };
+
+  const handleGenerateCreatives = async () => {
+    if (!productName || !productDescription) return;
+    setGeneratingCreatives(true);
+    setCreativesError(null);
+    setCreativesResult(null);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-creatives', {
+        body: {
+          productName,
+          productDescription,
+          niche: query,
+          images: productImages.map(i => ({ data: i.data, mimeType: i.mimeType })),
+        }
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      setCreativesResult(data);
+    } catch (e: any) {
+      setCreativesError(e?.message || 'Falha ao gerar criativos');
+    } finally {
+      setGeneratingCreatives(false);
+    }
+  };
 
   const handleAnalyze = async () => {
     if (!query) return;
@@ -164,6 +214,140 @@ const MarketAnalysis = () => {
               {loading ? "Analisando..." : "Solicitar Estudo Completo"}
             </Button>
           </div>
+        </AnalyticsCard>
+
+        {/* Conhecimento do Produto → Criativos com IA */}
+        <AnalyticsCard title="Conhecimento do Produto · Gerador de Criativos com IA">
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-3">
+              <div>
+                <label className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Nome do Produto</label>
+                <Input
+                  placeholder="Ex: Tênis Runner X Pro"
+                  className="mt-1 bg-accent/20 border-accent"
+                  value={productName}
+                  onChange={(e) => setProductName(e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Descrição / Diferenciais</label>
+                <Textarea
+                  placeholder="Fale sobre benefícios, público, dor que resolve, prova social, preço, garantias..."
+                  className="mt-1 bg-accent/20 border-accent min-h-[120px] text-sm"
+                  value={productDescription}
+                  onChange={(e) => setProductDescription(e.target.value)}
+                />
+              </div>
+              <Button
+                onClick={handleGenerateCreatives}
+                disabled={generatingCreatives || !productName || !productDescription}
+                className="w-full bg-purple-600 hover:bg-purple-700"
+              >
+                {generatingCreatives ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
+                {generatingCreatives ? "Gerando criativos..." : "Gerar Criativos com IA"}
+              </Button>
+              {creativesError && (
+                <div className="text-xs text-red-400 flex items-center gap-2"><AlertCircle className="h-3 w-3" />{creativesError}</div>
+              )}
+            </div>
+
+            <div>
+              <label className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Imagens de Referência (até 4, opcional)</label>
+              <div className="mt-1 grid grid-cols-4 gap-2">
+                {productImages.map((img, i) => (
+                  <div key={i} className="relative aspect-square rounded-lg overflow-hidden border border-white/10 group">
+                    <img src={img.preview} alt={img.name} className="w-full h-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => setProductImages(prev => prev.filter((_, idx) => idx !== i))}
+                      className="absolute top-1 right-1 p-1 rounded-full bg-black/60 opacity-0 group-hover:opacity-100 transition"
+                    >
+                      <X className="h-3 w-3 text-white" />
+                    </button>
+                  </div>
+                ))}
+                {productImages.length < 4 && (
+                  <label className="aspect-square rounded-lg border border-dashed border-white/20 flex flex-col items-center justify-center cursor-pointer hover:border-purple-500/50 hover:bg-purple-500/5 transition">
+                    <ImagePlus className="h-5 w-5 text-muted-foreground" />
+                    <span className="text-[9px] text-muted-foreground mt-1">adicionar</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      className="hidden"
+                      onChange={(e) => handleImageUpload(e.target.files)}
+                    />
+                  </label>
+                )}
+              </div>
+              <p className="text-[10px] text-muted-foreground/70 mt-2">A IA usará as imagens + nome + descrição para criar 4 conceitos visuais e copies prontas para Google, Meta, TikTok e LinkedIn.</p>
+            </div>
+          </div>
+
+          {creativesResult && (
+            <div className="mt-6 space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
+              {Array.isArray(creativesResult.creatives) && creativesResult.creatives.length > 0 && (
+                <div>
+                  <h3 className="text-[11px] font-semibold uppercase tracking-widest text-purple-300 mb-3 flex items-center gap-2">
+                    <Sparkles className="h-3 w-3" /> Modelos de Criativos Gerados
+                  </h3>
+                  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                    {creativesResult.creatives.map((c: any, i: number) => (
+                      <div key={i} className="rounded-2xl overflow-hidden bg-white/5 border border-white/10 flex flex-col">
+                        {c.imageUrl ? (
+                          <div className="relative">
+                            <img src={c.imageUrl} alt={c.style} className="w-full aspect-square object-cover" />
+                            <a
+                              href={c.imageUrl}
+                              download={`criativo-${i + 1}.png`}
+                              className="absolute top-2 right-2 p-1.5 rounded-lg bg-black/60 backdrop-blur hover:bg-black/80 transition"
+                            >
+                              <Download className="h-3 w-3 text-white" />
+                            </a>
+                          </div>
+                        ) : (
+                          <div className="aspect-square flex items-center justify-center bg-red-500/5 text-red-400 text-[10px] p-3 text-center">
+                            {c.error || 'Falha ao gerar imagem'}
+                          </div>
+                        )}
+                        <div className="p-3 flex flex-col gap-1">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-purple-300">{c.style}</span>
+                          <p className="text-[0.78rem] text-muted-foreground leading-snug">{c.concept}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {Array.isArray(creativesResult.adCopies) && creativesResult.adCopies.length > 0 && (
+                <div>
+                  <h3 className="text-[11px] font-semibold uppercase tracking-widest text-purple-300 mb-3 flex items-center gap-2">
+                    <FileText className="h-3 w-3" /> Copies Prontas por Plataforma
+                  </h3>
+                  <div className="grid gap-3 md:grid-cols-2">
+                    {creativesResult.adCopies.map((c: any, i: number) => (
+                      <div key={i} className="p-4 rounded-xl bg-white/5 border border-white/10 flex flex-col gap-2">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-purple-300">{c.platform}</span>
+                        {c.headline && <div className="text-[0.9rem] font-medium text-foreground">{c.headline}</div>}
+                        {c.hook && <div className="text-[0.85rem] italic text-foreground/80">"{c.hook}"</div>}
+                        {(c.description || c.primaryText || c.script || c.body) && (
+                          <p className="text-[0.8rem] text-muted-foreground leading-relaxed whitespace-pre-line">
+                            {c.description || c.primaryText || c.script || c.body}
+                          </p>
+                        )}
+                        {c.cta && (
+                          <span className="mt-1 inline-flex self-start items-center gap-1 text-[0.72rem] px-3 py-1 rounded-full bg-purple-500/15 text-purple-200 border border-purple-500/30">
+                            <Zap className="h-3 w-3" /> {c.cta}
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </AnalyticsCard>
 
         {analyzed && !isAnyConnected && (
