@@ -35,22 +35,82 @@
      let channelName = ''
  
       if (platformId === 'adsense') {
-        const pubId = config.id
-        if (!pubId) throw new Error('ID do AdSense não configurado')
-        // Google AdSense requer OAuth2. Sem token válido, retornamos vazio (sem dados fictícios)
-        // e sinalizamos ao cliente com uma mensagem amigável — evita 400 e tela branca.
-        await supabaseClient
-          .from('platform_connections')
-          .update({ last_sync_at: new Date().toISOString() })
-          .eq('id', platformId)
+        const oauth = (config as any).oauth
+        if (!oauth?.access_token) {
+          await supabaseClient.from('platform_connections')
+            .update({ last_sync_at: new Date().toISOString() }).eq('id', platformId)
+          return new Response(JSON.stringify({
+            success: true, count: 0,
+            warning: 'Conecte o Google AdSense via OAuth2 (botão em Configurações) para receber dados reais.'
+          }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 })
+        }
 
-        return new Response(JSON.stringify({
-          success: true,
-          count: 0,
-          warning: 'Conecte o Google AdSense via OAuth2 para receber dados reais. Nenhum dado sintético é gerado.'
-        }), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 200,
+        // Renovar token se expirado
+        let accessToken: string = oauth.access_token
+        if (oauth.expires_at && Date.now() > oauth.expires_at - 60_000 && oauth.refresh_token) {
+          const clientId = Deno.env.get('GOOGLE_ADSENSE_CLIENT_ID')
+          const clientSecret = Deno.env.get('GOOGLE_ADSENSE_CLIENT_SECRET')
+          const rr = await fetch('https://oauth2.googleapis.com/token', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({
+              client_id: clientId ?? '', client_secret: clientSecret ?? '',
+              refresh_token: oauth.refresh_token, grant_type: 'refresh_token',
+            }),
+          })
+          const rd = await rr.json()
+          if (rr.ok && rd.access_token) {
+            accessToken = rd.access_token
+            const newConfig = { ...config, oauth: {
+              ...oauth, access_token: rd.access_token,
+              expires_at: Date.now() + (rd.expires_in ?? 3600) * 1000,
+            }}
+            await supabaseClient.from('platform_connections')
+              .update({ config: newConfig }).eq('id', platformId)
+          }
+        }
+
+        const accountName = oauth.account_name // "accounts/pub-XXXX"
+        if (!accountName) throw new Error('Conta AdSense não identificada. Reconecte via OAuth.')
+
+        // Últimos 30 dias, por dia
+        const end = new Date()
+        const start = new Date(); start.setDate(start.getDate() - 30)
+        const fmt = (d: Date) => ({ y: d.getUTCFullYear(), m: d.getUTCMonth() + 1, day: d.getUTCDate() })
+        const s = fmt(start), e = fmt(end)
+        const reportUrl = new URL(`https://adsense.googleapis.com/v2/${accountName}/reports:generate`)
+        reportUrl.searchParams.append('dateRange', 'CUSTOM')
+        reportUrl.searchParams.append('startDate.year', String(s.y))
+        reportUrl.searchParams.append('startDate.month', String(s.m))
+        reportUrl.searchParams.append('startDate.day', String(s.day))
+        reportUrl.searchParams.append('endDate.year', String(e.y))
+        reportUrl.searchParams.append('endDate.month', String(e.m))
+        reportUrl.searchParams.append('endDate.day', String(e.day))
+        for (const dim of ['DATE']) reportUrl.searchParams.append('dimensions', dim)
+        for (const m of ['ESTIMATED_EARNINGS','CLICKS','IMPRESSIONS','PAGE_VIEWS','IMPRESSIONS_CTR','COST_PER_CLICK'])
+          reportUrl.searchParams.append('metrics', m)
+
+        const rep = await fetch(reportUrl.toString(), { headers: { Authorization: `Bearer ${accessToken}` } })
+        const repData = await rep.json()
+        if (!rep.ok) throw new Error(repData?.error?.message || 'Falha na AdSense API')
+
+        const rows = repData.rows || []
+        results = rows.map((row: any) => {
+          const cells = row.cells || []
+          const date = cells[0]?.value
+          return {
+            platform_id: 'adsense',
+            external_id: `adsense-${date}`,
+            title: `Ganhos ${date}`,
+            link: 'https://adsense.google.com',
+            earnings: parseFloat(cells[1]?.value || '0'),
+            clicks: parseInt(cells[2]?.value || '0'),
+            impressions: parseInt(cells[3]?.value || '0'),
+            views: parseInt(cells[4]?.value || '0'),
+            ctr: parseFloat(cells[5]?.value || '0'),
+            rpm: parseFloat(cells[6]?.value || '0'),
+            metadata: { date }
+          }
         })
       } else if (platformId === 'youtube') {
        const channelId = config.id
