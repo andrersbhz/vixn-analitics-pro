@@ -117,6 +117,16 @@ const AdSenseAnalytics = () => {
     return revenueData.reduce((acc, curr) => acc + curr.revenue, 0);
   }, [revenueData]);
 
+  const periodMetrics = useMemo(() => {
+    const sumImp = revenueData.reduce((a, c) => a + c.impressions, 0);
+    const sumClicks = revenueData.reduce((a, c) => a + c.clicks, 0);
+    const sumViews = revenueData.reduce((a, c) => a + c.views, 0);
+    const avgCtr = sumImp > 0 ? (sumClicks / sumImp) * 100 : 0;
+    const avgCpc = sumClicks > 0 ? totals / sumClicks : 0;
+    const avgRpm = sumViews > 0 ? (totals / sumViews) * 1000 : 0;
+    return { sumImp, sumClicks, sumViews, avgCtr, avgCpc, avgRpm };
+  }, [revenueData, totals]);
+
   // Totais que NÃO dependem do filtro de período
   const allTimeTotals = useMemo(() => {
     const lifetime = (adsenseConn?.config as any)?.lifetime;
