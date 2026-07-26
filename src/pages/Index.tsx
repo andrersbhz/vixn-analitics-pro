@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/card";
 import { useState, useEffect, useCallback } from "react";
 import { useConnections, Connection } from "@/hooks/use-connections";
+import { supabase } from "@/integrations/supabase/client";
 import { fetchWordPressData, WordPressStats } from "@/lib/wordpress";
 import { 
   ArrowUpRight, 
