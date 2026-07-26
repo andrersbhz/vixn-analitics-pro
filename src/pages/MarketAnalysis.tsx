@@ -2,7 +2,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardLayout from "@/components/DashboardLayout";
 import { AnalyticsCard } from "@/components/analytics/AnalyticsCard";
-import { Search, Briefcase, TrendingUp, Users, Target, Rocket, Loader2, Sparkles, Globe, AlertCircle, BarChart3, PieChart, Info, ArrowUpRight, MessageCircle, Play, Share2 } from "lucide-react";
+import { Search, Briefcase, TrendingUp, Users, Target, Rocket, Loader2, Sparkles, Globe, AlertCircle, BarChart3, PieChart, Info, ArrowUpRight, MessageCircle, Play, Share2, Megaphone, Filter, DollarSign, Zap, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { 
@@ -25,24 +25,36 @@ const MarketAnalysis = () => {
     if (!query) return;
     setLoading(true);
     try {
-      const systemPrompt = `Você é um especialista em marketing digital e análise estratégica. 
-      Realize uma análise de mercado detalhada para o nicho ou empresa: ${query}.
-      Sua resposta DEVE ser um objeto JSON puro, sem markdown, contendo:
+      const systemPrompt = `Você é um especialista sênior em marketing digital, growth e copywriting de resposta direta.
+      Realize uma análise de mercado PROFUNDA e ACIONÁVEL para o nicho ou empresa: ${query}.
+      Sua resposta DEVE ser um objeto JSON puro (sem markdown, sem comentários) com ESTA estrutura EXATA:
       {
         "marketSize": "string",
         "competitiveness": "string",
         "avgCac": "string",
         "opportunity": "string",
         "trends": "string",
-        "projections": [{"name": "Mês 1", "value": number}, ...6 meses],
-        "googleAds": {"strategy": "string", "keywords": ["string"], "budget": "string"},
-        "facebookAds": {"strategy": "string", "creative": "string", "budget": "string"},
-        "tiktokAds": {"strategy": "string", "creative": "string", "budget": "string"},
-        "linkedinAds": {"strategy": "string", "audience": "string", "budget": "string"},
+        "projections": [{"name":"Mês 1","value":number}, ... 6 meses],
+        "distribution": [{"name":"Orgânico","value":number},{"name":"Pago","value":number},{"name":"Social","value":number}],
         "channels": "string",
-        "distribution": [{"name": "Orgânico", "value": number}, {"name": "Pago", "value": number}, {"name": "Social", "value": number}]
+        "googleAds": {"strategy":"string","objective":"string","audience":"string","keywords":["string"],"headlines":["string","string","string"],"descriptions":["string","string"],"budget":"string","kpi":"string"},
+        "instagramAds": {"strategy":"string","objective":"string","audience":"string","creative":"string","hook":"string","caption":"string","cta":"string","budget":"string","kpi":"string"},
+        "tiktokAds": {"strategy":"string","objective":"string","audience":"string","creative":"string","hook":"string","script":"string","cta":"string","budget":"string","kpi":"string"},
+        "linkedinAds": {"strategy":"string","objective":"string","audience":"string","format":"string","headline":"string","body":"string","cta":"string","budget":"string","kpi":"string"},
+        "copyModels": [
+          {"framework":"AIDA","headline":"string","body":"string","cta":"string"},
+          {"framework":"PAS (Problema-Agitação-Solução)","headline":"string","body":"string","cta":"string"},
+          {"framework":"BAB (Antes-Depois-Ponte)","headline":"string","body":"string","cta":"string"},
+          {"framework":"4Ps (Promessa-Prova-Proposta-Push)","headline":"string","body":"string","cta":"string"}
+        ],
+        "salesFunnel": {
+          "topo": {"objetivo":"string","canais":["string"],"conteudo":"string","oferta":"string","kpi":"string","copy":"string"},
+          "meio": {"objetivo":"string","canais":["string"],"conteudo":"string","oferta":"string","kpi":"string","copy":"string"},
+          "fundo": {"objetivo":"string","canais":["string"],"conteudo":"string","oferta":"string","kpi":"string","copy":"string"},
+          "posVenda": {"objetivo":"string","canais":["string"],"conteudo":"string","oferta":"string","kpi":"string","copy":"string"}
+        }
       }
-      Responda APENAS o JSON.`;
+      Escreva em português do Brasil, tom persuasivo e específico ao nicho. Responda APENAS o JSON.`;
 
       const { data, error } = await supabase.functions.invoke('ai-chat', {
         body: { 
@@ -75,6 +87,9 @@ const MarketAnalysis = () => {
       if (!result.facebookAds) result.facebookAds = { strategy: "Remarketing e Lookalike", creative: "Vídeos curtos", budget: "R$ 30/dia" };
       if (!result.tiktokAds) result.tiktokAds = { strategy: "Trends e Influenciadores", creative: "UGC (User Generated Content)", budget: "R$ 20/dia" };
       if (!result.linkedinAds) result.linkedinAds = { strategy: "ABM e Conteúdo Educativo", audience: "Decisores B2B", budget: "R$ 100/dia" };
+      if (!result.instagramAds && result.facebookAds) result.instagramAds = result.facebookAds;
+      if (!result.copyModels) result.copyModels = [];
+      if (!result.salesFunnel) result.salesFunnel = {};
       
       setAnalysisResult(result);
       setAnalyzed(true);
@@ -101,6 +116,20 @@ const MarketAnalysis = () => {
   };
 
   const COLORS = ['#8B5CF6', '#EC4899', '#10B981', '#F59E0B'];
+
+  const platformStyles: Record<string, { bg: string; border: string; text: string; chip: string; chipText: string }> = {
+    blue:    { bg: 'bg-blue-500/5',    border: 'border-blue-500/10',    text: 'text-blue-400',    chip: 'bg-blue-500/10 border-blue-500/20',       chipText: 'text-blue-300' },
+    pink:    { bg: 'bg-pink-500/5',    border: 'border-pink-500/10',    text: 'text-pink-400',    chip: 'bg-pink-500/10 border-pink-500/20',       chipText: 'text-pink-300' },
+    fuchsia: { bg: 'bg-fuchsia-500/5', border: 'border-fuchsia-500/10', text: 'text-fuchsia-400', chip: 'bg-fuchsia-500/10 border-fuchsia-500/20', chipText: 'text-fuchsia-300' },
+    indigo:  { bg: 'bg-indigo-500/5',  border: 'border-indigo-500/10',  text: 'text-indigo-400',  chip: 'bg-indigo-500/10 border-indigo-500/20',   chipText: 'text-indigo-300' },
+  };
+
+  const funnelStyles: Record<string, { grad: string; border: string; text: string; textSoft: string; chip: string; chipText: string }> = {
+    cyan:    { grad: 'from-cyan-500/10',    border: 'border-cyan-500/20',    text: 'text-cyan-400',    textSoft: 'text-cyan-300',    chip: 'bg-cyan-500/10 border-cyan-500/20',    chipText: 'text-cyan-200' },
+    purple:  { grad: 'from-purple-500/10',  border: 'border-purple-500/20',  text: 'text-purple-400',  textSoft: 'text-purple-300',  chip: 'bg-purple-500/10 border-purple-500/20',  chipText: 'text-purple-200' },
+    emerald: { grad: 'from-emerald-500/10', border: 'border-emerald-500/20', text: 'text-emerald-400', textSoft: 'text-emerald-300', chip: 'bg-emerald-500/10 border-emerald-500/20', chipText: 'text-emerald-200' },
+    amber:   { grad: 'from-amber-500/10',   border: 'border-amber-500/20',   text: 'text-amber-400',   textSoft: 'text-amber-300',   chip: 'bg-amber-500/10 border-amber-500/20',   chipText: 'text-amber-200' },
+  };
 
   return (
     <DashboardLayout>
@@ -299,6 +328,121 @@ const MarketAnalysis = () => {
                 </Button>
               </AnalyticsCard>
             </div>
+
+            {/* Estratégias detalhadas por plataforma */}
+            <AnalyticsCard title="Estratégias Detalhadas de Ads por Plataforma">
+              <div className="grid gap-4 md:grid-cols-2">
+                {[
+                  { key: 'googleAds', label: 'Google Ads', color: 'blue', icon: Search },
+                  { key: 'instagramAds', label: 'Instagram / Facebook Ads', color: 'pink', icon: Share2 },
+                  { key: 'tiktokAds', label: 'TikTok Ads', color: 'fuchsia', icon: Play },
+                  { key: 'linkedinAds', label: 'LinkedIn Ads', color: 'indigo', icon: Briefcase },
+                ].map(({ key, label, color, icon: Icon }) => {
+                  const d = analysisResult?.[key] || {};
+                  const st = platformStyles[color];
+                  return (
+                    <div key={key} className={`p-4 rounded-xl ${st.bg} border ${st.border} flex flex-col gap-3`}>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Icon className={`h-4 w-4 ${st.text}`} />
+                          <span className={`text-[11px] font-bold uppercase tracking-wider ${st.text}`}>{label}</span>
+                        </div>
+                        {d.budget && <span className="text-[10px] text-muted-foreground flex items-center gap-1"><DollarSign className="h-3 w-3" />{d.budget}</span>}
+                      </div>
+                      {d.objective && <div className="text-[0.8rem]"><span className="text-muted-foreground/70 uppercase text-[9px] tracking-wider">Objetivo · </span><span className="text-foreground/80">{d.objective}</span></div>}
+                      {d.audience && <div className="text-[0.8rem]"><span className="text-muted-foreground/70 uppercase text-[9px] tracking-wider">Público · </span><span className="text-foreground/80">{d.audience}</span></div>}
+                      {d.strategy && <p className="text-foreground/80 text-[0.85rem] leading-snug">{d.strategy}</p>}
+                      {Array.isArray(d.keywords) && d.keywords.length > 0 && (
+                        <div className="flex flex-wrap gap-1">
+                          {d.keywords.slice(0, 8).map((k: string, i: number) => (
+                            <span key={i} className={`text-[10px] px-2 py-0.5 rounded-full border ${st.chip} ${st.chipText}`}>{k}</span>
+                          ))}
+                        </div>
+                      )}
+                      {Array.isArray(d.headlines) && d.headlines.length > 0 && (
+                        <div className="space-y-1">
+                          <span className="text-[9px] uppercase tracking-wider text-muted-foreground/70">Títulos</span>
+                          {d.headlines.map((h: string, i: number) => (
+                            <div key={i} className="text-[0.8rem] text-foreground/80 border-l-2 border-white/10 pl-2">{h}</div>
+                          ))}
+                        </div>
+                      )}
+                      {(d.hook || d.script || d.body || d.caption) && (
+                        <div className="space-y-1">
+                          {d.hook && <div className="text-[0.8rem]"><span className="text-muted-foreground/70 uppercase text-[9px] tracking-wider">Hook · </span><span className="text-foreground/80 italic">"{d.hook}"</span></div>}
+                          {(d.script || d.body || d.caption) && <p className="text-[0.8rem] text-foreground/70 leading-snug">{d.script || d.body || d.caption}</p>}
+                        </div>
+                      )}
+                      {d.creative && <div className="text-[0.8rem]"><span className="text-muted-foreground/70 uppercase text-[9px] tracking-wider">Criativo · </span><span className="text-foreground/80">{d.creative}</span></div>}
+                      {d.format && <div className="text-[0.8rem]"><span className="text-muted-foreground/70 uppercase text-[9px] tracking-wider">Formato · </span><span className="text-foreground/80">{d.format}</span></div>}
+                      {d.cta && <div className="text-[0.8rem]"><span className="text-muted-foreground/70 uppercase text-[9px] tracking-wider">CTA · </span><span className="text-foreground/80 font-medium">{d.cta}</span></div>}
+                      {d.kpi && <div className="text-[0.75rem] text-emerald-400/80 flex items-center gap-1"><Target className="h-3 w-3" />{d.kpi}</div>}
+                    </div>
+                  );
+                })}
+              </div>
+            </AnalyticsCard>
+
+            {/* Modelos de Copy */}
+            {Array.isArray(analysisResult?.copyModels) && analysisResult.copyModels.length > 0 && (
+              <AnalyticsCard title="Modelos de Copy Prontos">
+                <div className="grid gap-4 md:grid-cols-2">
+                  {analysisResult.copyModels.map((c: any, i: number) => (
+                    <div key={i} className="p-4 rounded-xl bg-white/5 border border-white/10 flex flex-col gap-2">
+                      <div className="flex items-center gap-2">
+                        <FileText className="h-4 w-4 text-purple-400" />
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-purple-300">{c.framework}</span>
+                      </div>
+                      {c.headline && <div className="text-[0.9rem] font-medium text-foreground">{c.headline}</div>}
+                      {c.body && <p className="text-[0.82rem] text-muted-foreground leading-relaxed whitespace-pre-line">{c.body}</p>}
+                      {c.cta && (
+                        <div className="mt-1 inline-flex self-start items-center gap-1 text-[0.75rem] px-3 py-1 rounded-full bg-purple-500/15 text-purple-200 border border-purple-500/30">
+                          <Zap className="h-3 w-3" /> {c.cta}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </AnalyticsCard>
+            )}
+
+            {/* Funil de Vendas */}
+            {analysisResult?.salesFunnel && Object.keys(analysisResult.salesFunnel).length > 0 && (
+              <AnalyticsCard title="Funil de Vendas Matador">
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                  {[
+                    { key: 'topo', label: 'Topo · Atração', color: 'cyan', icon: Users },
+                    { key: 'meio', label: 'Meio · Consideração', color: 'purple', icon: Filter },
+                    { key: 'fundo', label: 'Fundo · Conversão', color: 'emerald', icon: Target },
+                    { key: 'posVenda', label: 'Pós-Venda · Retenção', color: 'amber', icon: Rocket },
+                  ].map(({ key, label, color, icon: Icon }) => {
+                    const s = analysisResult.salesFunnel[key];
+                    if (!s) return null;
+                    const st = funnelStyles[color];
+                    return (
+                      <div key={key} className={`p-4 rounded-2xl bg-gradient-to-b ${st.grad} to-transparent border ${st.border} flex flex-col gap-3`}>
+                        <div className="flex items-center gap-2">
+                          <Icon className={`h-4 w-4 ${st.text}`} />
+                          <span className={`text-[10px] font-bold uppercase tracking-wider ${st.textSoft}`}>{label}</span>
+                        </div>
+                        {s.objetivo && <div className="text-[0.82rem] text-foreground/85"><span className="text-muted-foreground/70 uppercase text-[9px] tracking-wider block mb-0.5">Objetivo</span>{s.objetivo}</div>}
+                        {Array.isArray(s.canais) && s.canais.length > 0 && (
+                          <div className="flex flex-wrap gap-1">
+                            {s.canais.map((c: string, i: number) => (
+                              <span key={i} className={`text-[9px] px-2 py-0.5 rounded-full border ${st.chip} ${st.chipText}`}>{c}</span>
+                            ))}
+                          </div>
+                        )}
+                        {s.conteudo && <div className="text-[0.8rem] text-muted-foreground"><span className="text-muted-foreground/60 uppercase text-[9px] tracking-wider block mb-0.5">Conteúdo</span>{s.conteudo}</div>}
+                        {s.oferta && <div className="text-[0.8rem] text-muted-foreground"><span className="text-muted-foreground/60 uppercase text-[9px] tracking-wider block mb-0.5">Oferta</span>{s.oferta}</div>}
+                        {s.copy && <div className="text-[0.78rem] italic text-foreground/70 border-l-2 border-white/10 pl-2">"{s.copy}"</div>}
+                        {s.kpi && <div className={`text-[0.72rem] ${st.textSoft} flex items-center gap-1 mt-auto`}><Target className="h-3 w-3" />{s.kpi}</div>}
+                      </div>
+                    );
+                  })}
+                </div>
+              </AnalyticsCard>
+            )}
           </div>
         )}
       </div>
