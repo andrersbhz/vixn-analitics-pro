@@ -1,135 +1,143 @@
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import DashboardLayout from "@/components/DashboardLayout";
 import { AnalyticsCard } from "@/components/analytics/AnalyticsCard";
-import { 
-  TrendingUp, 
-  CheckCircle2, 
-  Circle, 
-   Target, 
-   Zap,
-   ArrowRight
- } from "lucide-react";
-
-const YoutubeIcon = ({ className }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-  </svg>
-);
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
+import { TrendingUp, Rocket, Sparkles, Loader2, Trash2, Calendar, Target, ArrowRight } from "lucide-react";
 
-import { useConnections } from "@/hooks/use-connections";
-import { Link } from "react-router-dom";
+type SavedStudy = {
+  id: string;
+  niche: string;
+  created_at: string;
+  updated_at: string;
+  result: any;
+};
 
 const Strategy = () => {
-  const { getConnection } = useConnections();
-  const wpConn = getConnection('wordpress');
-  const ytConn = getConnection('youtube');
-  const fbConn = getConnection('facebook');
-  const isAnyConnected = [wpConn, ytConn, fbConn].some(c => c?.isConnected);
+  const navigate = useNavigate();
+  const [studies, setStudies] = useState<SavedStudy[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  if (!isAnyConnected) {
-    return (
-      <DashboardLayout>
-        <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4 text-center">
-          <div className="p-4 bg-emerald-500/10 rounded-full">
-            <TrendingUp className="h-12 w-12 text-emerald-500" />
-          </div>
-          <h2 className="text-2xl font-bold">Estratégia requer dados</h2>
-          <p className="text-muted-foreground max-w-md">
-            Conecte suas plataformas para que a IA possa gerar um roadmap real baseado na sua performance atual.
-          </p>
-          <Link to="/settings">
-            <Button>Conectar Agora</Button>
-          </Link>
-        </div>
-      </DashboardLayout>
-    );
-  }
+  const load = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from('market_analyses')
+      .select('id, niche, created_at, updated_at, result')
+      .order('updated_at', { ascending: false });
+    if (error) {
+      toast({ title: 'Erro ao carregar', description: error.message, variant: 'destructive' });
+    } else {
+      setStudies((data as any[]) || []);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Excluir esta estratégia?')) return;
+    const { error } = await supabase.from('market_analyses').delete().eq('id', id);
+    if (error) toast({ title: 'Erro', description: error.message, variant: 'destructive' });
+    else { toast({ title: 'Excluído' }); load(); }
+  };
+
+  const handleExecute = (id: string) => {
+    navigate(`/market-analysis?studyId=${id}#creatives-panel`);
+  };
 
   return (
     <DashboardLayout>
       <div className="space-y-8">
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div className="flex items-center gap-3">
-             <div className="p-3 bg-emerald-500/10 rounded-xl">
-               <TrendingUp className="h-8 w-8 text-emerald-500" />
-             </div>
-             <div>
-               <h1 className="text-3xl font-extralight text-foreground tracking-tight">Estratégia de Crescimento</h1>
-               <p className="text-muted-foreground mt-1 font-light italic opacity-80">Seu roadmap personalizado para dominar o mercado.</p>
-             </div>
+            <div className="p-3 bg-emerald-500/10 rounded-xl">
+              <TrendingUp className="h-8 w-8 text-emerald-500" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-extralight text-foreground tracking-tight">Estratégias de Negócio</h1>
+              <p className="text-muted-foreground mt-1 font-light italic opacity-80">Todos os seus estudos de mercado salvos, prontos para execução.</p>
+            </div>
           </div>
-          <Button className="bg-emerald-600 hover:bg-emerald-700">
-            Gerar Nova Estratégia <Zap className="ml-2 h-4 w-4 fill-white" />
-          </Button>
+          <Link to="/market-analysis">
+            <Button className="bg-emerald-600 hover:bg-emerald-700">
+              <Sparkles className="mr-2 h-4 w-4" /> Novo Estudo
+            </Button>
+          </Link>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-3">
-          <div className="lg:col-span-2 space-y-6">
-             <AnalyticsCard title="Objetivos Ativos">
-               <div className="flex flex-col items-center justify-center py-12 text-center space-y-4">
-                 <div className="p-3 bg-emerald-500/10 rounded-full">
-                   <Target className="h-8 w-8 text-emerald-500" />
-                 </div>
-                 <div>
-                   <h3 className="font-bold">Aguardando Sincronização de Métricas</h3>
-                   <p className="text-sm text-muted-foreground max-w-xs mt-1">
-                     As metas e o progresso serão calculados automaticamente assim que os dados de desempenho forem coletados.
-                   </p>
-                 </div>
-               </div>
-             </AnalyticsCard>
-
-            <AnalyticsCard title="Plano de Ação Semanal">
-              <div className="space-y-4">
-                {[
-                  { text: "Publicar 2 vídeos de 'How-to' no canal principal", done: true },
-                  { text: "Otimizar as meta-tags dos posts mais antigos do blog", done: true },
-                  { text: "Criar sequência de 5 posts para o Facebook focado em leads", done: false },
-                  { text: "Analisar as métricas de retenção da última semana", done: false },
-                  { text: "Configurar automação de newsletter para novos inscritos", done: false },
-                ].map((item, i) => (
-                   <div key={i} className="flex items-center gap-3 p-3 hover:bg-accent/50 rounded-lg transition-colors cursor-pointer group">
-                    {item.done ? (
-                      <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0" />
-                    ) : (
-                       <Circle className="h-5 w-5 text-muted-foreground/30 shrink-0 group-hover:text-primary transition-colors" />
-                     )}
-                     <span className={item.done ? "text-muted-foreground/50 line-through text-sm" : "text-foreground text-sm font-medium"}>
-                      {item.text}
-                    </span>
+        <AnalyticsCard title="Estratégias Salvas">
+          {loading ? (
+            <div className="flex items-center justify-center py-12 text-muted-foreground">
+              <Loader2 className="h-5 w-5 animate-spin mr-2" /> Carregando...
+            </div>
+          ) : studies.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12 text-center space-y-4">
+              <div className="p-3 bg-emerald-500/10 rounded-full">
+                <Target className="h-8 w-8 text-emerald-500" />
+              </div>
+              <div>
+                <h3 className="font-medium">Nenhuma estratégia salva ainda</h3>
+                <p className="text-sm text-muted-foreground max-w-sm mt-1">
+                  Vá para <span className="text-emerald-400">Estudo de Mercado</span>, gere uma análise e clique em <span className="text-emerald-400">Salvar Estratégia</span>.
+                </p>
+              </div>
+              <Link to="/market-analysis">
+                <Button className="bg-emerald-600 hover:bg-emerald-700">Criar Primeira Estratégia</Button>
+              </Link>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {studies.map((s) => {
+                const r = s.result || {};
+                return (
+                  <div key={s.id} className="p-4 rounded-xl bg-white/5 border border-white/10 flex flex-col md:flex-row md:items-center gap-4 hover:border-emerald-500/30 transition">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="text-base font-medium text-foreground truncate">{s.niche}</h3>
+                        {r.marketSize && (
+                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-300">
+                            {String(r.marketSize).slice(0, 40)}
+                          </span>
+                        )}
+                        {r.competitiveness && (
+                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-300">
+                            Competitividade: {String(r.competitiveness).slice(0, 30)}
+                          </span>
+                        )}
+                      </div>
+                      {r.opportunity && (
+                        <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{r.opportunity}</p>
+                      )}
+                      <div className="flex items-center gap-3 mt-2 text-[10px] text-muted-foreground">
+                        <span className="flex items-center gap-1"><Calendar className="h-3 w-3" />{new Date(s.updated_at).toLocaleDateString('pt-BR')}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDelete(s.id)}
+                        className="text-muted-foreground hover:text-red-400"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        onClick={() => handleExecute(s.id)}
+                        className="bg-emerald-600 hover:bg-emerald-700"
+                      >
+                        <Rocket className="mr-2 h-4 w-4" />
+                        Iniciar Execução da Estratégia
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
-                ))}
-              </div>
-            </AnalyticsCard>
-          </div>
-
-           <div className="space-y-6">
-              <AnalyticsCard title="Insights de IA" className="bg-slate-900 dark:bg-slate-950 border-slate-800 text-white">
-                <div className="py-8 text-center">
-                  <Zap className="h-10 w-10 text-emerald-400 mx-auto mb-4" />
-                  <p className="text-sm text-slate-300">A IA está processando seus dados para gerar novos insights estratégicos.</p>
-                </div>
-             </AnalyticsCard>
-
-            <AnalyticsCard title="Rank de Nicho">
-              <div className="flex flex-col items-center py-4">
-                <div className="relative h-32 w-32 flex items-center justify-center">
-                   <svg className="h-full w-full rotate-[-90deg]">
-                     <circle cx="64" cy="64" r="58" stroke="currentColor" strokeWidth="10" fill="transparent" className="text-muted/30" />
-                     <circle cx="64" cy="64" r="58" stroke="currentColor" strokeWidth="10" fill="transparent" strokeDasharray="364.4" strokeDashoffset="91.1" className="text-primary" />
-                   </svg>
-                   <div className="absolute flex flex-col items-center">
-                      <span className="text-3xl font-extralight text-foreground">#4</span>
-                     <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">No Nicho</span>
-                   </div>
-                 </div>
-                 <p className="text-sm text-muted-foreground text-center mt-6">
-                   Você está entre os **5% canais que mais crescem** no segmento de Marketing Digital.
-                 </p>
-              </div>
-            </AnalyticsCard>
-          </div>
-        </div>
+                );
+              })}
+            </div>
+          )}
+        </AnalyticsCard>
       </div>
     </DashboardLayout>
   );
