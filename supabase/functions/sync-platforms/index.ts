@@ -37,9 +37,21 @@
       if (platformId === 'adsense') {
         const pubId = config.id
         if (!pubId) throw new Error('ID do AdSense não configurado')
-        // Google AdSense API requer OAuth2. Sem token válido, não geramos dados fictícios.
-        // Retornamos vazio até que uma conexão OAuth real seja implementada.
-        throw new Error('Integração real com Google AdSense (OAuth2) ainda não configurada. Conecte via OAuth para obter dados reais.')
+        // Google AdSense requer OAuth2. Sem token válido, retornamos vazio (sem dados fictícios)
+        // e sinalizamos ao cliente com uma mensagem amigável — evita 400 e tela branca.
+        await supabaseClient
+          .from('platform_connections')
+          .update({ last_sync_at: new Date().toISOString() })
+          .eq('id', platformId)
+
+        return new Response(JSON.stringify({
+          success: true,
+          count: 0,
+          warning: 'Conecte o Google AdSense via OAuth2 para receber dados reais. Nenhum dado sintético é gerado.'
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200,
+        })
       } else if (platformId === 'youtube') {
        const channelId = config.id
        if (!channelId) throw new Error('ID do Canal YouTube não configurado')
