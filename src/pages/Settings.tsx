@@ -41,6 +41,9 @@ const FacebookIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
+const ADSENSE_CANONICAL_ORIGIN = "https://analitics.a3solucoesdigitais.com";
+const getAdsenseCallbackUrl = () => `${ADSENSE_CANONICAL_ORIGIN}/adsense/oauth/callback`;
+
 const ConnectionItem = ({ conn, onUpdate, onTestSync, autoSyncTrigger }: { conn: any, onUpdate: any, onTestSync: any, autoSyncTrigger?: boolean }) => {
   const [config, setConfig] = useState(conn.config || {});
   const [isTesting, setIsTesting] = useState(false);
@@ -85,18 +88,28 @@ const ConnectionItem = ({ conn, onUpdate, onTestSync, autoSyncTrigger }: { conn:
 
   const handleAdsenseOAuth = async () => {
     setOauthLoading(true);
+    const oauthWindow = window.open("about:blank", "_blank");
     try {
       const { supabase } = await import("@/integrations/supabase/client");
+      const callbackUrl = getAdsenseCallbackUrl();
       const { data, error } = await supabase.functions.invoke("adsense-oauth-start", {
         body: {
-          return_to: window.location.origin + "/settings",
-          redirect_uri: window.location.origin + "/adsense/oauth/callback"
+          return_to: `${ADSENSE_CANONICAL_ORIGIN}/settings`,
+          redirect_uri: callbackUrl
         }
       });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
-      if (data?.auth_url) window.location.href = data.auth_url;
+      if (data?.auth_url) {
+        if (oauthWindow) {
+          oauthWindow.location.href = data.auth_url;
+          toast.info("Continue a autorização do Google na nova aba.");
+        } else {
+          window.location.href = data.auth_url;
+        }
+      }
     } catch (e: any) {
+      oauthWindow?.close();
       toast.error(e.message || "Falha ao iniciar OAuth do AdSense");
     } finally {
       setOauthLoading(false);
@@ -104,7 +117,7 @@ const ConnectionItem = ({ conn, onUpdate, onTestSync, autoSyncTrigger }: { conn:
   };
 
   const copyAdsenseCallbackUrl = async () => {
-    const callbackUrl = `${window.location.origin}/adsense/oauth/callback`;
+    const callbackUrl = getAdsenseCallbackUrl();
     await navigator.clipboard.writeText(callbackUrl);
     toast.success("URL OAuth copiada");
   };
@@ -207,7 +220,7 @@ const ConnectionItem = ({ conn, onUpdate, onTestSync, autoSyncTrigger }: { conn:
                 <div className="flex flex-col sm:flex-row gap-2">
                   <input
                     type="text"
-                    value={`${window.location.origin}/adsense/oauth/callback`}
+                    value={getAdsenseCallbackUrl()}
                     readOnly
                     className="flex-1 bg-background border rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                   />
@@ -367,10 +380,10 @@ const Settings = () => {
       name: "Google AdSense", 
       icon: <DollarSign className="h-6 w-6 text-yellow-600" />, 
       link: "https://adsense.google.com/start/management-api/",
-      instructions: "Copie a URL OAuth2 abaixo para o Google Cloud, salve no Client ID e conecte para buscar ganhos reais.",
+      instructions: "Use a URL OAuth2 oficial abaixo no Google Cloud, salve no Client ID e conecte para buscar ganhos reais.",
       placeholder: "Ex: pub-xxxxxxxxxxxxxxxx",
       helpUrl: "https://developers.google.com/adsense/management/getting-started",
-      shortHelp: "Cadastre a URL de callback no Google Cloud e autorize via OAuth."
+      shortHelp: "Cadastre a URL de callback no Google Cloud. Se aparecer 403, deixe o consentimento como Externo e adicione seu e-mail como usuário de teste."
     },
   ];
 
