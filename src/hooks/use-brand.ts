@@ -1,0 +1,98 @@
+import { useEffect, useState, useCallback } from "react";
+import { supabase } from "@/integrations/supabase/client";
+
+export interface BrandProfile {
+  brandName: string;
+  logoUrl: string;
+  fullName: string;
+  email: string;
+}
+
+const DEFAULTS: BrandProfile = {
+  brandName: "GrowthSuite Pro",
+  logoUrl: "",
+  fullName: "",
+  email: "",
+};
+
+const LS_KEY = "app_brand_profile";
+
+const readLocal = (): BrandProfile => {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (raw) return { ...DEFAULTS, ...JSON.parse(raw) };
+  } catch {}
+  return DEFAULTS;
+};
+
+export const useBrand = () => {
+  const [profile, setProfile] = useState<BrandProfile>(readLocal);
+  const [loading, setLoading] = useState(true);
+
+  const load = useCallback(async () => {
+    const local = readLocal();
+    setProfile(local);
+    try {
+      const { data: auth } = await supabase.auth.getUser();
+      const user = auth?.user;
+      if (!user) { setLoading(false); return; }
+
+      const [{ data: prof }, { data: settings }] = await Promise.all([
+        supabase.from("profiles").select("full_name,email,avatar_url").eq("id", user.id).maybeSingle(),
+        supabase.from("user_settings").select("preferences").eq("user_id", user.id).maybeSingle(),
+      ]);
+
+      const prefs = (settings?.preferences as any) || {};
+      const merged: BrandProfile = {
+        brandName: prefs.brandName || local.brandName || DEFAULTS.brandName,
+        logoUrl: prefs.logoUrl || prof?.avatar_url || local.logoUrl || "",
+        fullName: prof?.full_name || local.fullName || "",
+        email: prof?.email || user.email || "",
+      };
+      setProfile(merged);
+      localStorage.setItem(LS_KEY, JSON.stringify(merged));
+    } catch (e) {
+      console.warn("useBrand load failed", e);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  const save = useCallback(async (next: Partial<BrandProfile>) => {
+    const merged = { ...profile, ...next };
+    setProfile(merged);
+    localStorage.setItem(LS_KEY, JSON.stringify(merged));
+    window.dispatchEvent(new CustomEvent("brand:updated", { detail: merged }));
+
+    const { data: auth } = await supabase.auth.getUser();
+    const user = auth?.user;
+    if (!user) return { ok: false, reason: "not_authenticated" as const };
+
+    const { error: pErr } = await supabase.from("profiles").upsert({
+      id: user.id,
+      email: merged.email || user.email!,
+      full_name: merged.fullName || null,
+      avatar_url: merged.logoUrl || null,
+      updated_at: new Date().toISOString(),
+    });
+
+    const { error: sErr } = await supabase.from("user_settings").upsert({
+      user_id: user.id,
+      preferences: { brandName: merged.brandName, logoUrl: merged.logoUrl },
+      updated_at: new Date().toISOString(),
+    });
+
+    if (pErr || sErr) return { ok: false, reason: (pErr || sErr)?.message };
+    return { ok: true as const };
+  }, [profile]);
+
+  useEffect(() => {
+    const handler = (e: any) => setProfile(p => ({ ...p, ...e.detail }));
+    window.addEventListener("brand:updated", handler);
+    return () => window.removeEventListener("brand:updated", handler);
+  }, []);
+
+  return { profile, loading, save, reload: load };
+};
