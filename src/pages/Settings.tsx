@@ -44,6 +44,7 @@ const ConnectionItem = ({ conn, onUpdate, onTestSync, autoSyncTrigger }: { conn:
   const [config, setConfig] = useState(conn.config || {});
   const [isTesting, setIsTesting] = useState(false);
   const [syncLog, setSyncLog] = useState<string | null>(null);
+  const [oauthLoading, setOauthLoading] = useState(false);
   const hasAutoSynced = useRef(false);
   
   const handleConnect = () => {
@@ -78,6 +79,23 @@ const ConnectionItem = ({ conn, onUpdate, onTestSync, autoSyncTrigger }: { conn:
       setSyncLog(result.log);
     } finally {
       setIsTesting(false);
+    }
+  };
+
+  const handleAdsenseOAuth = async () => {
+    setOauthLoading(true);
+    try {
+      const { supabase } = await import("@/integrations/supabase/client");
+      const { data, error } = await supabase.functions.invoke("adsense-oauth-start", {
+        body: { return_to: window.location.origin + "/settings" }
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      if (data?.auth_url) window.location.href = data.auth_url;
+    } catch (e: any) {
+      toast.error(e.message || "Falha ao iniciar OAuth do AdSense");
+    } finally {
+      setOauthLoading(false);
     }
   };
 
@@ -191,6 +209,17 @@ const ConnectionItem = ({ conn, onUpdate, onTestSync, autoSyncTrigger }: { conn:
                 >
                   <JetpackIcon className="h-5 w-5" />
                   Conectar Jetpack
+                </Button>
+              )}
+              {conn.id === 'adsense' && (
+                <Button
+                  variant="outline"
+                  className="flex-1 h-11 border-yellow-500/30 hover:bg-yellow-500/10 text-yellow-500 gap-2"
+                  onClick={handleAdsenseOAuth}
+                  disabled={oauthLoading}
+                >
+                  <DollarSign className="h-5 w-5" />
+                  {oauthLoading ? "Abrindo Google..." : "Conectar via Google OAuth"}
                 </Button>
               )}
             </div>
