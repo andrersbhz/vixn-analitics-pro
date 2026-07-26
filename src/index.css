@@ -3,6 +3,17 @@
 @tailwind utilities;
 
 @layer base {
+  h1, h2, h3, h4, h5, h6 {
+    font-family: "Montserrat", "Inter", system-ui, sans-serif;
+    font-weight: 600;
+  }
+  h1, h2, h3, h4, h5, h6,
+  .font-thin, .font-extralight, .font-light {
+    font-weight: 600 !important;
+  }
+}
+
+@layer base {
   :root {
     --background: 240 20% 99%;
     --foreground: 240 10% 10%;
