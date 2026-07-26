@@ -19,7 +19,15 @@ import {
   MousePointer2, 
   Globe, 
    DollarSign,
-   FileText
+   FileText,
+   TrendingUp,
+   Activity,
+   Target,
+   Zap,
+   BarChart3,
+   Clock,
+   Percent,
+   PlayCircle
 } from "lucide-react";
 
 const YoutubeIcon = ({ className }: { className?: string }) => (
