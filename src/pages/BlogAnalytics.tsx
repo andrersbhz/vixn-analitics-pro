@@ -163,7 +163,7 @@ const BlogAnalytics = () => {
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
            {[
             { label: "Usuários", value: loading ? "..." : data?.usersCount || "0", icon: Users, color: "text-cyan-500", bg: "bg-cyan-500/10" },
-            { label: "Site", value: loading ? "..." : data?.siteName || "N/A", icon: Globe, color: "text-indigo-500", bg: "bg-indigo-500/10" },
+            { label: "Site", value: loading ? "..." : data?.siteName || "N/A", icon: Globe, color: "text-indigo-500", bg: "bg-indigo-500/10", href: wpConn?.config?.url as string | undefined },
             { label: "Status API", value: error ? "Erro" : "Ativo", icon: AlertCircle, color: error ? "text-rose-500" : "text-emerald-500", bg: error ? "bg-rose-500/10" : "bg-emerald-500/10" },
             { label: "Sincronização", value: "Real-time", icon: Clock, color: "text-amber-500", bg: "bg-amber-500/10" },
           ].map((stat, i) => (
@@ -172,9 +172,21 @@ const BlogAnalytics = () => {
                   <div className={`p-3 ${stat.bg} rounded-xl`}>
                     <stat.icon className={`${stat.color} h-6 w-6`} />
                   </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">{stat.label}</p>
-                    <p className="text-2xl font-bold text-foreground">{stat.value}</p>
+                  <div className="min-w-0">
+                    <p className="text-xs font-light uppercase tracking-widest text-muted-foreground">{stat.label}</p>
+                    {stat.href ? (
+                      <a
+                        href={stat.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title={stat.href}
+                        className="block text-sm font-light text-primary hover:underline truncate"
+                      >
+                        {stat.value}
+                      </a>
+                    ) : (
+                      <p className="text-2xl font-extralight text-foreground truncate">{stat.value}</p>
+                    )}
                   </div>
                 </div>
               </div>
