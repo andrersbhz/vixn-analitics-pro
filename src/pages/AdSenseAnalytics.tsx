@@ -389,6 +389,63 @@ const AdSenseAnalytics = () => {
           </div>
         </div>
 
+        {/* Métricas adicionais do período */}
+        <div className="grid gap-6 md:grid-cols-4">
+          <div className="glass-card p-5">
+            <p className="text-[10px] font-light uppercase tracking-widest text-muted-foreground">Impressões no Período</p>
+            <p className="text-2xl font-extralight text-foreground mt-1">{periodMetrics.sumImp.toLocaleString('pt-BR')}</p>
+          </div>
+          <div className="glass-card p-5">
+            <p className="text-[10px] font-light uppercase tracking-widest text-muted-foreground">CTR Médio</p>
+            <p className="text-2xl font-extralight text-foreground mt-1">{periodMetrics.avgCtr.toFixed(2)}%</p>
+          </div>
+          <div className="glass-card p-5">
+            <p className="text-[10px] font-light uppercase tracking-widest text-muted-foreground">CPC Médio</p>
+            <p className="text-2xl font-extralight text-foreground mt-1">R$ {periodMetrics.avgCpc.toFixed(2)}</p>
+          </div>
+          <div className="glass-card p-5">
+            <p className="text-[10px] font-light uppercase tracking-widest text-muted-foreground">Page RPM Médio</p>
+            <p className="text-2xl font-extralight text-foreground mt-1">R$ {periodMetrics.avgRpm.toFixed(2)}</p>
+          </div>
+        </div>
+
+        {/* Gráficos adicionais */}
+        <div className="grid gap-6 lg:grid-cols-2">
+          <AnalyticsCard title="Cliques e Impressões">
+            <div className="h-[280px] mt-4">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={revenueData}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted))" />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill:'hsl(var(--muted-foreground))', fontSize:12}} />
+                  <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{fill:'hsl(var(--muted-foreground))', fontSize:12}} />
+                  <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{fill:'hsl(var(--muted-foreground))', fontSize:12}} />
+                  <Tooltip contentStyle={{backgroundColor:'hsl(var(--card))', borderColor:'hsl(var(--border))', borderRadius:'8px'}} />
+                  <Legend wrapperStyle={{fontSize:12}} />
+                  <Bar yAxisId="left" dataKey="impressions" name="Impressões" fill="#6366f1" radius={[4,4,0,0]} />
+                  <Bar yAxisId="right" dataKey="clicks" name="Cliques" fill="#ca8a04" radius={[4,4,0,0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </AnalyticsCard>
+
+          <AnalyticsCard title="RPM e CTR Diário">
+            <div className="h-[280px] mt-4">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={revenueData}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted))" />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill:'hsl(var(--muted-foreground))', fontSize:12}} />
+                  <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{fill:'hsl(var(--muted-foreground))', fontSize:12}} tickFormatter={(v)=>`R$${v}`} />
+                  <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{fill:'hsl(var(--muted-foreground))', fontSize:12}} tickFormatter={(v)=>`${v}%`} />
+                  <Tooltip contentStyle={{backgroundColor:'hsl(var(--card))', borderColor:'hsl(var(--border))', borderRadius:'8px'}} />
+                  <Legend wrapperStyle={{fontSize:12}} />
+                  <Line yAxisId="left" type="monotone" dataKey="rpm" name="RPM (R$)" stroke="#10b981" strokeWidth={2} dot={false} />
+                  <Line yAxisId="right" type="monotone" dataKey="ctr" name="CTR (%)" stroke="#ef4444" strokeWidth={2} dot={false} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </AnalyticsCard>
+        </div>
+
         <div className="grid gap-6 lg:grid-cols-3">
           <AnalyticsCard title="Tendência de Receita" className="lg:col-span-2">
             <div className="h-[350px] mt-4">
