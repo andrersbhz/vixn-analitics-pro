@@ -2,7 +2,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardLayout from "@/components/DashboardLayout";
 import { AnalyticsCard } from "@/components/analytics/AnalyticsCard";
-import { Search, Briefcase, TrendingUp, Users, Target, Rocket, Loader2, Sparkles, Globe, AlertCircle, BarChart3, PieChart, Info, ArrowUpRight, MessageCircle, Play, Share2 } from "lucide-react";
+import { Search, Briefcase, TrendingUp, Users, Target, Rocket, Loader2, Sparkles, Globe, AlertCircle, BarChart3, PieChart, Info, ArrowUpRight, MessageCircle, Play, Share2, Megaphone, Filter, DollarSign, Zap, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { 
@@ -25,24 +25,36 @@ const MarketAnalysis = () => {
     if (!query) return;
     setLoading(true);
     try {
-      const systemPrompt = `Você é um especialista em marketing digital e análise estratégica. 
-      Realize uma análise de mercado detalhada para o nicho ou empresa: ${query}.
-      Sua resposta DEVE ser um objeto JSON puro, sem markdown, contendo:
+      const systemPrompt = `Você é um especialista sênior em marketing digital, growth e copywriting de resposta direta.
+      Realize uma análise de mercado PROFUNDA e ACIONÁVEL para o nicho ou empresa: ${query}.
+      Sua resposta DEVE ser um objeto JSON puro (sem markdown, sem comentários) com ESTA estrutura EXATA:
       {
         "marketSize": "string",
         "competitiveness": "string",
         "avgCac": "string",
         "opportunity": "string",
         "trends": "string",
-        "projections": [{"name": "Mês 1", "value": number}, ...6 meses],
-        "googleAds": {"strategy": "string", "keywords": ["string"], "budget": "string"},
-        "facebookAds": {"strategy": "string", "creative": "string", "budget": "string"},
-        "tiktokAds": {"strategy": "string", "creative": "string", "budget": "string"},
-        "linkedinAds": {"strategy": "string", "audience": "string", "budget": "string"},
+        "projections": [{"name":"Mês 1","value":number}, ... 6 meses],
+        "distribution": [{"name":"Orgânico","value":number},{"name":"Pago","value":number},{"name":"Social","value":number}],
         "channels": "string",
-        "distribution": [{"name": "Orgânico", "value": number}, {"name": "Pago", "value": number}, {"name": "Social", "value": number}]
+        "googleAds": {"strategy":"string","objective":"string","audience":"string","keywords":["string"],"headlines":["string","string","string"],"descriptions":["string","string"],"budget":"string","kpi":"string"},
+        "instagramAds": {"strategy":"string","objective":"string","audience":"string","creative":"string","hook":"string","caption":"string","cta":"string","budget":"string","kpi":"string"},
+        "tiktokAds": {"strategy":"string","objective":"string","audience":"string","creative":"string","hook":"string","script":"string","cta":"string","budget":"string","kpi":"string"},
+        "linkedinAds": {"strategy":"string","objective":"string","audience":"string","format":"string","headline":"string","body":"string","cta":"string","budget":"string","kpi":"string"},
+        "copyModels": [
+          {"framework":"AIDA","headline":"string","body":"string","cta":"string"},
+          {"framework":"PAS (Problema-Agitação-Solução)","headline":"string","body":"string","cta":"string"},
+          {"framework":"BAB (Antes-Depois-Ponte)","headline":"string","body":"string","cta":"string"},
+          {"framework":"4Ps (Promessa-Prova-Proposta-Push)","headline":"string","body":"string","cta":"string"}
+        ],
+        "salesFunnel": {
+          "topo": {"objetivo":"string","canais":["string"],"conteudo":"string","oferta":"string","kpi":"string","copy":"string"},
+          "meio": {"objetivo":"string","canais":["string"],"conteudo":"string","oferta":"string","kpi":"string","copy":"string"},
+          "fundo": {"objetivo":"string","canais":["string"],"conteudo":"string","oferta":"string","kpi":"string","copy":"string"},
+          "posVenda": {"objetivo":"string","canais":["string"],"conteudo":"string","oferta":"string","kpi":"string","copy":"string"}
+        }
       }
-      Responda APENAS o JSON.`;
+      Escreva em português do Brasil, tom persuasivo e específico ao nicho. Responda APENAS o JSON.`;
 
       const { data, error } = await supabase.functions.invoke('ai-chat', {
         body: { 
@@ -75,6 +87,9 @@ const MarketAnalysis = () => {
       if (!result.facebookAds) result.facebookAds = { strategy: "Remarketing e Lookalike", creative: "Vídeos curtos", budget: "R$ 30/dia" };
       if (!result.tiktokAds) result.tiktokAds = { strategy: "Trends e Influenciadores", creative: "UGC (User Generated Content)", budget: "R$ 20/dia" };
       if (!result.linkedinAds) result.linkedinAds = { strategy: "ABM e Conteúdo Educativo", audience: "Decisores B2B", budget: "R$ 100/dia" };
+      if (!result.instagramAds && result.facebookAds) result.instagramAds = result.facebookAds;
+      if (!result.copyModels) result.copyModels = [];
+      if (!result.salesFunnel) result.salesFunnel = {};
       
       setAnalysisResult(result);
       setAnalyzed(true);
