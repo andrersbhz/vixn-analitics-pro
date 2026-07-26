@@ -23,9 +23,8 @@ serve(async (req) => {
     const body = await readJsonBody(req)
     const returnTo = getString(body.return_to) || url.searchParams.get('return_to') || ''
     const requestedRedirectUri = getString(body.redirect_uri) || url.searchParams.get('redirect_uri') || ''
-    const requestedOrigin = getAllowedOrigin(requestedRedirectUri || returnTo || req.headers.get('origin') || '')
-    const origin = requestedOrigin || primaryFrontendOrigin
-    const redirectUri = origin ? `${origin}${callbackPath}` : legacyRedirectUri
+    getAllowedOrigin(requestedRedirectUri || returnTo || req.headers.get('origin') || '')
+    const redirectUri = `${primaryFrontendOrigin}${callbackPath}`
 
     const authUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth')
     authUrl.searchParams.set('client_id', clientId)
