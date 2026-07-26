@@ -15,10 +15,6 @@ serve(async (req) => {
       }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
     }
 
-    const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
-    const projectRef = supabaseUrl.match(/https:\/\/([^.]+)\./)?.[1] ?? ''
-    const legacyRedirectUri = `https://${projectRef}.supabase.co/functions/v1/adsense-oauth-callback`
-
     const url = new URL(req.url)
     const body = await readJsonBody(req)
     const returnTo = getString(body.return_to) || url.searchParams.get('return_to') || ''
