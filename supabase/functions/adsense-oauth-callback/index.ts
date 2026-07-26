@@ -3,6 +3,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors'
 
 const frontendCallbackPath = '/adsense/oauth/callback'
+const primaryFrontendOrigin = 'https://analitics.a3solucoesdigitais.com'
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
@@ -38,7 +39,7 @@ serve(async (req) => {
     const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
     const projectRef = supabaseUrl.match(/https:\/\/([^.]+)\./)?.[1] ?? ''
     const legacyRedirectUri = `https://${projectRef}.supabase.co/functions/v1/adsense-oauth-callback`
-    const redirectUri = explicitRedirectUri || getString(state.redirect_uri) || legacyRedirectUri
+    const redirectUri = explicitRedirectUri || getString(state.redirect_uri) || `${primaryFrontendOrigin}${frontendCallbackPath}`
     if (redirectUri !== legacyRedirectUri && !isAllowedFrontendCallback(redirectUri)) {
       throw new Error('URL OAuth inválida. Gere a conexão novamente em Configurações.')
     }
@@ -94,9 +95,16 @@ serve(async (req) => {
       },
     }
 
-    await supabase.from('platform_connections')
-      .update({ config: newConfig, is_connected: true, updated_at: new Date().toISOString() })
-      .eq('id', 'adsense')
+    const { error: saveError } = await supabase.from('platform_connections')
+      .upsert({
+        id: 'adsense',
+        name: 'Google AdSense',
+        config: newConfig,
+        is_connected: true,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'id' })
+
+    if (saveError) throw new Error(`Não foi possível salvar a conexão AdSense: ${saveError.message}`)
 
     const back = returnTo || '/settings'
     if (isJsonRequest) {

@@ -52,6 +52,15 @@ export const useConnections = () => {
     }
   };
 
+  const formatConnection = (item: any) => ({
+    id: item.id,
+    name: item.name,
+    isConnected: item.is_connected,
+    config: (item.config as Record<string, string>) || {},
+    sync_interval_minutes: item.sync_interval_minutes,
+    next_sync_at: item.next_sync_at
+  });
+
   const fetchConnections = async () => {
     try {
       const { data, error } = await supabase
@@ -61,18 +70,20 @@ export const useConnections = () => {
       if (error) throw error;
 
       if (data && data.length > 0) {
-        const formattedData = data.map(item => ({
-          id: item.id,
-          name: item.name,
-          isConnected: item.is_connected,
-          config: (item.config as Record<string, string>) || {},
-          sync_interval_minutes: item.sync_interval_minutes,
-          next_sync_at: item.next_sync_at
-        }));
+        const formattedData = data.map(formatConnection);
         setConnections(formattedData);
       }
     } catch (error) {
       console.error('Error fetching connections:', error);
+      try {
+        const { data, error: statusError } = await supabase.functions.invoke('connections-status');
+        if (statusError) throw statusError;
+        if (data?.connections) {
+          setConnections(data.connections.map(formatConnection));
+        }
+      } catch (statusError) {
+        console.error('Error fetching sanitized connection status:', statusError);
+      }
     } finally {
       setLoading(false);
     }
@@ -173,6 +184,7 @@ export const useConnections = () => {
     testSync, 
     updateSyncSettings, 
     loading,
-    refreshItems: fetchItems
+    refreshItems: fetchItems,
+    refreshConnections: fetchConnections
   };
 };
