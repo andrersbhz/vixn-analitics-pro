@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { useConnections } from "@/hooks/use-connections";
+import { useBrand } from "@/hooks/use-brand";
 import { 
   ExternalLink, 
   Info,
@@ -162,6 +163,16 @@ const ConnectionItem = ({ conn, onUpdate, onTestSync, autoSyncTrigger }: { conn:
               {conn.instructions}
             </p>
           </div>
+          {conn.helpUrl && (
+            <a
+              href={conn.helpUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-[10px] text-primary/80 hover:text-primary underline underline-offset-2"
+            >
+              <ExternalLink className="h-3 w-3" /> Como fazer esta integração (passo a passo)
+            </a>
+          )}
           
           <div className="grid gap-3">
             {conn.id === 'wordpress' ? (
@@ -269,6 +280,15 @@ const ConnectionItem = ({ conn, onUpdate, onTestSync, autoSyncTrigger }: { conn:
         </div>
       )}
 
+      {conn.helpUrl && (
+        <p className="text-[10px] text-muted-foreground/70 leading-relaxed">
+          <span className="font-medium text-muted-foreground">Dica:</span> {conn.shortHelp}{" "}
+          <a href={conn.helpUrl} target="_blank" rel="noopener noreferrer" className="text-primary/80 hover:text-primary underline underline-offset-2">
+            ver instruções
+          </a>
+        </p>
+      )}
+
       {syncLog && (
         <div className="mt-3 p-3 bg-slate-900 rounded-lg border border-slate-800 font-mono text-[10px] text-slate-300 overflow-x-auto">
           <div className="flex justify-between items-center mb-1 pb-1 border-b border-slate-800">
@@ -287,6 +307,29 @@ const ConnectionItem = ({ conn, onUpdate, onTestSync, autoSyncTrigger }: { conn:
 const Settings = () => {
   const { connections, updateConnection, testSync, loading, items } = useConnections();
   const hasNoVideos = items.filter(i => i.platform_id === 'youtube').length === 0;
+  const { profile, save: saveBrand } = useBrand();
+  const [form, setForm] = useState({ fullName: "", email: "", brandName: "", logoUrl: "" });
+  const [savingProfile, setSavingProfile] = useState(false);
+  useEffect(() => {
+    setForm({
+      fullName: profile.fullName || "",
+      email: profile.email || "",
+      brandName: profile.brandName || "",
+      logoUrl: profile.logoUrl || "",
+    });
+  }, [profile.fullName, profile.email, profile.brandName, profile.logoUrl]);
+
+  const handleSaveProfile = async () => {
+    setSavingProfile(true);
+    try {
+      const res = await saveBrand(form);
+      if (res.ok) toast.success("Perfil salvo com sucesso!");
+      else if (res.reason === "not_authenticated") toast.warning("Salvo localmente. Faça login para sincronizar na nuvem.");
+      else toast.error(`Erro ao salvar: ${res.reason}`);
+    } finally {
+      setSavingProfile(false);
+    }
+  };
 
   const connectionDetails = [
     { 
@@ -295,7 +338,9 @@ const Settings = () => {
       icon: <YoutubeIcon className="h-6 w-6 text-red-500" />, 
       link: "https://studio.youtube.com",
       instructions: "Para conectar, vá ao YouTube Studio, acesse 'Estatísticas' e copie o ID do seu Canal nas configurações avançadas.",
-      placeholder: "Ex: UCxxxxxxxxxxxxxxxxxxxx"
+      placeholder: "Ex: UCxxxxxxxxxxxxxxxxxxxx",
+      helpUrl: "https://support.google.com/youtube/answer/3250431",
+      shortHelp: "Pegue seu Channel ID em YouTube Studio → Configurações → Canal → Avançado."
     },
     { 
       id: "wordpress",
@@ -303,7 +348,9 @@ const Settings = () => {
       icon: <WordPressIcon className="h-6 w-6 text-blue-500" />, 
       link: "https://wordpress.org/support/article/application-passwords/",
       instructions: "Vá em Usuários > Perfil no seu WordPress. Role até 'Senhas de Aplicativo', dê um nome e gere uma senha.",
-      placeholder: "https://seu-site.com"
+      placeholder: "https://seu-site.com",
+      helpUrl: "https://wordpress.org/documentation/article/application-passwords/",
+      shortHelp: "Gere uma Senha de Aplicativo em Usuários → Perfil e use com seu usuário WP."
     },
     { 
       id: "facebook",
@@ -311,7 +358,9 @@ const Settings = () => {
       icon: <FacebookIcon className="h-6 w-6 text-indigo-500" />, 
       link: "https://adsmanager.facebook.com",
       instructions: "Acesse o Gerenciador de Anúncios, vá em 'Configurações do Negócio' > 'Contas de Anúncios' e copie o ID da conta.",
-      placeholder: "Ex: 123456789012345"
+      placeholder: "Ex: 123456789012345",
+      helpUrl: "https://www.facebook.com/business/help/1492627900875762",
+      shortHelp: "Copie o Ad Account ID em Business Settings → Contas de Anúncios."
     },
     { 
       id: "adsense",
@@ -319,7 +368,9 @@ const Settings = () => {
       icon: <DollarSign className="h-6 w-6 text-yellow-600" />, 
       link: "https://adsense.google.com/start/management-api/",
       instructions: "Copie a URL OAuth2 abaixo para o Google Cloud, salve no Client ID e conecte para buscar ganhos reais.",
-      placeholder: "Ex: pub-xxxxxxxxxxxxxxxx"
+      placeholder: "Ex: pub-xxxxxxxxxxxxxxxx",
+      helpUrl: "https://developers.google.com/adsense/management/getting-started",
+      shortHelp: "Cadastre a URL de callback no Google Cloud e autorize via OAuth."
     },
   ];
 
@@ -368,13 +419,51 @@ const Settings = () => {
               <div className="space-y-4 max-w-xl">
                  <div className="grid gap-2">
                    <label className="text-sm font-medium text-foreground">Nome Completo</label>
-                   <input type="text" className="w-full p-2 border rounded-md bg-background text-foreground" defaultValue="Admin User" />
+                   <input
+                     type="text"
+                     value={form.fullName}
+                     onChange={(e) => setForm(f => ({ ...f, fullName: e.target.value }))}
+                     className="w-full p-2 border rounded-md bg-background text-foreground"
+                     placeholder="Seu nome"
+                   />
                  </div>
                  <div className="grid gap-2">
                    <label className="text-sm font-medium text-foreground">Email</label>
-                   <input type="email" className="w-full p-2 border rounded-md bg-background text-foreground" defaultValue="admin@growthsuite.pro" />
+                   <input
+                     type="email"
+                     value={form.email}
+                     onChange={(e) => setForm(f => ({ ...f, email: e.target.value }))}
+                     className="w-full p-2 border rounded-md bg-background text-foreground"
+                     placeholder="voce@email.com"
+                   />
                  </div>
-                <Button className="mt-2">Salvar Alterações</Button>
+                 <div className="grid gap-2 pt-2 border-t">
+                   <label className="text-sm font-medium text-foreground">Nome do Sistema / Marca</label>
+                   <input
+                     type="text"
+                     value={form.brandName}
+                     onChange={(e) => setForm(f => ({ ...f, brandName: e.target.value }))}
+                     className="w-full p-2 border rounded-md bg-background text-foreground"
+                     placeholder="Ex: Minha Marca Pro"
+                   />
+                   <p className="text-[10px] text-muted-foreground">Aparece no topo da sidebar e no cabeçalho.</p>
+                 </div>
+                 <div className="grid gap-2">
+                   <label className="text-sm font-medium text-foreground">URL do Logo</label>
+                   <input
+                     type="url"
+                     value={form.logoUrl}
+                     onChange={(e) => setForm(f => ({ ...f, logoUrl: e.target.value }))}
+                     className="w-full p-2 border rounded-md bg-background text-foreground"
+                     placeholder="https://.../logo.png"
+                   />
+                   {form.logoUrl && (
+                     <img src={form.logoUrl} alt="Prévia do logo" className="h-10 w-10 rounded object-cover border" />
+                   )}
+                 </div>
+                <Button className="mt-2" onClick={handleSaveProfile} disabled={savingProfile}>
+                  {savingProfile ? "Salvando..." : "Salvar Alterações"}
+                </Button>
               </div>
             </AnalyticsCard>
 
