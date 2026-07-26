@@ -98,18 +98,21 @@
         if (!rep.ok) throw new Error(repData?.error?.message || 'Falha na AdSense API')
 
         const rows = repData.rows || []
+        let sumEarn = 0, sumClicks = 0, sumImp = 0, sumViews = 0
         results = rows.map((row: any) => {
           const cells = row.cells || []
           const date = cells[0]?.value
+          const earnings = parseFloat(cells[1]?.value || '0')
+          const clicks = parseInt(cells[2]?.value || '0')
+          const impressions = parseInt(cells[3]?.value || '0')
+          const views = parseInt(cells[4]?.value || '0')
+          sumEarn += earnings; sumClicks += clicks; sumImp += impressions; sumViews += views
           return {
             platform_id: 'adsense',
             external_id: `adsense-${date}`,
             title: `Ganhos ${date}`,
             link: 'https://adsense.google.com',
-            earnings: parseFloat(cells[1]?.value || '0'),
-            clicks: parseInt(cells[2]?.value || '0'),
-            impressions: parseInt(cells[3]?.value || '0'),
-            views: parseInt(cells[4]?.value || '0'),
+            earnings, clicks, impressions, views,
             ctr: parseFloat(cells[5]?.value || '0'),
             rpm: parseFloat(cells[6]?.value || '0'),
             metadata: {
@@ -124,33 +127,22 @@
           }
         })
 
-        // Totais lifetime (desde 2015) — separados por dimensão TOTAL
-        try {
-          const totalUrl = new URL(`https://adsense.googleapis.com/v2/${accountName}/reports:generate`)
-          totalUrl.searchParams.append('dateRange', 'CUSTOM')
-          totalUrl.searchParams.append('startDate.year', '2015')
-          totalUrl.searchParams.append('startDate.month', '1')
-          totalUrl.searchParams.append('startDate.day', '1')
-          totalUrl.searchParams.append('endDate.year', String(e.y))
-          totalUrl.searchParams.append('endDate.month', String(e.m))
-          totalUrl.searchParams.append('endDate.day', String(e.day))
-          for (const m of ['ESTIMATED_EARNINGS','CLICKS','IMPRESSIONS','PAGE_VIEWS'])
-            totalUrl.searchParams.append('metrics', m)
-          const tr = await fetch(totalUrl.toString(), { headers: { Authorization: `Bearer ${accessToken}` } })
-          const td = await tr.json()
-          if (tr.ok) {
-            const totals = td.totals?.cells || []
-            const newConfig2 = { ...connection.config, oauth: { ...(connection.config as any).oauth }, lifetime: {
-              earnings: parseFloat(totals[0]?.value || '0'),
-              clicks: parseInt(totals[1]?.value || '0'),
-              impressions: parseInt(totals[2]?.value || '0'),
-              page_views: parseInt(totals[3]?.value || '0'),
-              updated_at: new Date().toISOString(),
-            }}
-            await supabaseClient.from('platform_connections')
-              .update({ config: newConfig2 }).eq('id', platformId)
-          }
-        } catch (_) { /* opcional */ }
+        // Recarrega config (pode ter mudado durante refresh do token) e grava totais
+        const { data: freshConn } = await supabaseClient
+          .from('platform_connections').select('config').eq('id', platformId).single()
+        const currentConfig = (freshConn?.config as any) || connection.config
+        const totalsCells = repData?.totals?.cells || []
+        const lifetime = {
+          earnings: parseFloat(totalsCells[1]?.value || String(sumEarn)),
+          clicks: parseInt(totalsCells[2]?.value || String(sumClicks)),
+          impressions: parseInt(totalsCells[3]?.value || String(sumImp)),
+          page_views: parseInt(totalsCells[4]?.value || String(sumViews)),
+          days: rows.length,
+          updated_at: new Date().toISOString(),
+        }
+        await supabaseClient.from('platform_connections')
+          .update({ config: { ...currentConfig, lifetime } })
+          .eq('id', platformId)
       } else if (platformId === 'youtube') {
        const channelId = config.id
        if (!channelId) throw new Error('ID do Canal YouTube não configurado')
