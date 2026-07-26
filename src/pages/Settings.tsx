@@ -214,22 +214,7 @@ const ConnectionItem = ({ conn, onUpdate, onTestSync, autoSyncTrigger }: { conn:
                   />
                 </div>
               </>
-            ) : conn.id === 'adsense' ? (
-              <div className="space-y-2">
-                <label className="text-xs font-medium text-muted-foreground">URL de redirecionamento OAuth2</label>
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <input
-                    type="text"
-                    value={getAdsenseCallbackUrl()}
-                    readOnly
-                    className="flex-1 bg-background border rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-                  />
-                  <Button type="button" variant="outline" size="sm" onClick={copyAdsenseCallbackUrl} className="h-10">
-                    Copiar URL
-                  </Button>
-                </div>
-              </div>
-            ) : (
+            ) : conn.id === 'adsense' ? null : (
               <input 
                 type="text" 
                 value={config.id || ""}
@@ -261,17 +246,7 @@ const ConnectionItem = ({ conn, onUpdate, onTestSync, autoSyncTrigger }: { conn:
                   Conectar Jetpack
                 </Button>
               )}
-              {conn.id === 'adsense' && (
-                <Button
-                  variant="default"
-                  className="flex-1 h-11 border-yellow-500/30 hover:bg-yellow-500/10 text-yellow-500 gap-2"
-                  onClick={handleAdsenseOAuth}
-                  disabled={oauthLoading}
-                >
-                  <DollarSign className="h-5 w-5" />
-                  {oauthLoading ? "Abrindo Google..." : "Conectar via Google OAuth"}
-                </Button>
-              )}
+              {/* AdSense OAuth is rendered outside this block so it also appears when reconnecting */}
             </div>
           </div>
         </div>
@@ -289,6 +264,38 @@ const ConnectionItem = ({ conn, onUpdate, onTestSync, autoSyncTrigger }: { conn:
             disabled={isTesting}
           >
             {isTesting ? "Testando..." : "Testar Sincronização"}
+          </Button>
+        </div>
+      )}
+
+      {conn.id === 'adsense' && (
+        <div className="space-y-2 p-3 rounded-lg border border-yellow-500/20 bg-yellow-500/5">
+          <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
+            URL de redirecionamento OAuth2 (cole no Google Cloud)
+          </label>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <input
+              type="text"
+              value={getAdsenseCallbackUrl()}
+              readOnly
+              className="flex-1 bg-background border rounded-lg px-3 py-2 text-xs outline-none"
+            />
+            <Button type="button" variant="outline" size="sm" onClick={copyAdsenseCallbackUrl} className="h-9">
+              Copiar URL
+            </Button>
+          </div>
+          <Button
+            variant="default"
+            className="w-full h-10 border-yellow-500/30 hover:bg-yellow-500/10 text-yellow-500 gap-2"
+            onClick={handleAdsenseOAuth}
+            disabled={oauthLoading}
+          >
+            <DollarSign className="h-4 w-4" />
+            {oauthLoading
+              ? "Abrindo Google..."
+              : conn.isConnected
+                ? "Reconectar via Google OAuth"
+                : "Conectar via Google OAuth"}
           </Button>
         </div>
       )}
