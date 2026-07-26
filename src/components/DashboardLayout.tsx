@@ -40,12 +40,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
        {profile.logoUrl ? (
          <img src={profile.logoUrl} alt={brandName} className="h-7 w-7 rounded object-cover" />
        ) : null}
-        <span
-          className="text-xl gradient-text tracking-widest uppercase truncate"
-          style={{ fontFamily: '"Montserrat", "Inter", system-ui, sans-serif', fontWeight: 600 }}
-        >
-          {brandName}
-        </span>
+       <span className="text-xl font-extralight gradient-text tracking-widest uppercase truncate">{brandName}</span>
      </span>
    );
 
@@ -132,14 +127,15 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 location.pathname === item.href
                   ? "bg-primary/20 text-primary border border-primary/20 shadow-[0_0_15px_rgba(139,92,246,0.1)]"
                 : "text-muted-foreground hover:bg-white/5 hover:text-foreground",
-                "group flex flex-col items-center justify-center gap-1.5 px-2 py-3 text-[11px] font-medium rounded-xl transition-all duration-200 mb-1 text-center leading-tight"
+                "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 mb-1"
               )}
             >
               <item.icon className={cn(
-               "h-5 w-5 shrink-0",
+               "mr-3 h-5 w-5",
                location.pathname === item.href ? "text-primary-foreground" : "text-muted-foreground group-hover:text-foreground"
              )} aria-hidden="true" />
-              <span className="block w-full break-words whitespace-normal">{item.name}</span>
+              {item.name}
+              {location.pathname === item.href && <ChevronRight className="ml-auto h-4 w-4" />}
             </Link>
           ))}
         </nav>
