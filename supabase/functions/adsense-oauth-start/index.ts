@@ -18,8 +18,6 @@ serve(async (req) => {
     const url = new URL(req.url)
     const body = await readJsonBody(req)
     const returnTo = getString(body.return_to) || url.searchParams.get('return_to') || ''
-    const requestedRedirectUri = getString(body.redirect_uri) || url.searchParams.get('redirect_uri') || ''
-    getAllowedOrigin(requestedRedirectUri || returnTo || req.headers.get('origin') || '')
     const redirectUri = `${primaryFrontendOrigin}${callbackPath}`
 
     const authUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth')
@@ -56,15 +54,4 @@ async function readJsonBody(req: Request) {
 
 function getString(value: unknown) {
   return typeof value === 'string' ? value : ''
-}
-
-function getAllowedOrigin(value: string) {
-  try {
-    const url = new URL(value)
-    const hostname = url.hostname.toLowerCase()
-    const allowed = hostname === 'localhost' || hostname.endsWith('.lovable.app') || hostname === 'analitics.a3solucoesdigitais.com'
-    return allowed ? url.origin : ''
-  } catch {
-    return ''
-  }
 }
