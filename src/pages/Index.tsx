@@ -59,25 +59,76 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { Plus, Loader2 } from "lucide-react";
 
-const StatsCard = ({ title, value, change, trend, icon: Icon }: any) => (
-  <Card className="glass-card border-white/5">
+const StatsCard = ({ title, value, change, trend, icon: Icon, accent = "primary" }: any) => (
+  <Card className="glass-card border-white/5 hover:border-primary/20 transition-all duration-300 group">
     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-      <CardTitle className="text-sm font-light uppercase tracking-widest text-muted-foreground">{title}</CardTitle>
-      <div className="p-2 bg-primary/5 rounded-full border border-primary/10">
-        <Icon className="h-4 w-4 text-primary" />
+      <CardTitle className="text-[11px] font-light uppercase tracking-widest text-muted-foreground">{title}</CardTitle>
+      <div className={cn(
+        "p-2 rounded-full border transition-all group-hover:scale-110",
+        accent === "red" && "bg-red-500/5 border-red-500/20 text-red-400",
+        accent === "blue" && "bg-blue-500/5 border-blue-500/20 text-blue-400",
+        accent === "amber" && "bg-amber-500/5 border-amber-500/20 text-amber-400",
+        accent === "emerald" && "bg-emerald-500/5 border-emerald-500/20 text-emerald-400",
+        accent === "indigo" && "bg-indigo-500/5 border-indigo-500/20 text-indigo-400",
+        accent === "primary" && "bg-primary/5 border-primary/10 text-primary",
+      )}>
+        <Icon className="h-4 w-4" />
       </div>
     </CardHeader>
     <CardContent>
-      <div className="text-3xl font-extralight tracking-tight">{value}</div>
-      <div className={cn(
-        "text-[10px] mt-2 flex items-center px-2 py-0.5 rounded-full w-fit font-light tracking-wide",
-        trend === "up" ? "bg-emerald-500/5 text-emerald-500/80 border border-emerald-500/10" : "bg-rose-500/5 text-rose-500/80 border border-rose-500/10"
-      )}>
-        {trend === "up" ? <ArrowUpRight className="h-3 w-3 mr-0.5" /> : <ArrowDownRight className="h-3 w-3 mr-0.5" />}
-        {change}
-      </div>
+      <div className="text-2xl font-extralight tracking-tight">{value}</div>
+      {change && (
+        <div className={cn(
+          "text-[10px] mt-2 flex items-center px-2 py-0.5 rounded-full w-fit font-light tracking-wide",
+          trend === "up" ? "bg-emerald-500/5 text-emerald-500/80 border border-emerald-500/10" :
+          trend === "down" ? "bg-rose-500/5 text-rose-500/80 border border-rose-500/10" :
+          "bg-white/5 text-muted-foreground border border-white/10"
+        )}>
+          {trend === "up" ? <ArrowUpRight className="h-3 w-3 mr-0.5" /> : trend === "down" ? <ArrowDownRight className="h-3 w-3 mr-0.5" /> : null}
+          {change}
+        </div>
+      )}
     </CardContent>
   </Card>
+);
+
+const PlatformBlock = ({ title, icon: Icon, accent, isConnected, children, href }: any) => (
+  <div className="space-y-4">
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-3">
+        <div className={cn(
+          "p-2.5 rounded-xl border",
+          accent === "red" && "bg-red-500/10 border-red-500/20 text-red-400",
+          accent === "blue" && "bg-blue-500/10 border-blue-500/20 text-blue-400",
+          accent === "amber" && "bg-amber-500/10 border-amber-500/20 text-amber-400",
+          accent === "indigo" && "bg-indigo-500/10 border-indigo-500/20 text-indigo-400",
+        )}>
+          <Icon className="h-5 w-5" />
+        </div>
+        <div>
+          <h2 className="text-lg font-light tracking-tight">{title}</h2>
+          <p className="text-[10px] uppercase tracking-widest text-muted-foreground">
+            {isConnected ? "Conectado • Dados em tempo real" : "Não conectado"}
+          </p>
+        </div>
+      </div>
+      {href && (
+        <Link to={href}>
+          <Button variant="ghost" size="sm" className="text-xs font-light gap-1 hover:text-primary">
+            Ver detalhes <ArrowUpRight className="h-3 w-3" />
+          </Button>
+        </Link>
+      )}
+    </div>
+    {isConnected ? children : (
+      <Card className="glass-card border-dashed border-white/10">
+        <CardContent className="py-10 text-center">
+          <p className="text-sm text-muted-foreground font-light">Conecte esta plataforma para visualizar métricas.</p>
+          <Link to="/settings"><Button variant="ghost" size="sm" className="mt-3 text-xs">Configurar</Button></Link>
+        </CardContent>
+      </Card>
+    )}
+  </div>
 );
 
 const Index = () => {
