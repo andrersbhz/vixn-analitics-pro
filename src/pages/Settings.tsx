@@ -44,7 +44,7 @@ const FacebookIcon = ({ className }: { className?: string }) => (
 const ADSENSE_CANONICAL_ORIGIN = "https://analitics.a3solucoesdigitais.com";
 const getAdsenseCallbackUrl = () => `${ADSENSE_CANONICAL_ORIGIN}/adsense/oauth/callback`;
 
-const ConnectionItem = ({ conn, onUpdate, onTestSync, autoSyncTrigger }: { conn: any, onUpdate: any, onTestSync: any, autoSyncTrigger?: boolean }) => {
+const ConnectionItem = ({ conn, onUpdate, onTestSync, onRefresh, autoSyncTrigger }: { conn: any, onUpdate: any, onTestSync: any, onRefresh?: () => Promise<void>, autoSyncTrigger?: boolean }) => {
   const [config, setConfig] = useState(conn.config || {});
   const [isTesting, setIsTesting] = useState(false);
   const [syncLog, setSyncLog] = useState<string | null>(null);
@@ -104,6 +104,14 @@ const ConnectionItem = ({ conn, onUpdate, onTestSync, autoSyncTrigger }: { conn:
         if (oauthWindow) {
           oauthWindow.location.href = data.auth_url;
           toast.info("Continue a autorização do Google na nova aba.");
+          const startedAt = Date.now();
+          const refreshTimer = window.setInterval(async () => {
+            await onRefresh?.();
+            if (Date.now() - startedAt > 120000 || oauthWindow.closed) {
+              window.clearInterval(refreshTimer);
+              await onRefresh?.();
+            }
+          }, 2500);
         } else {
           window.location.href = data.auth_url;
         }
@@ -215,12 +223,12 @@ const ConnectionItem = ({ conn, onUpdate, onTestSync, autoSyncTrigger }: { conn:
                 </div>
               </>
             ) : conn.id === 'adsense' ? null : (
-              <input 
+                <input 
                 type="text" 
                 value={config.id || ""}
                 onChange={(e) => updateConfig('id', e.target.value)}
                 placeholder={conn.placeholder}
-                className="bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/40 outline-none transition-all focus:bg-white/10"
+                 className="bg-background border border-input rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/40 outline-none transition-all focus:bg-primary/5"
               />
             )}
             <div className="flex flex-col sm:flex-row gap-3">
@@ -232,7 +240,7 @@ const ConnectionItem = ({ conn, onUpdate, onTestSync, autoSyncTrigger }: { conn:
               {conn.id === 'wordpress' && (
                 <Button 
                   variant="outline" 
-                  className="flex-1 h-11 border-[#00AADC]/30 hover:bg-[#00AADC]/10 text-[#00AADC] font-bold gap-2"
+                  className="flex-1 h-11 border-primary/30 hover:bg-primary/10 text-primary font-light gap-2"
                   onClick={() => {
                     toast.info("Iniciando conexão segura com Jetpack...");
                     // Simulação de fluxo OAuth Jetpack
@@ -269,7 +277,7 @@ const ConnectionItem = ({ conn, onUpdate, onTestSync, autoSyncTrigger }: { conn:
       )}
 
       {conn.id === 'adsense' && (
-        <div className="space-y-2 p-3 rounded-lg border border-yellow-500/20 bg-yellow-500/5">
+        <div className="space-y-2 p-3 rounded-lg border border-primary/20 bg-primary/5">
           <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
             URL de redirecionamento OAuth2 (cole no Google Cloud)
           </label>
@@ -286,7 +294,7 @@ const ConnectionItem = ({ conn, onUpdate, onTestSync, autoSyncTrigger }: { conn:
           </div>
           <Button
             variant="default"
-            className="w-full h-10 border-yellow-500/30 hover:bg-yellow-500/10 text-yellow-500 gap-2"
+            className="w-full h-10 bg-primary text-primary-foreground hover:bg-primary/90 font-light gap-2"
             onClick={handleAdsenseOAuth}
             disabled={oauthLoading}
           >
@@ -325,7 +333,7 @@ const ConnectionItem = ({ conn, onUpdate, onTestSync, autoSyncTrigger }: { conn:
 };
 
 const Settings = () => {
-  const { connections, updateConnection, testSync, loading, items } = useConnections();
+  const { connections, updateConnection, testSync, refreshConnections, loading, items } = useConnections();
   const hasNoVideos = items.filter(i => i.platform_id === 'youtube').length === 0;
   const { profile, save: saveBrand } = useBrand();
   const [form, setForm] = useState({ fullName: "", email: "", brandName: "", logoUrl: "" });
@@ -385,7 +393,7 @@ const Settings = () => {
     { 
       id: "adsense",
       name: "Google AdSense", 
-      icon: <DollarSign className="h-6 w-6 text-yellow-600" />, 
+      icon: <DollarSign className="h-6 w-6 text-primary" />, 
       link: "https://adsense.google.com/start/management-api/",
       instructions: "Use a URL OAuth2 oficial abaixo no Google Cloud, salve no Client ID e conecte para buscar ganhos reais.",
       placeholder: "Ex: pub-xxxxxxxxxxxxxxxx",
@@ -497,6 +505,7 @@ const Settings = () => {
                       conn={{ ...detail, ...conn }} 
                       onUpdate={updateConnection} 
                       onTestSync={testSync}
+                       onRefresh={refreshConnections}
                       autoSyncTrigger={detail.id === 'youtube' && hasNoVideos}
                     />
                   );

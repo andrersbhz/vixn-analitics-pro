@@ -52,8 +52,23 @@ export const useConnections = () => {
     }
   };
 
+  const formatConnection = (item: any) => ({
+    id: item.id,
+    name: item.name,
+    isConnected: item.is_connected,
+    config: (item.config as Record<string, string>) || {},
+    sync_interval_minutes: item.sync_interval_minutes,
+    next_sync_at: item.next_sync_at
+  });
+
   const fetchConnections = async () => {
     try {
+      const { data: statusData, error: statusError } = await supabase.functions.invoke('connections-status');
+      if (!statusError && statusData?.connections) {
+        setConnections(statusData.connections.map(formatConnection));
+        return;
+      }
+
       const { data, error } = await supabase
         .from('platform_connections')
         .select('*');
@@ -61,14 +76,7 @@ export const useConnections = () => {
       if (error) throw error;
 
       if (data && data.length > 0) {
-        const formattedData = data.map(item => ({
-          id: item.id,
-          name: item.name,
-          isConnected: item.is_connected,
-          config: (item.config as Record<string, string>) || {},
-          sync_interval_minutes: item.sync_interval_minutes,
-          next_sync_at: item.next_sync_at
-        }));
+        const formattedData = data.map(formatConnection);
         setConnections(formattedData);
       }
     } catch (error) {
@@ -173,6 +181,7 @@ export const useConnections = () => {
     testSync, 
     updateSyncSettings, 
     loading,
-    refreshItems: fetchItems
+    refreshItems: fetchItems,
+    refreshConnections: fetchConnections
   };
 };
