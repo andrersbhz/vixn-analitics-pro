@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/card";
 import { useState, useEffect, useCallback } from "react";
 import { useConnections, Connection } from "@/hooks/use-connections";
+import { supabase } from "@/integrations/supabase/client";
 import { fetchWordPressData, WordPressStats } from "@/lib/wordpress";
 import { 
   ArrowUpRight, 
@@ -88,8 +89,18 @@ const Index = () => {
      setIsCreating(true);
      try {
        await updateConnection(projectPlatform, { id: platformId }, true);
-       
-       toast.success(`Projeto "${projectName}" configurado com sucesso!`);
+
+        const { data: userData } = await supabase.auth.getUser();
+        if (userData?.user) {
+          await supabase.from('projects').insert({
+            user_id: userData.user.id,
+            name: projectName,
+            platform: projectPlatform,
+            external_id: platformId,
+          });
+        }
+
+        toast.success(`Projeto "${projectName}" salvo com sucesso!`);
        setIsNewProjectOpen(false);
        setProjectName("");
        setProjectPlatform("");
