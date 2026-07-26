@@ -15,6 +15,7 @@ import Strategy from "./pages/Strategy";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
 import Diagnostics from "./pages/Diagnostics";
+import AdSenseOAuthCallback from "./pages/AdSenseOAuthCallback";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -39,6 +40,7 @@ const App = () => {
               <Route path="/reports" element={<Reports />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/diagnostics" element={<Diagnostics />} />
+              <Route path="/adsense/oauth/callback" element={<AdSenseOAuthCallback />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
