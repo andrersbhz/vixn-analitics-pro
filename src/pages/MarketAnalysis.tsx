@@ -314,6 +314,119 @@ const MarketAnalysis = () => {
                 </Button>
               </AnalyticsCard>
             </div>
+
+            {/* Estratégias detalhadas por plataforma */}
+            <AnalyticsCard title="Estratégias Detalhadas de Ads por Plataforma">
+              <div className="grid gap-4 md:grid-cols-2">
+                {[
+                  { key: 'googleAds', label: 'Google Ads', color: 'blue', icon: Search },
+                  { key: 'instagramAds', label: 'Instagram / Facebook Ads', color: 'pink', icon: Share2 },
+                  { key: 'tiktokAds', label: 'TikTok Ads', color: 'fuchsia', icon: Play },
+                  { key: 'linkedinAds', label: 'LinkedIn Ads', color: 'indigo', icon: Briefcase },
+                ].map(({ key, label, color, icon: Icon }) => {
+                  const d = analysisResult?.[key] || {};
+                  return (
+                    <div key={key} className={`p-4 rounded-xl bg-${color}-500/5 border border-${color}-500/10 flex flex-col gap-3`}>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Icon className={`h-4 w-4 text-${color}-400`} />
+                          <span className={`text-[11px] font-bold uppercase tracking-wider text-${color}-400`}>{label}</span>
+                        </div>
+                        {d.budget && <span className="text-[10px] text-muted-foreground flex items-center gap-1"><DollarSign className="h-3 w-3" />{d.budget}</span>}
+                      </div>
+                      {d.objective && <div className="text-[0.8rem]"><span className="text-muted-foreground/70 uppercase text-[9px] tracking-wider">Objetivo · </span><span className="text-foreground/80">{d.objective}</span></div>}
+                      {d.audience && <div className="text-[0.8rem]"><span className="text-muted-foreground/70 uppercase text-[9px] tracking-wider">Público · </span><span className="text-foreground/80">{d.audience}</span></div>}
+                      {d.strategy && <p className="text-foreground/80 text-[0.85rem] leading-snug">{d.strategy}</p>}
+                      {Array.isArray(d.keywords) && d.keywords.length > 0 && (
+                        <div className="flex flex-wrap gap-1">
+                          {d.keywords.slice(0, 8).map((k: string, i: number) => (
+                            <span key={i} className={`text-[10px] px-2 py-0.5 rounded-full bg-${color}-500/10 text-${color}-300 border border-${color}-500/20`}>{k}</span>
+                          ))}
+                        </div>
+                      )}
+                      {Array.isArray(d.headlines) && d.headlines.length > 0 && (
+                        <div className="space-y-1">
+                          <span className="text-[9px] uppercase tracking-wider text-muted-foreground/70">Títulos</span>
+                          {d.headlines.map((h: string, i: number) => (
+                            <div key={i} className="text-[0.8rem] text-foreground/80 border-l-2 border-white/10 pl-2">{h}</div>
+                          ))}
+                        </div>
+                      )}
+                      {(d.hook || d.script || d.body || d.caption) && (
+                        <div className="space-y-1">
+                          {d.hook && <div className="text-[0.8rem]"><span className="text-muted-foreground/70 uppercase text-[9px] tracking-wider">Hook · </span><span className="text-foreground/80 italic">"{d.hook}"</span></div>}
+                          {(d.script || d.body || d.caption) && <p className="text-[0.8rem] text-foreground/70 leading-snug">{d.script || d.body || d.caption}</p>}
+                        </div>
+                      )}
+                      {d.creative && <div className="text-[0.8rem]"><span className="text-muted-foreground/70 uppercase text-[9px] tracking-wider">Criativo · </span><span className="text-foreground/80">{d.creative}</span></div>}
+                      {d.format && <div className="text-[0.8rem]"><span className="text-muted-foreground/70 uppercase text-[9px] tracking-wider">Formato · </span><span className="text-foreground/80">{d.format}</span></div>}
+                      {d.cta && <div className="text-[0.8rem]"><span className="text-muted-foreground/70 uppercase text-[9px] tracking-wider">CTA · </span><span className="text-foreground/80 font-medium">{d.cta}</span></div>}
+                      {d.kpi && <div className="text-[0.75rem] text-emerald-400/80 flex items-center gap-1"><Target className="h-3 w-3" />{d.kpi}</div>}
+                    </div>
+                  );
+                })}
+              </div>
+            </AnalyticsCard>
+
+            {/* Modelos de Copy */}
+            {Array.isArray(analysisResult?.copyModels) && analysisResult.copyModels.length > 0 && (
+              <AnalyticsCard title="Modelos de Copy Prontos">
+                <div className="grid gap-4 md:grid-cols-2">
+                  {analysisResult.copyModels.map((c: any, i: number) => (
+                    <div key={i} className="p-4 rounded-xl bg-white/5 border border-white/10 flex flex-col gap-2">
+                      <div className="flex items-center gap-2">
+                        <FileText className="h-4 w-4 text-purple-400" />
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-purple-300">{c.framework}</span>
+                      </div>
+                      {c.headline && <div className="text-[0.9rem] font-medium text-foreground">{c.headline}</div>}
+                      {c.body && <p className="text-[0.82rem] text-muted-foreground leading-relaxed whitespace-pre-line">{c.body}</p>}
+                      {c.cta && (
+                        <div className="mt-1 inline-flex self-start items-center gap-1 text-[0.75rem] px-3 py-1 rounded-full bg-purple-500/15 text-purple-200 border border-purple-500/30">
+                          <Zap className="h-3 w-3" /> {c.cta}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </AnalyticsCard>
+            )}
+
+            {/* Funil de Vendas */}
+            {analysisResult?.salesFunnel && Object.keys(analysisResult.salesFunnel).length > 0 && (
+              <AnalyticsCard title="Funil de Vendas Matador">
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                  {[
+                    { key: 'topo', label: 'Topo · Atração', color: 'cyan', icon: Users },
+                    { key: 'meio', label: 'Meio · Consideração', color: 'purple', icon: Filter },
+                    { key: 'fundo', label: 'Fundo · Conversão', color: 'emerald', icon: Target },
+                    { key: 'posVenda', label: 'Pós-Venda · Retenção', color: 'amber', icon: Rocket },
+                  ].map(({ key, label, color, icon: Icon }) => {
+                    const s = analysisResult.salesFunnel[key];
+                    if (!s) return null;
+                    return (
+                      <div key={key} className={`p-4 rounded-2xl bg-gradient-to-b from-${color}-500/10 to-transparent border border-${color}-500/20 flex flex-col gap-3`}>
+                        <div className="flex items-center gap-2">
+                          <Icon className={`h-4 w-4 text-${color}-400`} />
+                          <span className={`text-[10px] font-bold uppercase tracking-wider text-${color}-300`}>{label}</span>
+                        </div>
+                        {s.objetivo && <div className="text-[0.82rem] text-foreground/85"><span className="text-muted-foreground/70 uppercase text-[9px] tracking-wider block mb-0.5">Objetivo</span>{s.objetivo}</div>}
+                        {Array.isArray(s.canais) && s.canais.length > 0 && (
+                          <div className="flex flex-wrap gap-1">
+                            {s.canais.map((c: string, i: number) => (
+                              <span key={i} className={`text-[9px] px-2 py-0.5 rounded-full bg-${color}-500/10 text-${color}-200 border border-${color}-500/20`}>{c}</span>
+                            ))}
+                          </div>
+                        )}
+                        {s.conteudo && <div className="text-[0.8rem] text-muted-foreground"><span className="text-muted-foreground/60 uppercase text-[9px] tracking-wider block mb-0.5">Conteúdo</span>{s.conteudo}</div>}
+                        {s.oferta && <div className="text-[0.8rem] text-muted-foreground"><span className="text-muted-foreground/60 uppercase text-[9px] tracking-wider block mb-0.5">Oferta</span>{s.oferta}</div>}
+                        {s.copy && <div className="text-[0.78rem] italic text-foreground/70 border-l-2 border-white/10 pl-2">"{s.copy}"</div>}
+                        {s.kpi && <div className={`text-[0.72rem] text-${color}-300 flex items-center gap-1 mt-auto`}><Target className="h-3 w-3" />{s.kpi}</div>}
+                      </div>
+                    );
+                  })}
+                </div>
+              </AnalyticsCard>
+            )}
           </div>
         )}
       </div>
