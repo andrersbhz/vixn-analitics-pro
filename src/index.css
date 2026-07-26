@@ -81,7 +81,8 @@
 }
 
 .gradient-text {
-  @apply bg-clip-text text-transparent bg-gradient-to-r from-cyan-300 via-primary to-indigo-400;
+  @apply bg-clip-text text-transparent;
+  background-image: var(--gradient-primary, linear-gradient(90deg, #67E8F9, hsl(var(--primary)), #818CF8));
 }
 
 /* subtle animated sheen for hero cards */

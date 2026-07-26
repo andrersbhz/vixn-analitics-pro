@@ -14,6 +14,7 @@ import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { useConnections } from "@/hooks/use-connections";
 import { useBrand } from "@/hooks/use-brand";
+import AppearancePanel from "@/components/AppearancePanel";
 import { 
   ExternalLink, 
   Info,
@@ -535,7 +536,7 @@ const Settings = () => {
             )}
             {activeTab === "aparencia" && (
               <AnalyticsCard title="Aparência">
-                <p className="text-sm text-muted-foreground font-light">Alterne o tema claro/escuro pelo botão na sidebar. Mais opções em breve.</p>
+                <AppearancePanel />
               </AnalyticsCard>
             )}
             {activeTab === "idioma" && (
