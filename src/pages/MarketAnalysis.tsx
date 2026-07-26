@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
+import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardLayout from "@/components/DashboardLayout";
 import { AnalyticsCard } from "@/components/analytics/AnalyticsCard";
-import { Search, Briefcase, TrendingUp, Users, Target, Rocket, Loader2, Sparkles, Globe, AlertCircle, BarChart3, PieChart, Info, ArrowUpRight, MessageCircle, Play, Share2, Megaphone, Filter, DollarSign, Zap, FileText, ImagePlus, X, Wand2, Download } from "lucide-react";
+import { Search, Briefcase, TrendingUp, Users, Target, Rocket, Loader2, Sparkles, Globe, AlertCircle, BarChart3, PieChart, Info, ArrowUpRight, MessageCircle, Play, Share2, Megaphone, Filter, DollarSign, Zap, FileText, ImagePlus, X, Wand2, Download, Save, ShoppingBag, Link as LinkIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -17,10 +19,19 @@ const MarketAnalysis = () => {
   const { connections } = useConnections();
   const isAnyConnected = connections.some(c => c.isConnected);
 
+  const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [analyzed, setAnalyzed] = useState(false);
   const [query, setQuery] = useState("");
   const [analysisResult, setAnalysisResult] = useState<any>(null);
+  const [currentStudyId, setCurrentStudyId] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  // Ecommerce analysis
+  const [ecomUrl, setEcomUrl] = useState("");
+  const [ecomLoading, setEcomLoading] = useState(false);
+  const [ecomResult, setEcomResult] = useState<any>(null);
+  const [ecomError, setEcomError] = useState<string | null>(null);
 
   // Product knowledge → ad creatives
   const [productName, setProductName] = useState("");
@@ -29,6 +40,71 @@ const MarketAnalysis = () => {
   const [generatingCreatives, setGeneratingCreatives] = useState(false);
   const [creativesResult, setCreativesResult] = useState<{ creatives: any[]; adCopies: any[] } | null>(null);
   const [creativesError, setCreativesError] = useState<string | null>(null);
+
+  // Load saved study from ?studyId=
+  useEffect(() => {
+    const id = searchParams.get('studyId');
+    if (!id) return;
+    (async () => {
+      const { data, error } = await supabase.from('market_analyses').select('*').eq('id', id).maybeSingle();
+      if (error || !data) return;
+      setCurrentStudyId(data.id);
+      setQuery(data.niche || '');
+      setAnalysisResult(data.result || null);
+      setAnalyzed(true);
+      setTimeout(() => {
+        document.getElementById('creatives-panel')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 300);
+    })();
+  }, [searchParams]);
+
+  const handleAnalyzeEcommerce = async () => {
+    if (!ecomUrl) return;
+    setEcomLoading(true);
+    setEcomError(null);
+    setEcomResult(null);
+    try {
+      const { data, error } = await supabase.functions.invoke('analyze-ecommerce', { body: { url: ecomUrl } });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      setEcomResult(data);
+      // Pre-fill market query with detected niche/store to make it easy to run full study
+      const suggested = data?.analysis?.storeName
+        ? `${data.analysis.storeName}${data.analysis?.niche ? ' · ' + data.analysis.niche : ''}`
+        : ecomUrl;
+      setQuery(suggested);
+    } catch (e: any) {
+      setEcomError(e?.message || 'Falha ao analisar e-commerce');
+    } finally {
+      setEcomLoading(false);
+    }
+  };
+
+  const handleSaveStrategy = async () => {
+    if (!analysisResult) return;
+    setSaving(true);
+    try {
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData?.user) throw new Error('Faça login para salvar');
+      if (currentStudyId) {
+        const { error } = await supabase.from('market_analyses').update({
+          result: analysisResult, niche: query, updated_at: new Date().toISOString(),
+        }).eq('id', currentStudyId);
+        if (error) throw error;
+      } else {
+        const { data, error } = await supabase.from('market_analyses').insert({
+          user_id: userData.user.id, niche: query, prompt: null, model: 'gemini', result: analysisResult,
+        }).select().single();
+        if (error) throw error;
+        setCurrentStudyId(data.id);
+      }
+      toast({ title: 'Estratégia salva', description: 'Disponível na página Estratégia.' });
+    } catch (e: any) {
+      toast({ title: 'Erro ao salvar', description: e?.message, variant: 'destructive' });
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const handleImageUpload = async (files: FileList | null) => {
     if (!files) return;
@@ -194,6 +270,69 @@ const MarketAnalysis = () => {
           </div>
         </div>
 
+        <AnalyticsCard title="Analisar E-commerce (URL)">
+          <div className="flex flex-col md:flex-row gap-3">
+            <div className="relative flex-1">
+              <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="https://sualoja.com.br"
+                className="pl-10 h-11 bg-accent/20 border-accent"
+                value={ecomUrl}
+                onChange={(e) => setEcomUrl(e.target.value)}
+              />
+            </div>
+            <Button
+              onClick={handleAnalyzeEcommerce}
+              disabled={ecomLoading || !ecomUrl}
+              className="h-11 px-6 bg-cyan-600 hover:bg-cyan-700"
+            >
+              {ecomLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ShoppingBag className="mr-2 h-4 w-4" />}
+              {ecomLoading ? 'Analisando loja...' : 'Analisar Loja'}
+            </Button>
+          </div>
+          {ecomError && <div className="mt-3 text-xs text-red-400 flex items-center gap-2"><AlertCircle className="h-3 w-3" />{ecomError}</div>}
+          {ecomResult?.analysis && (
+            <div className="mt-5 grid gap-3 md:grid-cols-2 animate-in fade-in slide-in-from-bottom-2 duration-500">
+              {ecomResult.analysis.storeName && (
+                <div className="p-4 rounded-xl bg-white/5 border border-white/10">
+                  <div className="text-[10px] uppercase tracking-widest text-cyan-300 mb-1">Loja / Nicho</div>
+                  <div className="text-sm text-foreground">{ecomResult.analysis.storeName} · <span className="text-muted-foreground">{ecomResult.analysis.niche}</span></div>
+                </div>
+              )}
+              {ecomResult.analysis.positioning && (
+                <div className="p-4 rounded-xl bg-white/5 border border-white/10">
+                  <div className="text-[10px] uppercase tracking-widest text-cyan-300 mb-1">Posicionamento</div>
+                  <div className="text-sm text-foreground/85">{ecomResult.analysis.positioning}</div>
+                </div>
+              )}
+              {ecomResult.analysis.targetAudience && (
+                <div className="p-4 rounded-xl bg-white/5 border border-white/10 md:col-span-2">
+                  <div className="text-[10px] uppercase tracking-widest text-cyan-300 mb-1">Público-alvo</div>
+                  <div className="text-sm text-foreground/85">{ecomResult.analysis.targetAudience}</div>
+                </div>
+              )}
+              {['strengths','weaknesses','opportunities','quickWins'].map((k) => (
+                Array.isArray(ecomResult.analysis[k]) && ecomResult.analysis[k].length > 0 && (
+                  <div key={k} className="p-4 rounded-xl bg-white/5 border border-white/10">
+                    <div className="text-[10px] uppercase tracking-widest text-cyan-300 mb-2">
+                      {k === 'strengths' ? 'Forças' : k === 'weaknesses' ? 'Fraquezas' : k === 'opportunities' ? 'Oportunidades' : 'Quick Wins'}
+                    </div>
+                    <ul className="space-y-1 text-[0.82rem] text-foreground/80 list-disc list-inside">
+                      {ecomResult.analysis[k].map((s: string, i: number) => <li key={i}>{s}</li>)}
+                    </ul>
+                  </div>
+                )
+              ))}
+              <div className="md:col-span-2">
+                <Button onClick={handleAnalyze} disabled={loading} className="w-full bg-purple-600 hover:bg-purple-700">
+                  {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
+                  Gerar Estratégia Completa com base nesta análise
+                </Button>
+              </div>
+            </div>
+          )}
+        </AnalyticsCard>
+
         <AnalyticsCard title="Nova Pesquisa de Mercado">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="relative flex-1">
@@ -217,6 +356,7 @@ const MarketAnalysis = () => {
         </AnalyticsCard>
 
         {/* Conhecimento do Produto → Criativos com IA */}
+        <div id="creatives-panel" />
         <AnalyticsCard title="Conhecimento do Produto · Gerador de Criativos com IA">
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-3">
