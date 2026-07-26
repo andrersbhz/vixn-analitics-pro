@@ -19,7 +19,12 @@ import {
   XAxis, 
   YAxis, 
   CartesianGrid, 
-  Tooltip 
+  Tooltip,
+  BarChart,
+  Bar,
+  Legend,
+  LineChart,
+  Line
 } from 'recharts';
 import { useConnections } from "@/hooks/use-connections";
 import { Link } from "react-router-dom";
@@ -81,7 +86,11 @@ const AdSenseAnalytics = () => {
       name: item.metadata?.date ? format(parseISO(item.metadata.date), 'eee', { locale: ptBR }) : '',
       revenue: item.earnings || 0,
       views: item.views || 0,
-      clicks: item.clicks || 0
+      clicks: item.clicks || 0,
+      impressions: item.impressions || 0,
+      ctr: item.ctr || 0,
+      cpc: (item.metadata as any)?.cpc || 0,
+      rpm: (item.metadata as any)?.page_rpm || 0,
     })).sort((a, b) => a.date.getTime() - b.date.getTime());
 
     if (data.length === 0) return [];
@@ -107,6 +116,16 @@ const AdSenseAnalytics = () => {
   const totals = useMemo(() => {
     return revenueData.reduce((acc, curr) => acc + curr.revenue, 0);
   }, [revenueData]);
+
+  const periodMetrics = useMemo(() => {
+    const sumImp = revenueData.reduce((a, c) => a + c.impressions, 0);
+    const sumClicks = revenueData.reduce((a, c) => a + c.clicks, 0);
+    const sumViews = revenueData.reduce((a, c) => a + c.views, 0);
+    const avgCtr = sumImp > 0 ? (sumClicks / sumImp) * 100 : 0;
+    const avgCpc = sumClicks > 0 ? totals / sumClicks : 0;
+    const avgRpm = sumViews > 0 ? (totals / sumViews) * 1000 : 0;
+    return { sumImp, sumClicks, sumViews, avgCtr, avgCpc, avgRpm };
+  }, [revenueData, totals]);
 
   // Totais que NÃO dependem do filtro de período
   const allTimeTotals = useMemo(() => {
@@ -368,6 +387,63 @@ const AdSenseAnalytics = () => {
               {allTimeTotals.views.toLocaleString('pt-BR')}
             </p>
           </div>
+        </div>
+
+        {/* Métricas adicionais do período */}
+        <div className="grid gap-6 md:grid-cols-4">
+          <div className="glass-card p-5">
+            <p className="text-[10px] font-light uppercase tracking-widest text-muted-foreground">Impressões no Período</p>
+            <p className="text-2xl font-extralight text-foreground mt-1">{periodMetrics.sumImp.toLocaleString('pt-BR')}</p>
+          </div>
+          <div className="glass-card p-5">
+            <p className="text-[10px] font-light uppercase tracking-widest text-muted-foreground">CTR Médio</p>
+            <p className="text-2xl font-extralight text-foreground mt-1">{periodMetrics.avgCtr.toFixed(2)}%</p>
+          </div>
+          <div className="glass-card p-5">
+            <p className="text-[10px] font-light uppercase tracking-widest text-muted-foreground">CPC Médio</p>
+            <p className="text-2xl font-extralight text-foreground mt-1">R$ {periodMetrics.avgCpc.toFixed(2)}</p>
+          </div>
+          <div className="glass-card p-5">
+            <p className="text-[10px] font-light uppercase tracking-widest text-muted-foreground">Page RPM Médio</p>
+            <p className="text-2xl font-extralight text-foreground mt-1">R$ {periodMetrics.avgRpm.toFixed(2)}</p>
+          </div>
+        </div>
+
+        {/* Gráficos adicionais */}
+        <div className="grid gap-6 lg:grid-cols-2">
+          <AnalyticsCard title="Cliques e Impressões">
+            <div className="h-[280px] mt-4">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={revenueData}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted))" />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill:'hsl(var(--muted-foreground))', fontSize:12}} />
+                  <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{fill:'hsl(var(--muted-foreground))', fontSize:12}} />
+                  <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{fill:'hsl(var(--muted-foreground))', fontSize:12}} />
+                  <Tooltip contentStyle={{backgroundColor:'hsl(var(--card))', borderColor:'hsl(var(--border))', borderRadius:'8px'}} />
+                  <Legend wrapperStyle={{fontSize:12}} />
+                  <Bar yAxisId="left" dataKey="impressions" name="Impressões" fill="#6366f1" radius={[4,4,0,0]} />
+                  <Bar yAxisId="right" dataKey="clicks" name="Cliques" fill="#ca8a04" radius={[4,4,0,0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </AnalyticsCard>
+
+          <AnalyticsCard title="RPM e CTR Diário">
+            <div className="h-[280px] mt-4">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={revenueData}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted))" />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill:'hsl(var(--muted-foreground))', fontSize:12}} />
+                  <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{fill:'hsl(var(--muted-foreground))', fontSize:12}} tickFormatter={(v)=>`R$${v}`} />
+                  <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{fill:'hsl(var(--muted-foreground))', fontSize:12}} tickFormatter={(v)=>`${v}%`} />
+                  <Tooltip contentStyle={{backgroundColor:'hsl(var(--card))', borderColor:'hsl(var(--border))', borderRadius:'8px'}} />
+                  <Legend wrapperStyle={{fontSize:12}} />
+                  <Line yAxisId="left" type="monotone" dataKey="rpm" name="RPM (R$)" stroke="#10b981" strokeWidth={2} dot={false} />
+                  <Line yAxisId="right" type="monotone" dataKey="ctr" name="CTR (%)" stroke="#ef4444" strokeWidth={2} dot={false} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </AnalyticsCard>
         </div>
 
         <div className="grid gap-6 lg:grid-cols-3">
