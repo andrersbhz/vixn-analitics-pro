@@ -73,9 +73,9 @@
         const accountName = oauth.account_name // "accounts/pub-XXXX"
         if (!accountName) throw new Error('Conta AdSense não identificada. Reconecte via OAuth.')
 
-        // Últimos 30 dias, por dia
+        // Últimos 365 dias, por dia
         const end = new Date()
-        const start = new Date(); start.setDate(start.getDate() - 30)
+        const start = new Date(); start.setDate(start.getDate() - 365)
         const fmt = (d: Date) => ({ y: d.getUTCFullYear(), m: d.getUTCMonth() + 1, day: d.getUTCDate() })
         const s = fmt(start), e = fmt(end)
         const reportUrl = new URL(`https://adsense.googleapis.com/v2/${accountName}/reports:generate`)
@@ -87,31 +87,62 @@
         reportUrl.searchParams.append('endDate.month', String(e.m))
         reportUrl.searchParams.append('endDate.day', String(e.day))
         for (const dim of ['DATE']) reportUrl.searchParams.append('dimensions', dim)
-        for (const m of ['ESTIMATED_EARNINGS','CLICKS','IMPRESSIONS','PAGE_VIEWS','IMPRESSIONS_CTR','COST_PER_CLICK'])
-          reportUrl.searchParams.append('metrics', m)
+        for (const m of [
+          'ESTIMATED_EARNINGS','CLICKS','IMPRESSIONS','PAGE_VIEWS',
+          'IMPRESSIONS_CTR','COST_PER_CLICK','PAGE_VIEWS_RPM','IMPRESSIONS_RPM',
+          'AD_REQUESTS','MATCHED_AD_REQUESTS','AD_REQUESTS_CTR'
+        ]) reportUrl.searchParams.append('metrics', m)
 
         const rep = await fetch(reportUrl.toString(), { headers: { Authorization: `Bearer ${accessToken}` } })
         const repData = await rep.json()
         if (!rep.ok) throw new Error(repData?.error?.message || 'Falha na AdSense API')
 
         const rows = repData.rows || []
+        let sumEarn = 0, sumClicks = 0, sumImp = 0, sumViews = 0
         results = rows.map((row: any) => {
           const cells = row.cells || []
           const date = cells[0]?.value
+          const earnings = parseFloat(cells[1]?.value || '0')
+          const clicks = parseInt(cells[2]?.value || '0')
+          const impressions = parseInt(cells[3]?.value || '0')
+          const views = parseInt(cells[4]?.value || '0')
+          sumEarn += earnings; sumClicks += clicks; sumImp += impressions; sumViews += views
           return {
             platform_id: 'adsense',
             external_id: `adsense-${date}`,
             title: `Ganhos ${date}`,
             link: 'https://adsense.google.com',
-            earnings: parseFloat(cells[1]?.value || '0'),
-            clicks: parseInt(cells[2]?.value || '0'),
-            impressions: parseInt(cells[3]?.value || '0'),
-            views: parseInt(cells[4]?.value || '0'),
+            earnings, clicks, impressions, views,
             ctr: parseFloat(cells[5]?.value || '0'),
             rpm: parseFloat(cells[6]?.value || '0'),
-            metadata: { date }
+            metadata: {
+              date,
+              cpc: parseFloat(cells[6]?.value || '0'),
+              page_rpm: parseFloat(cells[7]?.value || '0'),
+              imp_rpm: parseFloat(cells[8]?.value || '0'),
+              ad_requests: parseInt(cells[9]?.value || '0'),
+              matched_requests: parseInt(cells[10]?.value || '0'),
+              ad_request_ctr: parseFloat(cells[11]?.value || '0'),
+            }
           }
         })
+
+        // Recarrega config (pode ter mudado durante refresh do token) e grava totais
+        const { data: freshConn } = await supabaseClient
+          .from('platform_connections').select('config').eq('id', platformId).single()
+        const currentConfig = (freshConn?.config as any) || connection.config
+        const totalsCells = repData?.totals?.cells || []
+        const lifetime = {
+          earnings: parseFloat(totalsCells[1]?.value || String(sumEarn)),
+          clicks: parseInt(totalsCells[2]?.value || String(sumClicks)),
+          impressions: parseInt(totalsCells[3]?.value || String(sumImp)),
+          page_views: parseInt(totalsCells[4]?.value || String(sumViews)),
+          days: rows.length,
+          updated_at: new Date().toISOString(),
+        }
+        await supabaseClient.from('platform_connections')
+          .update({ config: { ...currentConfig, lifetime } })
+          .eq('id', platformId)
       } else if (platformId === 'youtube') {
        const channelId = config.id
        if (!channelId) throw new Error('ID do Canal YouTube não configurado')
@@ -217,7 +248,7 @@
        .update(updateData)
        .eq('id', platformId)
  
-     return new Response(JSON.stringify({ success: true, count: results.length }), {
+      return new Response(JSON.stringify({ success: true, count: results.length, v: 'adsense-v3' }), {
        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
        status: 200,
      })

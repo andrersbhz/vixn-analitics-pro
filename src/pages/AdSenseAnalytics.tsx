@@ -108,6 +108,28 @@ const AdSenseAnalytics = () => {
     return revenueData.reduce((acc, curr) => acc + curr.revenue, 0);
   }, [revenueData]);
 
+  // Totais que NÃO dependem do filtro de período
+  const allTimeTotals = useMemo(() => {
+    const lifetime = (adsenseConn?.config as any)?.lifetime;
+    const fromItems = adsenseItems.reduce(
+      (acc, i) => ({
+        earnings: acc.earnings + (i.earnings || 0),
+        clicks: acc.clicks + (i.clicks || 0),
+        impressions: acc.impressions + (i.impressions || 0),
+        views: acc.views + (i.views || 0),
+      }),
+      { earnings: 0, clicks: 0, impressions: 0, views: 0 },
+    );
+    return {
+      earnings: lifetime?.earnings ?? fromItems.earnings,
+      clicks: lifetime?.clicks ?? fromItems.clicks,
+      impressions: lifetime?.impressions ?? fromItems.impressions,
+      views: lifetime?.page_views ?? fromItems.views,
+      isLifetime: !!lifetime,
+      updatedAt: lifetime?.updated_at,
+    };
+  }, [adsenseConn, adsenseItems]);
+
   const handleSyncNow = async () => {
     setIsSyncing(true);
     const startTime = new Date().toLocaleTimeString();
@@ -312,6 +334,39 @@ const AdSenseAnalytics = () => {
                 Estimado
               </span>
             </div>
+          </div>
+        </div>
+
+        {/* Totais acumulados — não dependem do filtro de período */}
+        <div className="grid gap-6 md:grid-cols-4">
+          <div className="glass-card p-5">
+            <p className="text-[10px] font-light uppercase tracking-widest text-muted-foreground">
+              {allTimeTotals.isLifetime ? 'Ganhos Lifetime' : 'Ganhos Sincronizados'}
+            </p>
+            <p className="text-2xl font-extralight text-foreground mt-1">
+              R$ {allTimeTotals.earnings.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+            </p>
+            <p className="text-[10px] text-muted-foreground mt-1">
+              {allTimeTotals.isLifetime ? 'Desde o início da conta' : `${adsenseItems.length} dias sincronizados`}
+            </p>
+          </div>
+          <div className="glass-card p-5">
+            <p className="text-[10px] font-light uppercase tracking-widest text-muted-foreground">Cliques (total)</p>
+            <p className="text-2xl font-extralight text-foreground mt-1">
+              {allTimeTotals.clicks.toLocaleString('pt-BR')}
+            </p>
+          </div>
+          <div className="glass-card p-5">
+            <p className="text-[10px] font-light uppercase tracking-widest text-muted-foreground">Impressões (total)</p>
+            <p className="text-2xl font-extralight text-foreground mt-1">
+              {allTimeTotals.impressions.toLocaleString('pt-BR')}
+            </p>
+          </div>
+          <div className="glass-card p-5">
+            <p className="text-[10px] font-light uppercase tracking-widest text-muted-foreground">Page views (total)</p>
+            <p className="text-2xl font-extralight text-foreground mt-1">
+              {allTimeTotals.views.toLocaleString('pt-BR')}
+            </p>
           </div>
         </div>
 
