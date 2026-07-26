@@ -261,7 +261,7 @@
        .update(updateData)
        .eq('id', platformId)
  
-      return new Response(JSON.stringify({ success: true, count: results.length, v: 'adsense-v3' }), {
+      return new Response(JSON.stringify({ success: true, count: results.length, v: 'yt-parser-v2' }), {
        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
        status: 200,
      })
