@@ -338,6 +338,7 @@ const Settings = () => {
   const { profile, save: saveBrand } = useBrand();
   const [form, setForm] = useState({ fullName: "", email: "", brandName: "", logoUrl: "" });
   const [savingProfile, setSavingProfile] = useState(false);
+  const [activeTab, setActiveTab] = useState<string>("perfil");
   useEffect(() => {
     setForm({
       fullName: profile.fullName || "",
@@ -418,21 +419,26 @@ const Settings = () => {
         <div className="grid gap-8 lg:grid-cols-4">
           <div className="lg:col-span-1 space-y-1">
             {[
-              { label: "Perfil", icon: User, active: true },
-              { label: "Notificações", icon: Bell },
-              { label: "Segurança", icon: Lock },
-              { label: "Conexões", icon: LinkIcon },
-              { label: "Aparência", icon: Palette },
-              { label: "Idioma", icon: Globe },
-            ].map((item, i) => (
-              <button 
-                key={i} 
-               className={`w-full flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${item.active ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
-             >
-                <item.icon className="h-4 w-4" />
-                {item.label}
-              </button>
-            ))}
+              { key: "perfil", label: "Perfil", icon: User },
+              { key: "notificacoes", label: "Notificações", icon: Bell },
+              { key: "seguranca", label: "Segurança", icon: Lock },
+              { key: "conexoes", label: "Conexões", icon: LinkIcon },
+              { key: "aparencia", label: "Aparência", icon: Palette },
+              { key: "idioma", label: "Idioma", icon: Globe },
+            ].map((item) => {
+              const active = activeTab === item.key;
+              return (
+                <button
+                  key={item.key}
+                  type="button"
+                  onClick={() => setActiveTab(item.key)}
+                  className={`w-full flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${active ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
+                >
+                  <item.icon className="h-4 w-4" />
+                  {item.label}
+                </button>
+              );
+            })}
           </div>
 
           <div className="lg:col-span-3 space-y-6">
@@ -443,6 +449,7 @@ const Settings = () => {
             )}
             {!loading && (
               <>
+            {activeTab === "perfil" && (
             <AnalyticsCard title="Informações Pessoais">
               <div className="space-y-4 max-w-xl">
                  <div className="grid gap-2">
@@ -494,7 +501,9 @@ const Settings = () => {
                 </Button>
               </div>
             </AnalyticsCard>
+            )}
 
+            {activeTab === "conexoes" && (
             <AnalyticsCard title="Plataformas Conectadas">
               <div className="space-y-6">
                 {connectionDetails.map((detail) => {
@@ -512,6 +521,28 @@ const Settings = () => {
                 })}
               </div>
             </AnalyticsCard>
+            )}
+
+            {activeTab === "notificacoes" && (
+              <AnalyticsCard title="Notificações">
+                <p className="text-sm text-muted-foreground font-light">Em breve: preferências de alertas por e-mail e no app.</p>
+              </AnalyticsCard>
+            )}
+            {activeTab === "seguranca" && (
+              <AnalyticsCard title="Segurança">
+                <p className="text-sm text-muted-foreground font-light">Em breve: alteração de senha e autenticação em duas etapas.</p>
+              </AnalyticsCard>
+            )}
+            {activeTab === "aparencia" && (
+              <AnalyticsCard title="Aparência">
+                <p className="text-sm text-muted-foreground font-light">Alterne o tema claro/escuro pelo botão na sidebar. Mais opções em breve.</p>
+              </AnalyticsCard>
+            )}
+            {activeTab === "idioma" && (
+              <AnalyticsCard title="Idioma">
+                <p className="text-sm text-muted-foreground font-light">Português (Brasil). Outros idiomas em breve.</p>
+              </AnalyticsCard>
+            )}
             </>
             )}
           </div>
