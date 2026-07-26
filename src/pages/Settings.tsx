@@ -485,17 +485,58 @@ const Settings = () => {
                    <p className="text-[10px] text-muted-foreground">Aparece no topo da sidebar e no cabeçalho.</p>
                  </div>
                  <div className="grid gap-2">
-                   <label className="text-sm font-medium text-foreground">URL do Logo</label>
-                   <input
-                     type="url"
-                     value={form.logoUrl}
-                     onChange={(e) => setForm(f => ({ ...f, logoUrl: e.target.value }))}
-                     className="w-full p-2 border rounded-md bg-background text-foreground"
-                     placeholder="https://.../logo.png"
-                   />
-                   {form.logoUrl && (
-                     <img src={form.logoUrl} alt="Prévia do logo" className="h-10 w-10 rounded object-cover border" />
-                   )}
+                   <label className="text-sm font-medium text-foreground">Logo</label>
+                   <div className="flex items-center gap-4">
+                     {form.logoUrl ? (
+                       <img src={form.logoUrl} alt="Prévia do logo" className="h-16 w-16 rounded-lg object-cover border" />
+                     ) : (
+                       <div className="h-16 w-16 rounded-lg border border-dashed flex items-center justify-center text-[10px] text-muted-foreground">
+                         Sem logo
+                       </div>
+                     )}
+                     <div className="flex flex-col gap-2">
+                       <input
+                         id="logo-upload"
+                         type="file"
+                         accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                         className="hidden"
+                         onChange={(e) => {
+                           const file = e.target.files?.[0];
+                           if (!file) return;
+                           if (file.size > 2 * 1024 * 1024) {
+                             toast.error("Logo deve ter menos de 2MB.");
+                             return;
+                           }
+                           const reader = new FileReader();
+                           reader.onload = () => {
+                             setForm(f => ({ ...f, logoUrl: String(reader.result || "") }));
+                           };
+                           reader.readAsDataURL(file);
+                         }}
+                       />
+                       <div className="flex gap-2">
+                         <Button type="button" variant="outline" size="sm" onClick={() => document.getElementById("logo-upload")?.click()}>
+                           Enviar imagem
+                         </Button>
+                         {form.logoUrl && (
+                           <Button type="button" variant="ghost" size="sm" onClick={() => setForm(f => ({ ...f, logoUrl: "" }))}>
+                             Remover
+                           </Button>
+                         )}
+                       </div>
+                       <p className="text-[10px] text-muted-foreground">PNG, JPG, WEBP ou SVG. Máx 2MB.</p>
+                     </div>
+                   </div>
+                   <div className="grid gap-1 pt-2">
+                     <label className="text-[11px] text-muted-foreground">Ou cole uma URL</label>
+                     <input
+                       type="url"
+                       value={form.logoUrl.startsWith("data:") ? "" : form.logoUrl}
+                       onChange={(e) => setForm(f => ({ ...f, logoUrl: e.target.value }))}
+                       className="w-full p-2 border rounded-md bg-background text-foreground text-sm"
+                       placeholder="https://.../logo.png"
+                     />
+                   </div>
                  </div>
                 <Button className="mt-2" onClick={handleSaveProfile} disabled={savingProfile}>
                   {savingProfile ? "Salvando..." : "Salvar Alterações"}
