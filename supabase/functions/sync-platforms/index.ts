@@ -73,9 +73,9 @@
         const accountName = oauth.account_name // "accounts/pub-XXXX"
         if (!accountName) throw new Error('Conta AdSense não identificada. Reconecte via OAuth.')
 
-        // Últimos 30 dias, por dia
+        // Últimos 365 dias, por dia
         const end = new Date()
-        const start = new Date(); start.setDate(start.getDate() - 30)
+        const start = new Date(); start.setDate(start.getDate() - 365)
         const fmt = (d: Date) => ({ y: d.getUTCFullYear(), m: d.getUTCMonth() + 1, day: d.getUTCDate() })
         const s = fmt(start), e = fmt(end)
         const reportUrl = new URL(`https://adsense.googleapis.com/v2/${accountName}/reports:generate`)
@@ -87,8 +87,11 @@
         reportUrl.searchParams.append('endDate.month', String(e.m))
         reportUrl.searchParams.append('endDate.day', String(e.day))
         for (const dim of ['DATE']) reportUrl.searchParams.append('dimensions', dim)
-        for (const m of ['ESTIMATED_EARNINGS','CLICKS','IMPRESSIONS','PAGE_VIEWS','IMPRESSIONS_CTR','COST_PER_CLICK'])
-          reportUrl.searchParams.append('metrics', m)
+        for (const m of [
+          'ESTIMATED_EARNINGS','CLICKS','IMPRESSIONS','PAGE_VIEWS',
+          'IMPRESSIONS_CTR','COST_PER_CLICK','PAGE_VIEWS_RPM','IMPRESSIONS_RPM',
+          'AD_REQUESTS','MATCHED_AD_REQUESTS','AD_REQUESTS_CTR'
+        ]) reportUrl.searchParams.append('metrics', m)
 
         const rep = await fetch(reportUrl.toString(), { headers: { Authorization: `Bearer ${accessToken}` } })
         const repData = await rep.json()
@@ -109,9 +112,45 @@
             views: parseInt(cells[4]?.value || '0'),
             ctr: parseFloat(cells[5]?.value || '0'),
             rpm: parseFloat(cells[6]?.value || '0'),
-            metadata: { date }
+            metadata: {
+              date,
+              cpc: parseFloat(cells[6]?.value || '0'),
+              page_rpm: parseFloat(cells[7]?.value || '0'),
+              imp_rpm: parseFloat(cells[8]?.value || '0'),
+              ad_requests: parseInt(cells[9]?.value || '0'),
+              matched_requests: parseInt(cells[10]?.value || '0'),
+              ad_request_ctr: parseFloat(cells[11]?.value || '0'),
+            }
           }
         })
+
+        // Totais lifetime (desde 2015) — separados por dimensão TOTAL
+        try {
+          const totalUrl = new URL(`https://adsense.googleapis.com/v2/${accountName}/reports:generate`)
+          totalUrl.searchParams.append('dateRange', 'CUSTOM')
+          totalUrl.searchParams.append('startDate.year', '2015')
+          totalUrl.searchParams.append('startDate.month', '1')
+          totalUrl.searchParams.append('startDate.day', '1')
+          totalUrl.searchParams.append('endDate.year', String(e.y))
+          totalUrl.searchParams.append('endDate.month', String(e.m))
+          totalUrl.searchParams.append('endDate.day', String(e.day))
+          for (const m of ['ESTIMATED_EARNINGS','CLICKS','IMPRESSIONS','PAGE_VIEWS'])
+            totalUrl.searchParams.append('metrics', m)
+          const tr = await fetch(totalUrl.toString(), { headers: { Authorization: `Bearer ${accessToken}` } })
+          const td = await tr.json()
+          if (tr.ok) {
+            const totals = td.totals?.cells || []
+            const newConfig2 = { ...connection.config, oauth: { ...(connection.config as any).oauth }, lifetime: {
+              earnings: parseFloat(totals[0]?.value || '0'),
+              clicks: parseInt(totals[1]?.value || '0'),
+              impressions: parseInt(totals[2]?.value || '0'),
+              page_views: parseInt(totals[3]?.value || '0'),
+              updated_at: new Date().toISOString(),
+            }}
+            await supabaseClient.from('platform_connections')
+              .update({ config: newConfig2 }).eq('id', platformId)
+          }
+        } catch (_) { /* opcional */ }
       } else if (platformId === 'youtube') {
        const channelId = config.id
        if (!channelId) throw new Error('ID do Canal YouTube não configurado')
