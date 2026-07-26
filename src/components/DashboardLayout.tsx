@@ -40,7 +40,12 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
        {profile.logoUrl ? (
          <img src={profile.logoUrl} alt={brandName} className="h-7 w-7 rounded object-cover" />
        ) : null}
-       <span className="text-xl font-extralight gradient-text tracking-widest uppercase truncate">{brandName}</span>
+        <span
+          className="text-xl gradient-text tracking-widest uppercase truncate"
+          style={{ fontFamily: '"Montserrat", "Inter", system-ui, sans-serif', fontWeight: 600 }}
+        >
+          {brandName}
+        </span>
      </span>
    );
 
