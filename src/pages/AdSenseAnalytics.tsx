@@ -356,6 +356,70 @@ const AdSenseAnalytics = () => {
           </Button>
         </div>
 
+        {/* Métricas do Dia */}
+        <div>
+          <div className="flex items-baseline justify-between mb-3">
+            <h2 className="text-sm font-light uppercase tracking-widest text-muted-foreground">
+              Métricas do Dia
+            </h2>
+            <span className="text-[10px] text-muted-foreground">
+              {todayMetrics.isToday
+                ? `Hoje · ${format(parseISO(todayMetrics.dateKey), "dd 'de' MMMM", { locale: ptBR })}`
+                : `Último dia sincronizado · ${format(parseISO(todayMetrics.dateKey), "dd/MM/yyyy")}`}
+            </span>
+          </div>
+          <div className="grid gap-6 md:grid-cols-4">
+            <div className="glass-card p-5">
+              <p className="text-[10px] font-light uppercase tracking-widest text-muted-foreground">Ganhos Hoje</p>
+              <p className="text-2xl font-extralight text-foreground mt-1">
+                R$ {todayMetrics.earnings.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              </p>
+            </div>
+            <div className="glass-card p-5">
+              <p className="text-[10px] font-light uppercase tracking-widest text-muted-foreground">Cliques Hoje</p>
+              <p className="text-2xl font-extralight text-foreground mt-1">
+                {todayMetrics.clicks.toLocaleString('pt-BR')}
+              </p>
+            </div>
+            <div className="glass-card p-5">
+              <p className="text-[10px] font-light uppercase tracking-widest text-muted-foreground">Impressões Hoje</p>
+              <p className="text-2xl font-extralight text-foreground mt-1">
+                {todayMetrics.impressions.toLocaleString('pt-BR')}
+              </p>
+            </div>
+            <div className="glass-card p-5">
+              <p className="text-[10px] font-light uppercase tracking-widest text-muted-foreground">Page views Hoje</p>
+              <p className="text-2xl font-extralight text-foreground mt-1">
+                {todayMetrics.views.toLocaleString('pt-BR')}
+              </p>
+            </div>
+            <div className="glass-card p-5">
+              <p className="text-[10px] font-light uppercase tracking-widest text-muted-foreground">CTR Hoje</p>
+              <p className="text-2xl font-extralight text-foreground mt-1">
+                {todayMetrics.ctr.toFixed(2)}%
+              </p>
+            </div>
+            <div className="glass-card p-5">
+              <p className="text-[10px] font-light uppercase tracking-widest text-muted-foreground">CPC Hoje</p>
+              <p className="text-2xl font-extralight text-foreground mt-1">
+                R$ {todayMetrics.cpc.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              </p>
+            </div>
+            <div className="glass-card p-5">
+              <p className="text-[10px] font-light uppercase tracking-widest text-muted-foreground">RPM Hoje</p>
+              <p className="text-2xl font-extralight text-foreground mt-1">
+                R$ {todayMetrics.rpm.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              </p>
+            </div>
+            <div className="glass-card p-5 flex flex-col justify-center">
+              <p className="text-[10px] font-light uppercase tracking-widest text-muted-foreground">Status</p>
+              <p className="text-sm font-light text-foreground mt-1">
+                {todayMetrics.isToday ? '✓ Dados de hoje disponíveis' : 'Aguardando dados de hoje'}
+              </p>
+            </div>
+          </div>
+        </div>
+
         <div className="grid gap-6 md:grid-cols-4">
           <div className="glass-card p-5">
             <p className="text-[10px] font-light uppercase tracking-widest text-muted-foreground">Ganhos no Período</p>
