@@ -144,6 +144,9 @@ export const useConnections = () => {
       if (error) throw error;
       
       await fetchItems();
+      if (data?.warning) {
+        return { success: true, log: data.warning };
+      }
       return { success: true, log: `Sincronização realizada com sucesso! ${data.count} itens encontrados.` };
     } catch (error: any) {
       return { success: false, log: `Erro: ${error.message}` };
