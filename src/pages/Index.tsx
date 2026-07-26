@@ -276,7 +276,7 @@ const Index = () => {
             </div>
 
             {/* YOUTUBE BLOCK */}
-            <PlatformBlock title="YouTube" icon={YoutubeIcon} accent="red" isConnected={!!ytConn?.isConnected} href="/youtube-stats">
+            <PlatformBlock title="YouTube" icon={YoutubeIcon} accent="red" isConnected={!!ytConn?.isConnected} href="/youtube">
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <StatsCard title="Vídeos" value={fmt(ytItems.length)} icon={PlayCircle} accent="red" />
                 <StatsCard title="Views Totais" value={fmt(ytViews)} icon={Eye} accent="red" />
@@ -304,7 +304,7 @@ const Index = () => {
             </PlatformBlock>
 
             {/* BLOG BLOCK */}
-            <PlatformBlock title="Blog / WordPress" icon={Globe} accent="blue" isConnected={!!wpConn?.isConnected} href="/blog-analytics">
+            <PlatformBlock title="Blog / WordPress" icon={Globe} accent="blue" isConnected={!!wpConn?.isConnected} href="/blog">
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <StatsCard title="Posts" value={fmt(wpItems.length)} icon={FileText} accent="blue" />
                 <StatsCard title="Views Totais" value={fmt(wpViews)} icon={Eye} accent="blue" />
@@ -314,7 +314,7 @@ const Index = () => {
             </PlatformBlock>
 
             {/* ADSENSE BLOCK */}
-            <PlatformBlock title="Google AdSense" icon={DollarSign} accent="amber" isConnected={!!adsenseConn?.isConnected} href="/adsense-analytics">
+            <PlatformBlock title="Google AdSense" icon={DollarSign} accent="amber" isConnected={!!adsenseConn?.isConnected} href="/adsense">
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <StatsCard title="Ganhos" value={fmtBRL(adsEarnings)} icon={DollarSign} accent="amber" />
                 <StatsCard title="Cliques" value={fmt(adsClicks)} icon={MousePointer2} accent="amber" />
