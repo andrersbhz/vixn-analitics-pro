@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      market_analyses: {
+        Row: {
+          created_at: string
+          id: string
+          model: string | null
+          niche: string
+          prompt: string | null
+          result: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          model?: string | null
+          niche: string
+          prompt?: string | null
+          result?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          model?: string | null
+          niche?: string
+          prompt?: string | null
+          result?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       platform_connections: {
         Row: {
           cached_data: Json | null
@@ -140,6 +173,78 @@ export type Database = {
         }
         Relationships: []
       }
+      projects: {
+        Row: {
+          created_at: string
+          description: string | null
+          external_id: string | null
+          id: string
+          name: string
+          platform: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          external_id?: string | null
+          id?: string
+          name: string
+          platform: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          external_id?: string | null
+          id?: string
+          name?: string
+          platform?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      saved_reports: {
+        Row: {
+          created_at: string
+          filters: Json
+          id: string
+          period_end: string | null
+          period_start: string | null
+          report_type: string
+          snapshot: Json
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          filters?: Json
+          id?: string
+          period_end?: string | null
+          period_start?: string | null
+          report_type: string
+          snapshot?: Json
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          filters?: Json
+          id?: string
+          period_end?: string | null
+          period_start?: string | null
+          report_type?: string
+          snapshot?: Json
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       sync_history: {
         Row: {
           created_at: string
@@ -161,6 +266,36 @@ export type Database = {
           id?: string
           platform_id?: string
           status?: string
+        }
+        Relationships: []
+      }
+      user_settings: {
+        Row: {
+          created_at: string
+          default_sync_interval_minutes: number | null
+          preferences: Json
+          saved_filters: Json
+          theme: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          default_sync_interval_minutes?: number | null
+          preferences?: Json
+          saved_filters?: Json
+          theme?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          default_sync_interval_minutes?: number | null
+          preferences?: Json
+          saved_filters?: Json
+          theme?: string | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
