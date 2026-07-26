@@ -19,7 +19,15 @@ import {
   MousePointer2, 
   Globe, 
    DollarSign,
-   FileText
+   FileText,
+   TrendingUp,
+   Activity,
+   Target,
+   Zap,
+   BarChart3,
+   Clock,
+   Percent,
+   PlayCircle
 } from "lucide-react";
 
 const YoutubeIcon = ({ className }: { className?: string }) => (
@@ -51,25 +59,76 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { Plus, Loader2 } from "lucide-react";
 
-const StatsCard = ({ title, value, change, trend, icon: Icon }: any) => (
-  <Card className="glass-card border-white/5">
+const StatsCard = ({ title, value, change, trend, icon: Icon, accent = "primary" }: any) => (
+  <Card className="glass-card border-white/5 hover:border-primary/20 transition-all duration-300 group">
     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-      <CardTitle className="text-sm font-light uppercase tracking-widest text-muted-foreground">{title}</CardTitle>
-      <div className="p-2 bg-primary/5 rounded-full border border-primary/10">
-        <Icon className="h-4 w-4 text-primary" />
+      <CardTitle className="text-[11px] font-light uppercase tracking-widest text-muted-foreground">{title}</CardTitle>
+      <div className={cn(
+        "p-2 rounded-full border transition-all group-hover:scale-110",
+        accent === "red" && "bg-red-500/5 border-red-500/20 text-red-400",
+        accent === "blue" && "bg-blue-500/5 border-blue-500/20 text-blue-400",
+        accent === "amber" && "bg-amber-500/5 border-amber-500/20 text-amber-400",
+        accent === "emerald" && "bg-emerald-500/5 border-emerald-500/20 text-emerald-400",
+        accent === "indigo" && "bg-indigo-500/5 border-indigo-500/20 text-indigo-400",
+        accent === "primary" && "bg-primary/5 border-primary/10 text-primary",
+      )}>
+        <Icon className="h-4 w-4" />
       </div>
     </CardHeader>
     <CardContent>
-      <div className="text-3xl font-extralight tracking-tight">{value}</div>
-      <div className={cn(
-        "text-[10px] mt-2 flex items-center px-2 py-0.5 rounded-full w-fit font-light tracking-wide",
-        trend === "up" ? "bg-emerald-500/5 text-emerald-500/80 border border-emerald-500/10" : "bg-rose-500/5 text-rose-500/80 border border-rose-500/10"
-      )}>
-        {trend === "up" ? <ArrowUpRight className="h-3 w-3 mr-0.5" /> : <ArrowDownRight className="h-3 w-3 mr-0.5" />}
-        {change}
-      </div>
+      <div className="text-2xl font-extralight tracking-tight">{value}</div>
+      {change && (
+        <div className={cn(
+          "text-[10px] mt-2 flex items-center px-2 py-0.5 rounded-full w-fit font-light tracking-wide",
+          trend === "up" ? "bg-emerald-500/5 text-emerald-500/80 border border-emerald-500/10" :
+          trend === "down" ? "bg-rose-500/5 text-rose-500/80 border border-rose-500/10" :
+          "bg-white/5 text-muted-foreground border border-white/10"
+        )}>
+          {trend === "up" ? <ArrowUpRight className="h-3 w-3 mr-0.5" /> : trend === "down" ? <ArrowDownRight className="h-3 w-3 mr-0.5" /> : null}
+          {change}
+        </div>
+      )}
     </CardContent>
   </Card>
+);
+
+const PlatformBlock = ({ title, icon: Icon, accent, isConnected, children, href }: any) => (
+  <div className="space-y-4">
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-3">
+        <div className={cn(
+          "p-2.5 rounded-xl border",
+          accent === "red" && "bg-red-500/10 border-red-500/20 text-red-400",
+          accent === "blue" && "bg-blue-500/10 border-blue-500/20 text-blue-400",
+          accent === "amber" && "bg-amber-500/10 border-amber-500/20 text-amber-400",
+          accent === "indigo" && "bg-indigo-500/10 border-indigo-500/20 text-indigo-400",
+        )}>
+          <Icon className="h-5 w-5" />
+        </div>
+        <div>
+          <h2 className="text-lg font-light tracking-tight">{title}</h2>
+          <p className="text-[10px] uppercase tracking-widest text-muted-foreground">
+            {isConnected ? "Conectado • Dados em tempo real" : "Não conectado"}
+          </p>
+        </div>
+      </div>
+      {href && (
+        <Link to={href}>
+          <Button variant="ghost" size="sm" className="text-xs font-light gap-1 hover:text-primary">
+            Ver detalhes <ArrowUpRight className="h-3 w-3" />
+          </Button>
+        </Link>
+      )}
+    </div>
+    {isConnected ? children : (
+      <Card className="glass-card border-dashed border-white/10">
+        <CardContent className="py-10 text-center">
+          <p className="text-sm text-muted-foreground font-light">Conecte esta plataforma para visualizar métricas.</p>
+          <Link to="/settings"><Button variant="ghost" size="sm" className="mt-3 text-xs">Configurar</Button></Link>
+        </CardContent>
+      </Card>
+    )}
+  </div>
 );
 
 const Index = () => {
@@ -122,20 +181,50 @@ const Index = () => {
    const fbItems = items.filter(i => i.platform_id === 'facebook');
    const adsenseItems = items.filter(i => i.platform_id === 'adsense');
 
-   // Somar ganhos totais se AdSense estiver conectado
-   const totalEarnings = adsenseItems.reduce((acc, curr) => acc + (curr.earnings || 0), 0);
-   
-   // Gerar dados do gráfico dinamicamente com base nos itens
-   const chartData = Array.from({ length: 7 }, (_, i) => {
-     const date = new Date();
-     date.setDate(date.getDate() - (6 - i));
-     const dateStr = date.toLocaleDateString('pt-BR', { weekday: 'short' });
-     
-     // Se houver dados reais de visualizações/acessos nos itens, poderíamos somar aqui.
-     // Como o mock do sync-platforms gera views aleatórias, vamos simular uma tendência baseada no número de itens.
-     const baseViews = (items.length * 150) + (Math.random() * 500);
-     return { name: dateStr, views: Math.floor(baseViews + (i * 100)) };
-   });
+   const sum = (arr: any[], key: string) => arr.reduce((a, c) => a + (Number(c[key]) || 0), 0);
+   const avg = (arr: any[], key: string) => arr.length ? sum(arr, key) / arr.length : 0;
+   const fmt = (n: number) => n.toLocaleString('pt-BR');
+   const fmtBRL = (n: number) => `R$ ${n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+   // YouTube metrics
+   const ytViews = sum(ytItems, 'views');
+   const ytEngagement = avg(ytItems, 'engagement_rate');
+   const ytAvgViews = ytItems.length ? ytViews / ytItems.length : 0;
+   const ytTopVideos = [...ytItems].sort((a, b) => (b.views || 0) - (a.views || 0)).slice(0, 5);
+
+   // WordPress metrics
+   const wpViews = sum(wpItems, 'views');
+   const wpAvgViews = wpItems.length ? wpViews / wpItems.length : 0;
+
+   // AdSense metrics
+   const adsEarnings = sum(adsenseItems, 'earnings');
+   const adsClicks = sum(adsenseItems, 'clicks');
+   const adsImpressions = sum(adsenseItems, 'impressions');
+   const adsCTR = avg(adsenseItems, 'ctr');
+   const adsRPM = avg(adsenseItems, 'rpm');
+   const adsLast30 = [...adsenseItems]
+     .sort((a, b) => (a.external_id > b.external_id ? 1 : -1))
+     .slice(-30)
+     .map(i => ({ name: i.external_id?.slice(5) || '', earnings: Number(i.earnings) || 0, clicks: Number(i.clicks) || 0 }));
+
+   // Facebook metrics
+   const fbImpressions = sum(fbItems, 'impressions');
+   const fbClicks = sum(fbItems, 'clicks');
+   const fbCTR = avg(fbItems, 'ctr');
+
+   // Global totals
+   const totalViews = sum(items, 'views');
+   const totalImpressions = sum(items, 'impressions');
+   const totalClicks = sum(items, 'clicks');
+   const totalContent = ytItems.length + wpItems.length;
+
+   // Content-mix distribution
+   const platformMix = [
+     { name: 'YouTube', value: ytItems.length, color: '#EF4444' },
+     { name: 'Blog', value: wpItems.length, color: '#3B82F6' },
+     { name: 'AdSense', value: adsenseItems.length, color: '#F59E0B' },
+     { name: 'Facebook', value: fbItems.length, color: '#6366F1' },
+   ].filter(p => p.value > 0);
 
   const isAnyConnected = connections.some(c => c.isConnected);
 
@@ -171,132 +260,146 @@ const Index = () => {
           </div>
         ) : (
           <>
-             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-               <StatsCard 
-                 title="Posts no Blog" 
-                 value={wpConn?.isConnected ? (wpItems.length > 0 ? wpItems.length : 15) : "---"} 
-                 change={wpConn?.isConnected ? "Conteúdo sincronizado" : "Desconectado"} 
-                 trend="up" 
-                 icon={FileText} 
-               />
-               <StatsCard 
-                 title="Visualizações Totais" 
-                 value={items.reduce((acc, curr) => acc + (curr.views || 0), 0).toLocaleString('pt-BR')}
-                 change={items.length > 0 ? `${items.length} itens ativos` : "Nenhum dado"} 
-                 trend="up" 
-                 icon={Eye} 
-               />
-               <StatsCard 
-                 title="CTR Médio" 
-                 value={items.length > 0 ? `${(items.reduce((acc, curr) => acc + (Number(curr.ctr) || 0), 0) / items.length).toFixed(1)}%` : "---"}
-                 change="Média global" 
-                 trend="up" 
-                 icon={MousePointer2} 
-               />
-              <StatsCard 
-                title="Performance Média" 
-                value="84%"
-                change="Taxa de engajamento" 
-                trend="up" 
-                icon={Users} 
-              />
-              <StatsCard 
-                title="Status do AdSense"
-                value={adsenseConn?.isConnected 
-                  ? `R$ ${items.filter(i => i.platform_id === 'adsense').reduce((acc, curr) => acc + (curr.earnings || 0), 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` 
-                  : "---"} 
-                change={adsenseConn?.isConnected ? "Total acumulado (30d)" : "Não disponível"} 
-                trend="up" 
-                icon={DollarSign} 
-              />
-             </div>
+            {/* GLOBAL OVERVIEW */}
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <div className="h-px flex-1 bg-gradient-to-r from-primary/40 to-transparent" />
+                <span className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground font-light">Visão Geral</span>
+                <div className="h-px flex-1 bg-gradient-to-l from-primary/40 to-transparent" />
+              </div>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <StatsCard title="Receita AdSense" value={adsenseConn?.isConnected ? fmtBRL(adsEarnings) : "---"} change={adsenseConn?.isConnected ? `${adsenseItems.length} dias` : "Desconectado"} trend={adsenseConn?.isConnected ? "up" : "neutral"} icon={DollarSign} accent="amber" />
+                <StatsCard title="Visualizações Totais" value={fmt(totalViews)} change={`${totalContent} conteúdos`} trend="up" icon={Eye} accent="primary" />
+                <StatsCard title="Impressões" value={fmt(totalImpressions)} change={`${fmt(totalClicks)} cliques`} trend="up" icon={Target} accent="indigo" />
+                <StatsCard title="Plataformas Ativas" value={connections.filter(c => c.isConnected).length} change={`de ${connections.length} disponíveis`} trend="neutral" icon={Zap} accent="emerald" />
+              </div>
+            </div>
 
-               <div className="grid gap-6 lg:grid-cols-2">
-                 <Card className="glass-card border-white/5">
-                   <CardHeader>
-                     <CardTitle className="text-xl">Crescimento de Audiência</CardTitle>
-                     <CardDescription>Visualizações acumuladas nos últimos 7 dias.</CardDescription>
-                   </CardHeader>
-                   <CardContent className="h-[300px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <AreaChart data={chartData}>
-                         <defs>
-                           <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
-                             <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
-                             <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
-                           </linearGradient>
-                         </defs>
-                         <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                         <XAxis dataKey="name" stroke="#666" fontSize={12} tickLine={false} axisLine={false} />
-                         <YAxis stroke="#666" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${value/1000}k`} />
-                         <Tooltip 
-                           contentStyle={{ backgroundColor: 'rgba(0,0,0,0.8)', border: 'none', borderRadius: '12px', color: '#fff' }}
-                           itemStyle={{ color: 'hsl(var(--primary))' }}
-                         />
-                         <Area type="monotone" dataKey="views" stroke="hsl(var(--primary))" fillOpacity={1} fill="url(#colorViews)" />
-                       </AreaChart>
-                     </ResponsiveContainer>
-                   </CardContent>
-                 </Card>
-
+            {/* YOUTUBE BLOCK */}
+            <PlatformBlock title="YouTube" icon={YoutubeIcon} accent="red" isConnected={!!ytConn?.isConnected} href="/youtube-stats">
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <StatsCard title="Vídeos" value={fmt(ytItems.length)} icon={PlayCircle} accent="red" />
+                <StatsCard title="Views Totais" value={fmt(ytViews)} icon={Eye} accent="red" />
+                <StatsCard title="Média por Vídeo" value={fmt(Math.round(ytAvgViews))} icon={BarChart3} accent="red" />
+                <StatsCard title="Engajamento" value={`${ytEngagement.toFixed(2)}%`} icon={Activity} accent="red" />
+              </div>
+              {ytTopVideos.length > 0 && (
                 <Card className="glass-card border-white/5">
-                  <CardHeader>
-                    <CardTitle className="text-xl">Atividades Recentes</CardTitle>
-                    <CardDescription>Últimos itens sincronizados de todas as plataformas.</CardDescription>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm font-light uppercase tracking-widest text-muted-foreground">Top 5 vídeos</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    {loading ? (
-                      <div className="py-8 text-center text-muted-foreground">Carregando atividades...</div>
-                    ) : items.length === 0 ? (
-                      <div className="py-12 text-center text-muted-foreground">
-                        Nenhuma atividade real sincronizada ainda. 
-                        <Link to="/settings" className="text-primary ml-1 hover:underline">Vá para configurações para sincronizar.</Link>
-                      </div>
-                    ) : (
-                      <div className="space-y-3">
-                        {items.slice(0, 6).map((item) => (
-                          <div key={item.id} className="flex items-center justify-between p-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/5 transition-all duration-300 group">
-                            <div className="flex items-center gap-4">
-                              <div className={cn(
-                                "p-3 rounded-xl shadow-sm",
-                                item.platform_id === 'youtube' ? "bg-red-500/20 text-red-500" :
-                                item.platform_id === 'wordpress' ? "bg-blue-500/20 text-blue-500" :
-                                "bg-indigo-500/20 text-indigo-500"
-                              )}>
-                                {item.platform_id === 'youtube' ? <YoutubeIcon className="h-5 w-5" /> : 
-                                 item.platform_id === 'wordpress' ? <Globe className="h-5 w-5" /> : 
-                                 <FacebookIcon className="h-5 w-5" />}
-                              </div>
-                              <div>
-                                 <p className="font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors pr-4" dangerouslySetInnerHTML={{ __html: item.title }}></p>
-                                <p className="text-xs text-muted-foreground font-medium">
-                                  {item.platform_id === 'youtube' ? 'Vídeo no YouTube' : 
-                                   item.platform_id === 'wordpress' ? 'Post no Blog' : 'Facebook Page'}
-                                </p>
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-6">
-                              <div className="hidden md:flex flex-col items-end">
-                                 <p className="text-sm font-bold text-foreground">
-                                   {(item.views || (item.platform_id === 'youtube' ? 1200 : 450)).toLocaleString()}
-                                 </p>
-                                <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold">
-                                  {item.platform_id === 'youtube' ? 'Visualizações' : 'Acessos'}
-                                </p>
-                              </div>
-                              <a href={item.link} target="_blank" rel="noopener noreferrer">
-                              <Button variant="ghost" size="icon" className="rounded-full hover:bg-primary/20 hover:text-primary transition-all">
-                                <ArrowUpRight className="h-5 w-5" />
-                              </Button>
-                            </a>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                    <div className="space-y-2">
+                      {ytTopVideos.map((v, i) => (
+                        <a key={v.id} href={v.link} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 transition-all group">
+                          <span className="text-xs font-light text-muted-foreground w-5">{String(i + 1).padStart(2, '0')}</span>
+                          <p className="flex-1 text-sm font-light line-clamp-1 group-hover:text-primary transition-colors" dangerouslySetInnerHTML={{ __html: v.title }} />
+                          <span className="text-xs text-muted-foreground tabular-nums">{fmt(v.views || 0)} views</span>
+                        </a>
+                      ))}
+                    </div>
                   </CardContent>
                 </Card>
+              )}
+            </PlatformBlock>
+
+            {/* BLOG BLOCK */}
+            <PlatformBlock title="Blog / WordPress" icon={Globe} accent="blue" isConnected={!!wpConn?.isConnected} href="/blog-analytics">
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <StatsCard title="Posts" value={fmt(wpItems.length)} icon={FileText} accent="blue" />
+                <StatsCard title="Views Totais" value={fmt(wpViews)} icon={Eye} accent="blue" />
+                <StatsCard title="Média por Post" value={fmt(Math.round(wpAvgViews))} icon={BarChart3} accent="blue" />
+                <StatsCard title="Últ. Publicação" value={wpItems[0] ? new Date(wpItems[0].created_at).toLocaleDateString('pt-BR') : "---"} icon={Clock} accent="blue" />
               </div>
+            </PlatformBlock>
+
+            {/* ADSENSE BLOCK */}
+            <PlatformBlock title="Google AdSense" icon={DollarSign} accent="amber" isConnected={!!adsenseConn?.isConnected} href="/adsense-analytics">
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <StatsCard title="Ganhos" value={fmtBRL(adsEarnings)} icon={DollarSign} accent="amber" />
+                <StatsCard title="Cliques" value={fmt(adsClicks)} icon={MousePointer2} accent="amber" />
+                <StatsCard title="Impressões" value={fmt(adsImpressions)} icon={Eye} accent="amber" />
+                <StatsCard title="CTR / RPM" value={`${adsCTR.toFixed(2)}% • ${adsRPM.toFixed(2)}`} icon={Percent} accent="amber" />
+              </div>
+              {adsLast30.length > 0 && (
+                <Card className="glass-card border-white/5">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm font-light uppercase tracking-widest text-muted-foreground">Ganhos — últimos {adsLast30.length} dias</CardTitle>
+                  </CardHeader>
+                  <CardContent className="h-[240px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={adsLast30}>
+                        <defs>
+                          <linearGradient id="colorAds" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#F59E0B" stopOpacity={0.4} />
+                            <stop offset="95%" stopColor="#F59E0B" stopOpacity={0} />
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                        <XAxis dataKey="name" stroke="#666" fontSize={10} tickLine={false} axisLine={false} />
+                        <YAxis stroke="#666" fontSize={10} tickLine={false} axisLine={false} />
+                        <Tooltip contentStyle={{ backgroundColor: 'rgba(0,0,0,0.85)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }} />
+                        <Area type="monotone" dataKey="earnings" stroke="#F59E0B" strokeWidth={2} fill="url(#colorAds)" />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card>
+              )}
+            </PlatformBlock>
+
+            {/* FACEBOOK BLOCK */}
+            <PlatformBlock title="Facebook Ads" icon={FacebookIcon} accent="indigo" isConnected={!!fbConn?.isConnected} href="/facebook-ads">
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <StatsCard title="Campanhas" value={fmt(fbItems.length)} icon={Target} accent="indigo" />
+                <StatsCard title="Impressões" value={fmt(fbImpressions)} icon={Eye} accent="indigo" />
+                <StatsCard title="Cliques" value={fmt(fbClicks)} icon={MousePointer2} accent="indigo" />
+                <StatsCard title="CTR" value={`${fbCTR.toFixed(2)}%`} icon={Percent} accent="indigo" />
+              </div>
+            </PlatformBlock>
+
+            {/* RECENT ACTIVITY */}
+            <Card className="glass-card border-white/5">
+              <CardHeader>
+                <CardTitle className="text-lg font-light tracking-tight">Atividades Recentes</CardTitle>
+                <CardDescription className="font-light">Últimos itens sincronizados de todas as plataformas.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {loading ? (
+                  <div className="py-8 text-center text-muted-foreground font-light">Carregando...</div>
+                ) : items.length === 0 ? (
+                  <div className="py-12 text-center text-muted-foreground font-light">
+                    Nenhuma atividade sincronizada.
+                    <Link to="/settings" className="text-primary ml-1 hover:underline">Configurar</Link>
+                  </div>
+                ) : (
+                  <div className="grid gap-3 md:grid-cols-2">
+                    {items.slice(0, 8).map((item) => (
+                      <a key={item.id} href={item.link} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 transition-all group">
+                        <div className={cn(
+                          "p-2 rounded-lg shrink-0",
+                          item.platform_id === 'youtube' ? "bg-red-500/10 text-red-400" :
+                          item.platform_id === 'wordpress' ? "bg-blue-500/10 text-blue-400" :
+                          item.platform_id === 'adsense' ? "bg-amber-500/10 text-amber-400" :
+                          "bg-indigo-500/10 text-indigo-400"
+                        )}>
+                          {item.platform_id === 'youtube' ? <YoutubeIcon className="h-4 w-4" /> :
+                           item.platform_id === 'wordpress' ? <Globe className="h-4 w-4" /> :
+                           item.platform_id === 'adsense' ? <DollarSign className="h-4 w-4" /> :
+                           <FacebookIcon className="h-4 w-4" />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-light line-clamp-1 group-hover:text-primary transition-colors" dangerouslySetInnerHTML={{ __html: item.title }} />
+                          <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+                            {fmt(item.views || 0)} views {item.earnings ? `• ${fmtBRL(Number(item.earnings))}` : ''}
+                          </p>
+                        </div>
+                        <ArrowUpRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </>
         )}
       </div>
