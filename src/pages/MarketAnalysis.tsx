@@ -78,6 +78,21 @@ const MarketAnalysis = () => {
       
       setAnalysisResult(result);
       setAnalyzed(true);
+
+      try {
+        const { data: userData } = await supabase.auth.getUser();
+        if (userData?.user) {
+          await supabase.from('market_analyses').insert({
+            user_id: userData.user.id,
+            niche: query,
+            prompt: systemPrompt,
+            model: 'gemini',
+            result,
+          });
+        }
+      } catch (e) {
+        console.warn('Falha ao salvar análise:', e);
+      }
     } catch (err) {
       console.error(err);
     } finally {
