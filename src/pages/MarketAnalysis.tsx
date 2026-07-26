@@ -501,6 +501,12 @@ const MarketAnalysis = () => {
 
         {analyzed && (
           <div className="grid gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="flex justify-end">
+                <Button onClick={handleSaveStrategy} disabled={saving} className="bg-emerald-600 hover:bg-emerald-700">
+                  {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+                  {currentStudyId ? 'Atualizar Estratégia Salva' : 'Salvar Estratégia'}
+                </Button>
+              </div>
               <div className="grid gap-4 md:grid-cols-3">
                 <div className="p-5 rounded-2xl bg-background/40 backdrop-blur-xl border border-white/10 shadow-glass flex flex-col gap-2">
                   <span className="text-[10px] font-medium uppercase tracking-wider text-purple-400/80">Tamanho do Mercado</span>
