@@ -36,12 +36,14 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
    const { profile } = useBrand();
    const brandName = profile.brandName || "GrowthSuite Pro";
    const BrandMark = () => (
-     <span className="flex items-center gap-2 min-w-0">
-       {profile.logoUrl ? (
-         <img src={profile.logoUrl} alt={brandName} className="h-7 w-7 rounded object-cover" />
-       ) : null}
-       <span className="text-xl font-extralight gradient-text tracking-widest uppercase truncate">{brandName}</span>
-     </span>
+    <span className="flex flex-col items-center gap-1 min-w-0 w-full">
+      {profile.logoUrl ? (
+        <img src={profile.logoUrl} alt={brandName} className="h-10 w-10 rounded object-contain" />
+      ) : null}
+      <span className="w-full text-center text-sm font-extralight gradient-text tracking-widest uppercase break-words leading-tight">
+        {brandName}
+      </span>
+    </span>
    );
 
   const navigation = [
@@ -115,7 +117,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
        {/* Static sidebar for desktop */}
         <div className="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0 border-r border-white/5 bg-card/40 backdrop-blur-xl z-10">
-          <div className="flex h-16 items-center px-6 border-b border-white/5">
+          <div className="flex min-h-16 items-center justify-center px-4 py-3 border-b border-white/5">
             <BrandMark />
          </div>
         <nav className="flex-1 space-y-1 px-4 py-6 overflow-y-auto">
