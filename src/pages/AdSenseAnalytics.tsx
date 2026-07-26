@@ -140,6 +140,32 @@ const AdSenseAnalytics = () => {
     return { sumImp, sumClicks, sumViews, avgCtr, avgCpc, avgRpm };
   }, [revenueData, totals]);
 
+  // Métricas do dia atual (com fallback para o dia mais recente sincronizado)
+  const todayMetrics = useMemo(() => {
+    const todayKey = format(new Date(), 'yyyy-MM-dd');
+    const byDate = adsenseItems
+      .map(i => ({ key: (i.metadata as any)?.date as string | undefined, item: i }))
+      .filter(x => !!x.key)
+      .sort((a, b) => (a.key! < b.key! ? 1 : -1));
+    const todayEntry = byDate.find(x => x.key === todayKey) ?? byDate[0];
+    const i = todayEntry?.item;
+    const impressions = i?.impressions || 0;
+    const clicks = i?.clicks || 0;
+    const views = i?.views || 0;
+    const earnings = i?.earnings || 0;
+    return {
+      dateKey: todayEntry?.key ?? todayKey,
+      isToday: todayEntry?.key === todayKey,
+      earnings,
+      clicks,
+      impressions,
+      views,
+      ctr: Number(i?.ctr || (impressions > 0 ? (clicks / impressions) * 100 : 0)),
+      rpm: Number((i?.metadata as any)?.page_rpm || (views > 0 ? (earnings / views) * 1000 : 0)),
+      cpc: Number((i?.metadata as any)?.cpc || (clicks > 0 ? earnings / clicks : 0)),
+    };
+  }, [adsenseItems]);
+
   // Totais que NÃO dependem do filtro de período
   const allTimeTotals = useMemo(() => {
     const lifetime = (adsenseConn?.config as any)?.lifetime;
