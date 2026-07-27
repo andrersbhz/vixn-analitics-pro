@@ -877,7 +877,6 @@ const MarketAnalysis = () => {
                     <p className="text-foreground/80 text-[0.85rem] leading-tight">{analysisResult?.linkedinAds?.strategy}</p>
                   </div>
                 </div>
-                <Button className="w-full mt-6 bg-purple-600 hover:bg-purple-700">
                 <Button
                   className="w-full mt-6 bg-purple-600 hover:bg-purple-700"
                   onClick={handleExportPDF}
