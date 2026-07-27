@@ -14,10 +14,14 @@ import {
 } from 'recharts';
 
 import { useConnections } from "@/hooks/use-connections";
+import { useBrand } from "@/hooks/use-brand";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 const MarketAnalysis = () => {
   const { connections } = useConnections();
   const isAnyConnected = connections.some(c => c.isConnected);
+  const { profile: brand } = useBrand();
 
   const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(false);
@@ -26,6 +30,7 @@ const MarketAnalysis = () => {
   const [analysisResult, setAnalysisResult] = useState<any>(null);
   const [currentStudyId, setCurrentStudyId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   // Ecommerce analysis
   const [ecomUrl, setEcomUrl] = useState("");
@@ -103,6 +108,225 @@ const MarketAnalysis = () => {
       toast({ title: 'Erro ao salvar', description: e?.message, variant: 'destructive' });
     } finally {
       setSaving(false);
+    }
+  };
+
+  // Auto-save analyses and strategies to the database whenever result changes
+  useEffect(() => {
+    if (!analysisResult) return;
+    const t = setTimeout(async () => {
+      try {
+        const { data: userData } = await supabase.auth.getUser();
+        if (!userData?.user) return;
+        const payload = {
+          user_id: userData.user.id,
+          niche: query || 'Estudo sem título',
+          prompt: null,
+          model: 'gemini',
+          result: { ...analysisResult, ecommerce: ecomResult?.analysis ?? null, creatives: creativesResult ?? null },
+          updated_at: new Date().toISOString(),
+        };
+        if (currentStudyId) {
+          await supabase.from('market_analyses').update(payload).eq('id', currentStudyId);
+        } else {
+          const { data } = await supabase.from('market_analyses').insert(payload).select().single();
+          if (data?.id) setCurrentStudyId(data.id);
+        }
+      } catch (e) {
+        console.warn('auto-save falhou', e);
+      }
+    }, 1200);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [analysisResult, ecomResult, creativesResult]);
+
+  const handleExportPDF = async () => {
+    if (!analysisResult) return;
+    setExporting(true);
+    try {
+      const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+      const pageW = doc.internal.pageSize.getWidth();
+      const pageH = doc.internal.pageSize.getHeight();
+      const margin = 40;
+      const brandName = brand.brandName || 'GrowthSuite Pro';
+      const brandColor: [number, number, number] = [124, 58, 237];
+
+      const drawHeader = async (title: string) => {
+        // Colored accent band
+        doc.setFillColor(...brandColor);
+        doc.rect(0, 0, pageW, 4, 'F');
+        // Logo top-left
+        try {
+          if (brand.logoUrl) {
+            const dataUrl = brand.logoUrl.startsWith('data:')
+              ? brand.logoUrl
+              : await fetch(brand.logoUrl).then(r => r.blob()).then(b => new Promise<string>(res => { const fr = new FileReader(); fr.onload = () => res(fr.result as string); fr.readAsDataURL(b); }));
+            const fmt = dataUrl.includes('image/png') ? 'PNG' : 'JPEG';
+            doc.addImage(dataUrl, fmt, margin, 18, 42, 42);
+          }
+        } catch {}
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(14);
+        doc.setTextColor(30, 30, 30);
+        doc.text(brandName, margin + (brand.logoUrl ? 52 : 0), 36);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+        doc.setTextColor(120, 120, 120);
+        doc.text('Plano Estratégico de Mercado', margin + (brand.logoUrl ? 52 : 0), 52);
+        // Right side date
+        doc.setFontSize(9);
+        doc.setTextColor(120, 120, 120);
+        doc.text(new Date().toLocaleDateString('pt-BR'), pageW - margin, 36, { align: 'right' });
+        // Divider
+        doc.setDrawColor(230);
+        doc.line(margin, 70, pageW - margin, 70);
+        // Section title
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(16);
+        doc.setTextColor(...brandColor);
+        doc.text(title, margin, 96);
+      };
+
+      const drawFooter = () => {
+        const pages = (doc as any).internal.getNumberOfPages();
+        for (let i = 1; i <= pages; i++) {
+          doc.setPage(i);
+          doc.setFontSize(8);
+          doc.setTextColor(150);
+          doc.text(`${brandName} · Gerado em ${new Date().toLocaleString('pt-BR')}`, margin, pageH - 20);
+          doc.text(`Página ${i} de ${pages}`, pageW - margin, pageH - 20, { align: 'right' });
+        }
+      };
+
+      await drawHeader(query || 'Análise de Mercado');
+
+      let y = 120;
+      const addSection = (title: string) => {
+        if (y > pageH - 120) { doc.addPage(); y = 60; }
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(12);
+        doc.setTextColor(...brandColor);
+        doc.text(title, margin, y);
+        y += 6;
+        doc.setDrawColor(...brandColor);
+        doc.setLineWidth(0.6);
+        doc.line(margin, y, margin + 60, y);
+        y += 14;
+      };
+      const addText = (label: string, value?: string) => {
+        if (!value) return;
+        if (y > pageH - 100) { doc.addPage(); y = 60; }
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(9);
+        doc.setTextColor(90);
+        doc.text(label.toUpperCase(), margin, y);
+        y += 12;
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(10);
+        doc.setTextColor(40);
+        const lines = doc.splitTextToSize(String(value), pageW - margin * 2);
+        doc.text(lines, margin, y);
+        y += lines.length * 12 + 6;
+      };
+
+      // Resumo
+      addSection('Resumo Executivo');
+      autoTable(doc, {
+        startY: y,
+        theme: 'grid',
+        margin: { left: margin, right: margin },
+        styles: { fontSize: 9, cellPadding: 6 },
+        headStyles: { fillColor: brandColor, textColor: 255 },
+        head: [['Tamanho do Mercado', 'Competitividade', 'CAC Médio']],
+        body: [[analysisResult.marketSize || '-', analysisResult.competitiveness || '-', analysisResult.avgCac || '-']],
+      });
+      y = (doc as any).lastAutoTable.finalY + 20;
+
+      addText('Oportunidade', analysisResult.opportunity);
+      addText('Tendências', analysisResult.trends);
+      addText('Canais Recomendados', analysisResult.channels);
+
+      // Plataformas
+      const platforms: Array<[string, string]> = [
+        ['Google Ads', 'googleAds'],
+        ['Instagram / Facebook Ads', 'instagramAds'],
+        ['TikTok Ads', 'tiktokAds'],
+        ['LinkedIn Ads', 'linkedinAds'],
+      ];
+      addSection('Estratégias por Plataforma');
+      for (const [label, key] of platforms) {
+        const d = analysisResult[key] || {};
+        const rows: string[][] = [];
+        ['objective','audience','strategy','creative','hook','headline','body','caption','script','format','cta','budget','kpi'].forEach(f => {
+          if (d[f]) rows.push([f, String(d[f])]);
+        });
+        if (Array.isArray(d.keywords) && d.keywords.length) rows.push(['keywords', d.keywords.join(', ')]);
+        if (Array.isArray(d.headlines) && d.headlines.length) rows.push(['headlines', d.headlines.join(' | ')]);
+        if (Array.isArray(d.descriptions) && d.descriptions.length) rows.push(['descriptions', d.descriptions.join(' | ')]);
+        if (!rows.length) continue;
+        if (y > pageH - 120) { doc.addPage(); y = 60; }
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(30);
+        doc.text(label, margin, y); y += 8;
+        autoTable(doc, {
+          startY: y,
+          theme: 'striped',
+          margin: { left: margin, right: margin },
+          styles: { fontSize: 9, cellPadding: 5 },
+          headStyles: { fillColor: [40, 40, 60], textColor: 255 },
+          columnStyles: { 0: { fontStyle: 'bold', cellWidth: 90, textColor: brandColor as any } },
+          head: [['Item', 'Detalhe']],
+          body: rows,
+        });
+        y = (doc as any).lastAutoTable.finalY + 16;
+      }
+
+      // Copies
+      if (Array.isArray(analysisResult.copyModels) && analysisResult.copyModels.length) {
+        if (y > pageH - 150) { doc.addPage(); y = 60; }
+        addSection('Modelos de Copy');
+        autoTable(doc, {
+          startY: y,
+          theme: 'grid',
+          margin: { left: margin, right: margin },
+          styles: { fontSize: 9, cellPadding: 6, valign: 'top' },
+          headStyles: { fillColor: brandColor, textColor: 255 },
+          head: [['Framework', 'Headline', 'Body', 'CTA']],
+          body: analysisResult.copyModels.map((c: any) => [c.framework || '', c.headline || '', c.body || '', c.cta || '']),
+        });
+        y = (doc as any).lastAutoTable.finalY + 20;
+      }
+
+      // Funil
+      if (analysisResult.salesFunnel && Object.keys(analysisResult.salesFunnel).length) {
+        if (y > pageH - 180) { doc.addPage(); y = 60; }
+        addSection('Funil de Vendas');
+        const funnelRows: string[][] = [];
+        const labels: Record<string, string> = { topo: 'Topo · Atração', meio: 'Meio · Consideração', fundo: 'Fundo · Conversão', posVenda: 'Pós-Venda · Retenção' };
+        Object.entries(labels).forEach(([k, lbl]) => {
+          const s = (analysisResult.salesFunnel as any)[k];
+          if (!s) return;
+          funnelRows.push([lbl, s.objetivo || '', Array.isArray(s.canais) ? s.canais.join(', ') : '', s.oferta || '', s.copy || '', s.kpi || '']);
+        });
+        autoTable(doc, {
+          startY: y,
+          theme: 'grid',
+          margin: { left: margin, right: margin },
+          styles: { fontSize: 8.5, cellPadding: 5, valign: 'top' },
+          headStyles: { fillColor: brandColor, textColor: 255 },
+          head: [['Etapa', 'Objetivo', 'Canais', 'Oferta', 'Copy', 'KPI']],
+          body: funnelRows,
+        });
+        y = (doc as any).lastAutoTable.finalY + 12;
+      }
+
+      drawFooter();
+      const fname = `plano-${(query || 'estrategia').toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 40)}.pdf`;
+      doc.save(fname);
+      toast({ title: 'PDF exportado', description: fname });
+    } catch (e: any) {
+      toast({ title: 'Falha ao exportar', description: e?.message, variant: 'destructive' });
+    } finally {
+      setExporting(false);
     }
   };
 
@@ -653,8 +877,13 @@ const MarketAnalysis = () => {
                     <p className="text-foreground/80 text-[0.85rem] leading-tight">{analysisResult?.linkedinAds?.strategy}</p>
                   </div>
                 </div>
-                <Button className="w-full mt-6 bg-purple-600 hover:bg-purple-700">
-                  Exportar Plano Completo <Briefcase className="ml-2 h-4 w-4" />
+                <Button
+                  className="w-full mt-6 bg-purple-600 hover:bg-purple-700"
+                  onClick={handleExportPDF}
+                  disabled={exporting}
+                >
+                  {exporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
+                  {exporting ? 'Gerando PDF...' : 'Exportar Plano Completo (PDF)'}
                 </Button>
               </AnalyticsCard>
             </div>
