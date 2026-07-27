@@ -38,25 +38,41 @@ const BlogAnalytics = () => {
   const wpConn = getConnection('wordpress');
   const wpItems = useMemo(() => items.filter(i => i.platform_id === 'wordpress'), [items]);
   
-  const [period, setPeriod] = useState("7d");
+  const [period, setPeriod] = useState("6m");
   const chartData = useMemo(() => {
-    const days = period === "7d" ? 7 : period === "30d" ? 30 : 90;
     const now = new Date();
-    const buckets: { date: string; posts: number; views: number }[] = [];
-    for (let i = days; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(now.getDate() - i);
-      const key = d.toISOString().split('T')[0];
+    const cfg: Record<string, { count: number; unit: 'day' | 'month' }> = {
+      '30d': { count: 30, unit: 'day' },
+      '90d': { count: 90, unit: 'day' },
+      '6m': { count: 6, unit: 'month' },
+      '12m': { count: 12, unit: 'month' },
+    };
+    const { count, unit } = cfg[period] || cfg['6m'];
+    const buckets: { date: string; posts: number }[] = [];
+    for (let i = count - 1; i >= 0; i--) {
+      const d = new Date(now);
+      if (unit === 'day') d.setDate(now.getDate() - i);
+      else d.setMonth(now.getMonth() - i);
+      const key =
+        unit === 'day'
+          ? d.toISOString().slice(0, 10)
+          : `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+      const label =
+        unit === 'day'
+          ? d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
+          : d.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' });
       const dayItems = wpItems.filter(it => {
         const meta: any = it.metadata || {};
         const dt = meta.date || it.created_at;
-        return dt && new Date(dt).toISOString().split('T')[0] === key;
+        if (!dt) return false;
+        const dd = new Date(dt);
+        const k =
+          unit === 'day'
+            ? dd.toISOString().slice(0, 10)
+            : `${dd.getFullYear()}-${String(dd.getMonth() + 1).padStart(2, '0')}`;
+        return k === key;
       });
-      buckets.push({
-        date: d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
-        posts: dayItems.length,
-        views: dayItems.reduce((a, it) => a + (it.views || 0), 0),
-      });
+      buckets.push({ date: label, posts: dayItems.length });
     }
     return buckets;
   }, [period, wpItems]);
@@ -123,7 +139,7 @@ const BlogAnalytics = () => {
           </div>
           
           <div className="flex bg-white/5 backdrop-blur-md border border-white/10 rounded-full p-1 shadow-sm">
-            {["7d", "30d", "90d"].map((p) => (
+            {["30d", "90d", "6m", "12m"].map((p) => (
               <button
                 key={p}
                 onClick={() => setPeriod(p)}
@@ -195,7 +211,7 @@ const BlogAnalytics = () => {
 
         <div className="grid gap-6 lg:grid-cols-3">
           <div className="lg:col-span-2 space-y-6">
-            <AnalyticsCard title="Tendência de Acessos">
+            <AnalyticsCard title="Tendência de Publicações">
               <div className="h-[300px] mt-4">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={chartData}>
@@ -211,14 +227,14 @@ const BlogAnalytics = () => {
                       axisLine={false} 
                       tickLine={false} 
                       tick={{fill: 'rgba(255,255,255,0.3)', fontSize: 10}}
-                      interval={period === "90d" ? 14 : period === "30d" ? 4 : 0}
+                      interval={period === "90d" ? 9 : period === "30d" ? 3 : 0}
                     />
                     <YAxis axisLine={false} tickLine={false} tick={{fill: 'rgba(255,255,255,0.3)', fontSize: 10}} />
                     <Tooltip 
                       contentStyle={{backgroundColor: 'rgba(0,0,0,0.8)', border: 'none', borderRadius: '12px', color: '#fff'}}
                       itemStyle={{color: 'hsl(var(--primary))'}}
                     />
-                    <Area type="monotone" dataKey="views" stroke="hsl(var(--primary))" fillOpacity={1} fill="url(#colorViews)" strokeWidth={2} />
+                    <Area type="monotone" dataKey="posts" name="Posts" stroke="hsl(var(--primary))" fillOpacity={1} fill="url(#colorViews)" strokeWidth={2} />
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
