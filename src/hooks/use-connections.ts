@@ -41,11 +41,22 @@ export const useConnections = () => {
 
   const fetchItems = async () => {
     try {
+      // Try direct (RLS) first — works when user is authenticated.
       const { data, error } = await supabase
         .from('platform_items')
         .select('*')
         .order('created_at', { ascending: false });
-      if (error) throw error;
+      if (!error && data && data.length > 0) {
+        setItems(data);
+        return;
+      }
+      // Fallback via edge function (service role) — guarantees data
+      // loads on the dashboard even if the session is not hydrated yet.
+      const { data: fnData, error: fnError } = await supabase.functions.invoke('platform-items-list');
+      if (!fnError && fnData?.items) {
+        setItems(fnData.items);
+        return;
+      }
       setItems(data || []);
     } catch (error) {
       console.error('Error fetching items:', error);
