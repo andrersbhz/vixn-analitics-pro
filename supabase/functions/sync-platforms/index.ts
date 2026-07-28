@@ -154,6 +154,39 @@
         const channelTitleMatch = xml.match(/<title>(.*?)<\/title>/);
         if (channelTitleMatch) channelName = channelTitleMatch[1];
 
+       // Fetch subscriber count by scraping the public channel about page.
+       // YouTube retorna o total no campo `subscriberCountText` do JSON embutido.
+       try {
+         const aboutRes = await fetch(`https://www.youtube.com/channel/${channelId}/about`, {
+           headers: {
+             'Accept-Language': 'pt-BR,pt;q=0.9,en;q=0.8',
+             'User-Agent': 'Mozilla/5.0 (compatible; SparkGrowthBot/1.0)'
+           }
+         });
+         const html = await aboutRes.text();
+         const subText =
+           html.match(/"subscriberCountText":\{"simpleText":"([^"]+)"\}/)?.[1]
+           || html.match(/"subscriberCountText":\{"accessibility":\{[^}]*\},"simpleText":"([^"]+)"\}/)?.[1]
+           || html.match(/([\d.,]+\s*(?:mil|mi|K|M|B)?)\s*inscrit/i)?.[1]
+           || html.match(/([\d.,]+\s*(?:K|M|B)?)\s*subscriber/i)?.[1]
+           || '';
+         const parseSubs = (s: string) => {
+           if (!s) return 0;
+           const m = s.replace(/\s/g, '').match(/([\d.,]+)([KMBkmb]|mil|mi)?/);
+           if (!m) return 0;
+           const num = parseFloat(m[1].replace(/\./g, '').replace(',', '.'));
+           const suf = (m[2] || '').toLowerCase();
+           const mult = suf === 'k' || suf === 'mil' ? 1_000
+             : suf === 'm' || suf === 'mi' ? 1_000_000
+             : suf === 'b' ? 1_000_000_000 : 1;
+           return Math.round(num * mult);
+         };
+         const subscribers = parseSubs(subText);
+         (globalThis as any).__ytSubs = { subscribers, subscribersText: subText };
+       } catch (e) {
+         console.log('subs scrape failed', e);
+       }
+
         // Parse each <entry> block individually — the RSS order is
         // yt:videoId → title → link, so a single cross-field regex on the
         // whole document mis-aligns fields across entries.
@@ -255,6 +288,15 @@
      if (channelName) {
        updateData.name = channelName
      }
+
+      if (platformId === 'youtube') {
+        const subs = (globalThis as any).__ytSubs;
+        if (subs && subs.subscribers) {
+          const { data: cur } = await supabaseClient
+            .from('platform_connections').select('cached_data').eq('id', platformId).maybeSingle();
+          updateData.cached_data = { ...(cur?.cached_data || {}), subscribers: subs.subscribers, subscribers_text: subs.subscribersText };
+        }
+      }
  
      await supabaseClient
        .from('platform_connections')
