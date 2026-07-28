@@ -9,6 +9,7 @@ export interface Connection {
   config: Record<string, string>;
   sync_interval_minutes?: number;
   next_sync_at?: string;
+  cached_data?: Record<string, any>;
 }
 
 export interface PlatformItem {
@@ -69,7 +70,8 @@ export const useConnections = () => {
     isConnected: item.is_connected,
     config: (item.config as Record<string, string>) || {},
     sync_interval_minutes: item.sync_interval_minutes,
-    next_sync_at: item.next_sync_at
+    next_sync_at: item.next_sync_at,
+    cached_data: (item.cached_data as Record<string, any>) || {}
   });
 
   const fetchConnections = async () => {
