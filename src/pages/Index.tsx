@@ -287,10 +287,10 @@ const Index = () => {
             {/* YOUTUBE BLOCK */}
             <PlatformBlock title="YouTube" icon={YoutubeIcon} accent="red" isConnected={!!ytConn?.isConnected} href="/youtube">
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <StatsCard title="Inscritos" value={ytConn?.cached_data?.subscribers ? fmt(ytConn.cached_data.subscribers) : (ytConn?.cached_data?.subscribers_text || '---')} icon={Users} accent="red" />
                 <StatsCard title="Vídeos" value={fmt(ytItems.length)} icon={PlayCircle} accent="red" />
                 <StatsCard title="Views Totais" value={fmt(ytViews)} icon={Eye} accent="red" />
                 <StatsCard title="Média por Vídeo" value={fmt(Math.round(ytAvgViews))} icon={BarChart3} accent="red" />
-                <StatsCard title="Engajamento" value={`${ytEngagement.toFixed(2)}%`} icon={Activity} accent="red" />
               </div>
               {ytTopVideos.length > 0 && (
                 <Card className="glass-card border-white/5">
