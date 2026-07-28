@@ -185,6 +185,15 @@ const Index = () => {
    const avg = (arr: any[], key: string) => arr.length ? sum(arr, key) / arr.length : 0;
    const fmt = (n: number) => n.toLocaleString('pt-BR');
    const fmtBRL = (n: number) => `R$ ${n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+   const fmtUSD = (n: number) => `$ ${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+   // Approximate USD → BRL conversion rate (AdSense reporta em USD)
+   const USD_BRL = 5.4;
+   const EarningsValue = ({ usd }: { usd: number }) => (
+     <div className="flex flex-col">
+       <span>{fmtUSD(usd)}</span>
+       <span className="text-[10px] font-light text-muted-foreground mt-0.5">≈ {fmtBRL(usd * USD_BRL)}</span>
+     </div>
+   );
 
    // YouTube metrics
    const ytViews = sum(ytItems, 'views');
@@ -268,7 +277,7 @@ const Index = () => {
                 <div className="h-px flex-1 bg-gradient-to-l from-primary/40 to-transparent" />
               </div>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <StatsCard title="Receita AdSense" value={adsenseConn?.isConnected ? fmtBRL(adsEarnings) : "---"} change={adsenseConn?.isConnected ? `${adsenseItems.length} dias` : "Desconectado"} trend={adsenseConn?.isConnected ? "up" : "neutral"} icon={DollarSign} accent="amber" />
+                <StatsCard title="Receita AdSense" value={adsenseConn?.isConnected ? <EarningsValue usd={adsEarnings} /> : "---"} change={adsenseConn?.isConnected ? `${adsenseItems.length} dias` : "Desconectado"} trend={adsenseConn?.isConnected ? "up" : "neutral"} icon={DollarSign} accent="amber" />
                 <StatsCard title="Visualizações Totais" value={fmt(totalViews)} change={`${totalContent} conteúdos`} trend="up" icon={Eye} accent="primary" />
                 <StatsCard title="Impressões" value={fmt(totalImpressions)} change={`${fmt(totalClicks)} cliques`} trend="up" icon={Target} accent="indigo" />
                 <StatsCard title="Plataformas Ativas" value={connections.filter(c => c.isConnected).length} change={`de ${connections.length} disponíveis`} trend="neutral" icon={Zap} accent="emerald" />
@@ -316,7 +325,7 @@ const Index = () => {
             {/* ADSENSE BLOCK */}
             <PlatformBlock title="Google AdSense" icon={DollarSign} accent="amber" isConnected={!!adsenseConn?.isConnected} href="/adsense">
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <StatsCard title="Ganhos" value={fmtBRL(adsEarnings)} icon={DollarSign} accent="amber" />
+                <StatsCard title="Ganhos" value={<EarningsValue usd={adsEarnings} />} icon={DollarSign} accent="amber" />
                 <StatsCard title="Cliques" value={fmt(adsClicks)} icon={MousePointer2} accent="amber" />
                 <StatsCard title="Impressões" value={fmt(adsImpressions)} icon={Eye} accent="amber" />
                 <StatsCard title="CTR / RPM" value={`${adsCTR.toFixed(2)}% • ${adsRPM.toFixed(2)}`} icon={Percent} accent="amber" />
