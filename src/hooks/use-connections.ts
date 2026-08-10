@@ -99,8 +99,33 @@ export const useConnections = () => {
   };
 
   useEffect(() => {
-    fetchConnections();
-    fetchItems();
+    let active = true;
+
+    const load = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (!active) return;
+      if (!data.session) {
+        // Sem sessão as funções de backend retornam 401 — evita quebrar a tela.
+        setItems([]);
+        setLoading(false);
+        if (!window.location.pathname.startsWith('/login')) {
+          window.location.replace('/login');
+        }
+        return;
+      }
+      await Promise.all([fetchConnections(), fetchItems()]);
+    };
+
+    load();
+
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) load();
+    });
+
+    return () => {
+      active = false;
+      sub.subscription.unsubscribe();
+    };
   }, []);
 
   const updateConnection = async (id: string, config: Record<string, string>, isConnected: boolean) => {
