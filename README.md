@@ -1,26 +1,38 @@
-# VIXN Analitics PRO
+# VIXN Analytics Pro
 
-cria novo projeto com nome GrowthSuite Pro
+Painel de analytics e growth com integrações para plataformas digitais, análise de mercado, relatórios e recursos de IA.
 
-This project was built with [Lovable](https://lovable.dev).
+## Stack
 
-**Live app**: https://vixn-analitics-pro.lovable.app
+- React + TypeScript + Vite
+- Tailwind CSS + shadcn/ui
+- Supabase (Auth, Database e Edge Functions)
+- Gemini / OpenAI para recursos de IA
 
-## Build with Lovable
+## Desenvolvimento
 
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/a7f4a7a6-a771-4b76-a338-e8b1142070d0).
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
-
-## Development
-
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
-
-```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
+```bash
+npm install
 npm run dev
 ```
+
+## Build
+
+```bash
+npm run build
+```
+
+## Variáveis de ambiente do frontend
+
+Use `.env.example` como referência. O arquivo `.env` local não deve ser versionado.
+
+## Edge Functions e secrets
+
+As funções em `supabase/functions` rodam no ambiente do Supabase e precisam ser implantadas no projeto Supabase para que alterações de backend entrem em produção. Alterar apenas o código no GitHub não substitui automaticamente uma Edge Function já publicada, a menos que exista um pipeline externo de deploy configurado.
+
+Secrets usados pelas funções de IA:
+
+- `GEMINI_API_KEY`
+- `OPENAI_API_KEY` (fallback para funções compatíveis)
+
+As funções de análise e geração de criativos não devem depender de créditos ou do gateway de IA do Lovable.
