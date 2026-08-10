@@ -1,4 +1,4 @@
-# VIXN Analytics Pro
+# XYXN Analytics
 
 Painel de analytics e growth com integrações para plataformas digitais, análise de mercado, relatórios e recursos de IA.
 
