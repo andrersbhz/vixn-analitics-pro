@@ -3,11 +3,18 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const jsonResponse = (body: unknown, status = 200) =>
-  new Response(JSON.stringify(body), {
-    status,
+const jsonResponse = (body: unknown, status = 200) => {
+  const isApplicationError =
+    !!body && typeof body === 'object' && Object.prototype.hasOwnProperty.call(body, 'error');
+
+  return new Response(JSON.stringify(body), {
+    // The current frontend reads data.error after supabase.functions.invoke().
+    // Returning 2xx for handled application errors preserves the real message
+    // instead of Supabase replacing it with the generic non-2xx SDK error.
+    status: isApplicationError ? 200 : status,
     headers: { ...corsHeaders, 'Content-Type': 'application/json' },
   });
+};
 
 const stripCodeFence = (value: string) =>
   value.replace(/```json|```/gi, '').trim();
