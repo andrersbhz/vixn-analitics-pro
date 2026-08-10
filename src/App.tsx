@@ -16,6 +16,7 @@ import MarketIntelligencePro from "./pages/MarketIntelligencePro";
 import Strategy from "./pages/Strategy";
 import StrategyOperations from "./pages/StrategyOperations";
 import StrategyCockpit from "./pages/StrategyCockpit";
+import StrategyCalendar from "./pages/StrategyCalendar";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
 import Diagnostics from "./pages/Diagnostics";
@@ -45,6 +46,7 @@ const App = () => {
               <Route path="/strategy" element={<Strategy />} />
               <Route path="/strategy-operations" element={<StrategyOperations />} />
               <Route path="/strategy-cockpit" element={<StrategyCockpit />} />
+              <Route path="/strategy-calendar" element={<StrategyCalendar />} />
               <Route path="/reports" element={<Reports />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/diagnostics" element={<Diagnostics />} />
