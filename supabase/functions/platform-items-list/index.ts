@@ -15,9 +15,24 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
     )
 
+    const token = req.headers.get('Authorization')?.replace('Bearer ', '') ?? ''
+    const { data: userData } = await supabase.auth.getUser(token)
+    const userId = userData?.user?.id
+    if (!userId) {
+      return new Response(JSON.stringify({ error: 'Não autenticado.' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    // Legacy rows created before ownership existed belong to the first
+    // authenticated owner of this workspace.
+    await supabase.from('platform_items').update({ user_id: userId }).is('user_id', null)
+
     const { data, error } = await supabase
       .from('platform_items')
       .select('*')
+      .eq('user_id', userId)
       .order('created_at', { ascending: false })
       .limit(2000)
 

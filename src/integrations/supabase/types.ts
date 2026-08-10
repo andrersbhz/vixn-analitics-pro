@@ -60,6 +60,7 @@ export type Database = {
           next_sync_at: string | null
           sync_interval_minutes: number | null
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           cached_data?: Json | null
@@ -73,6 +74,7 @@ export type Database = {
           next_sync_at?: string | null
           sync_interval_minutes?: number | null
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           cached_data?: Json | null
@@ -86,6 +88,7 @@ export type Database = {
           next_sync_at?: string | null
           sync_interval_minutes?: number | null
           updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -106,6 +109,7 @@ export type Database = {
           rpm: number | null
           title: string
           updated_at: string | null
+          user_id: string | null
           views: number | null
         }
         Insert: {
@@ -124,6 +128,7 @@ export type Database = {
           rpm?: number | null
           title: string
           updated_at?: string | null
+          user_id?: string | null
           views?: number | null
         }
         Update: {
@@ -142,6 +147,7 @@ export type Database = {
           rpm?: number | null
           title?: string
           updated_at?: string | null
+          user_id?: string | null
           views?: number | null
         }
         Relationships: []
@@ -252,6 +258,7 @@ export type Database = {
           id: string
           platform_id: string
           status: string
+          user_id: string | null
         }
         Insert: {
           created_at?: string
@@ -259,6 +266,7 @@ export type Database = {
           id?: string
           platform_id: string
           status: string
+          user_id?: string | null
         }
         Update: {
           created_at?: string
@@ -266,6 +274,7 @@ export type Database = {
           id?: string
           platform_id?: string
           status?: string
+          user_id?: string | null
         }
         Relationships: []
       }

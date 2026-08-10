@@ -19,10 +19,25 @@
  
      const { platformId } = await req.json()
  
+    const token = req.headers.get('Authorization')?.replace('Bearer ', '') ?? ''
+    const { data: userData } = await supabaseClient.auth.getUser(token)
+    const userId = userData?.user?.id
+    if (!userId) {
+      return new Response(JSON.stringify({ error: 'Não autenticado.' }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 401,
+      })
+    }
+
+    // Claim legacy rows without an owner for this workspace owner.
+    await supabaseClient.from('platform_connections').update({ user_id: userId }).is('user_id', null)
+    await supabaseClient.from('platform_items').update({ user_id: userId }).is('user_id', null)
+
      const { data: connection, error: connError } = await supabaseClient
        .from('platform_connections')
        .select('*')
        .eq('id', platformId)
+      .eq('user_id', userId)
        .single()
  
      if (connError || !connection) {
@@ -274,7 +289,7 @@
      if (results.length > 0) {
        const { error: upsertError } = await supabaseClient
          .from('platform_items')
-         .upsert(results, { onConflict: 'platform_id,external_id' })
+        .upsert(results.map((r: any) => ({ ...r, user_id: userId })), { onConflict: 'platform_id,external_id' })
  
        if (upsertError) throw upsertError
      }
