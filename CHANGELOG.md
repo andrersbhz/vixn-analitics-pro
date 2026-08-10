@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.2.1 — 2026-08-10
+
+### Authentication & Reliability
+- Reconciled the 1.2.0 feature set with the latest authentication/RLS/JWT fixes.
+- Owner-scoped (`user_id`) access for platform connections, platform items and sync history preserved.
+- Edge functions keep requiring a valid JWT; 401 responses are handled gracefully in the client.
+- Session-aware data loading avoids blank screens when the session is missing or expired.
+- No backend, credential or integration changes; same connected database and project.
+
 ## 1.2.0 — 2026-08-10
 
 ### Market Intelligence
