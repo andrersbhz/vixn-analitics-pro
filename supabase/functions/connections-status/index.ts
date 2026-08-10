@@ -11,9 +11,22 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
     )
 
+    const token = req.headers.get('Authorization')?.replace('Bearer ', '') ?? ''
+    const { data: userData } = await supabase.auth.getUser(token)
+    const userId = userData?.user?.id
+    if (!userId) {
+      return new Response(JSON.stringify({ error: 'Não autenticado.' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    await supabase.from('platform_connections').update({ user_id: userId }).is('user_id', null)
+
     const { data, error } = await supabase
       .from('platform_connections')
       .select('id,name,is_connected,config,sync_interval_minutes,next_sync_at,last_sync_at')
+      .eq('user_id', userId)
       .order('id', { ascending: true })
 
     if (error) throw error
