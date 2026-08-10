@@ -1,5 +1,13 @@
 project_id = "orifwrskrtafulrmckhw"
 
+[auth]
+site_url = "https://analitics.a3solucoesdigitais.com"
+additional_redirect_urls = [
+  "https://analitics.a3solucoesdigitais.com/",
+  "https://analitics.a3solucoesdigitais.com/**",
+  "http://localhost:5173/**"
+]
+
 [functions.adsense-oauth-start]
 verify_jwt = false
 
