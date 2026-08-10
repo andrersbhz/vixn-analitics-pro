@@ -36,3 +36,19 @@ Secrets usados pelas funções de IA:
 - `OPENAI_API_KEY` (fallback para funções compatíveis)
 
 As funções de análise e geração de criativos não devem depender de créditos ou do gateway de IA do Lovable.
+
+## Credenciais de integrações
+
+Credenciais sensíveis já armazenadas no Supabase devem ser preservadas. O frontend recebe apenas configurações sanitizadas, e atualizações de conexões são mescladas no backend pela Edge Function `connections-update`, evitando que tokens OAuth, senhas de aplicativo ou outros segredos sejam apagados ao salvar configurações não relacionadas.
+
+Para colocar a atual rodada de correções em produção, publique pelo menos estas funções no Supabase:
+
+- `ai-chat`
+- `analyze-ecommerce`
+- `generate-creatives`
+- `connections-update`
+- `connections-status`
+- `adsense-oauth-start`
+- `adsense-oauth-callback`
+
+O projeto Supabase configurado no repositório é `orifwrskrtafulrmckhw`.
