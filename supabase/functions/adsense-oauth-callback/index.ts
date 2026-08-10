@@ -23,7 +23,7 @@ serve(async (req) => {
   }
 
   const state = decodeState(stateRaw)
-  const returnTo = getString(state.return_to)
+  const returnTo = normalizeReturnTo(getString(state.return_to))
 
   const errorParam = url.searchParams.get('error')
   if (errorParam || !code) {
@@ -55,7 +55,6 @@ serve(async (req) => {
     const tokenData = await tokenRes.json()
     if (!tokenRes.ok) throw new Error(tokenData.error_description || tokenData.error || 'Falha ao trocar código por token')
 
-    // Descobrir a conta AdSense do usuário
     let accountName = ''
     let pubId = ''
     let accountWarning = ''
@@ -67,7 +66,7 @@ serve(async (req) => {
       if (!acctRes.ok) throw new Error(acctData?.error?.message || 'Falha ao localizar conta AdSense')
       const first = acctData?.accounts?.[0]
       if (first) {
-        accountName = first.name // "accounts/pub-XXXX"
+        accountName = first.name
         pubId = first.name?.split('/')?.[1] || ''
       } else {
         accountWarning = 'Conta Google autorizada, mas nenhuma conta AdSense foi encontrada nessa conta.'
@@ -106,7 +105,7 @@ serve(async (req) => {
 
     if (saveError) throw new Error(`Não foi possível salvar a conexão AdSense: ${saveError.message}`)
 
-    const back = returnTo || '/settings'
+    const back = returnTo
     if (isJsonRequest) {
       return jsonResponse({ success: true, warning: accountWarning, return_to: back })
     }
@@ -141,6 +140,25 @@ function decodeState(stateRaw: string) {
 
 function getString(value: unknown) {
   return typeof value === 'string' ? value : ''
+}
+
+function normalizeReturnTo(value: string) {
+  if (!value) return `${primaryFrontendOrigin}/settings`
+
+  try {
+    if (value.startsWith('/')) {
+      return new URL(value, primaryFrontendOrigin).toString()
+    }
+
+    const url = new URL(value)
+    if (url.origin !== primaryFrontendOrigin) {
+      return `${primaryFrontendOrigin}/settings`
+    }
+
+    return url.toString()
+  } catch {
+    return `${primaryFrontendOrigin}/settings`
+  }
 }
 
 function isAllowedFrontendCallback(value: string) {
