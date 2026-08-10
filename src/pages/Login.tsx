@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 
+const PRODUCTION_ORIGIN = "https://analitics.a3solucoesdigitais.com";
+
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -36,20 +38,14 @@ const Login = () => {
 
     try {
       if (isSignUp) {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-        });
+        const { error } = await supabase.auth.signUp({ email, password });
         if (error) throw error;
         toast({
           title: "Cadastro realizado!",
           description: "Verifique seu e-mail para confirmar a conta.",
         });
       } else {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         navigate("/");
       }
@@ -67,12 +63,10 @@ const Login = () => {
   const handleGoogleLogin = async () => {
     setIsGoogleLoading(true);
     try {
-      const redirectTo = `${window.location.origin}/`;
+      const redirectTo = `${PRODUCTION_ORIGIN}/`;
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
-        options: {
-          redirectTo,
-        },
+        options: { redirectTo },
       });
       if (error) throw error;
     } catch (error: any) {
@@ -97,9 +91,7 @@ const Login = () => {
           <CardTitle className="text-2xl font-bold tracking-tight">
             {isSignUp ? "Criar conta" : "Entrar"}
           </CardTitle>
-          <CardDescription>
-            Escolha seu método preferido para acessar o painel
-          </CardDescription>
+          <CardDescription>Escolha seu método preferido para acessar o painel</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4">
@@ -129,26 +121,22 @@ const Login = () => {
           </div>
 
           <form onSubmit={handleAuth} className="space-y-4">
-            <div className="space-y-2">
-              <Input
-                type="email"
-                placeholder="nome@exemplo.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="border-border/40 focus:border-primary/50"
-              />
-            </div>
-            <div className="space-y-2">
-              <Input
-                type="password"
-                placeholder="Sua senha"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="border-border/40 focus:border-primary/50"
-              />
-            </div>
+            <Input
+              type="email"
+              placeholder="nome@exemplo.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="border-border/40 focus:border-primary/50"
+            />
+            <Input
+              type="password"
+              placeholder="Sua senha"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="border-border/40 focus:border-primary/50"
+            />
             <Button type="submit" className="w-full bg-primary hover:bg-primary/90" disabled={isLoading}>
               {isLoading ? "Processando..." : isSignUp ? "Cadastrar" : "Entrar"}
             </Button>
