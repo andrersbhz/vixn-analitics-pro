@@ -5,6 +5,7 @@ import { Toaster } from "./components/ui/toaster";
 import { TooltipProvider } from "./components/ui/tooltip";
 import { ThemeProvider } from "./components/ThemeProvider";
 import Index from "./pages/Index";
+import Login from "./pages/Login";
 import YouTubeStats from "./pages/YouTubeStats";
 import BlogAnalytics from "./pages/BlogAnalytics";
 import FacebookPages from "./pages/FacebookPages";
@@ -30,6 +31,7 @@ const App = () => {
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/login" element={<Login />} />
               <Route path="/youtube" element={<YouTubeStats />} />
               <Route path="/blog" element={<BlogAnalytics />} />
               <Route path="/facebook" element={<FacebookPages />} />
