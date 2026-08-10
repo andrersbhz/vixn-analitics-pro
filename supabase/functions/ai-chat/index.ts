@@ -25,12 +25,13 @@ serve(async (req) => {
 
   try {
     const body = await req.json() as RequestBody
-    const prompt = typeof body.prompt === 'string' ? body.prompt.trim() : ''
+    const rawPrompt = typeof body.prompt === 'string' ? body.prompt.trim() : ''
     const preferredModel = body.model === 'openai' ? 'openai' : 'gemini'
     const systemPrompt = typeof body.system_prompt === 'string' ? body.system_prompt.trim() : ''
 
-    if (!prompt) return jsonResponse({ error: 'Prompt obrigatório' }, 400)
+    if (!rawPrompt) return jsonResponse({ error: 'Prompt obrigatório' }, 400)
 
+    const prompt = applyProfessionalGuardrails(rawPrompt)
     const wantsStructuredJson = /\bjson\b/i.test(`${systemPrompt}\n${prompt}`)
       && /(json puro|objeto json|apenas (o )?json|somente (o )?json|estrutura exata)/i.test(`${systemPrompt}\n${prompt}`)
     const responseFormat: 'text' | 'json' = body.response_format === 'json' || wantsStructuredJson ? 'json' : 'text'
@@ -75,6 +76,13 @@ serve(async (req) => {
   }
 })
 
+function applyProfessionalGuardrails(prompt: string) {
+  const isMarketStudy = /(análise de mercado|analise de mercado|market size|competitividade|avgcac|salesfunnel)/i.test(prompt)
+  if (!isMarketStudy) return prompt
+
+  return `${prompt}\n\nREGRAS DE QUALIDADE E CONFIABILIDADE:\n- Não apresente tamanho de mercado, CAC, crescimento, participação, receita ou projeções como fatos quando esses dados não tiverem sido fornecidos no contexto.\n- Quando precisar estimar, use faixas ou cenários plausíveis e identifique explicitamente como estimativa/premissa dentro dos campos de texto já existentes.\n- Diferencie observações inferíveis de hipóteses estratégicas.\n- Priorize recomendações acionáveis, específicas e mensuráveis.\n- Não invente fontes, pesquisas, percentuais ou benchmarks atribuídos a terceiros.\n- Em projections, trate os valores como índice de evolução relativo (base 100) quando não houver dados financeiros de entrada, evitando sugerir faturamento real.\n- Em distribution, garanta que os valores somem 100 e represente uma recomendação de mix de aquisição, não participação de mercado observada.\n- Em budget e KPI, use recomendações iniciais condicionais e deixe claro no texto quando dependem de validação por teste.\n- Preserve rigorosamente a estrutura JSON solicitada pelo usuário.`
+}
+
 async function callGemini({
   prompt,
   systemPrompt,
@@ -104,6 +112,7 @@ async function callGemini({
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      signal: AbortSignal.timeout(45000),
       body: JSON.stringify(requestBody),
     },
   )
@@ -141,6 +150,7 @@ async function callOpenAI({
       Authorization: `Bearer ${apiKey}`,
       'Content-Type': 'application/json',
     },
+    signal: AbortSignal.timeout(45000),
     body: JSON.stringify({
       model: 'gpt-4o-mini',
       messages,
