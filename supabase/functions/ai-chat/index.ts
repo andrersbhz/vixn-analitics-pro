@@ -28,13 +28,16 @@ serve(async (req) => {
     const prompt = typeof body.prompt === 'string' ? body.prompt.trim() : ''
     const preferredModel = body.model === 'openai' ? 'openai' : 'gemini'
     const systemPrompt = typeof body.system_prompt === 'string' ? body.system_prompt.trim() : ''
-    const responseFormat = body.response_format === 'json' ? 'json' : 'text'
-    const allowFallback = body.fallback === true
+
+    if (!prompt) return jsonResponse({ error: 'Prompt obrigatório' }, 400)
+
+    const wantsStructuredJson = /\bjson\b/i.test(`${systemPrompt}\n${prompt}`)
+      && /(json puro|objeto json|apenas (o )?json|somente (o )?json|estrutura exata)/i.test(`${systemPrompt}\n${prompt}`)
+    const responseFormat: 'text' | 'json' = body.response_format === 'json' || wantsStructuredJson ? 'json' : 'text'
+    const allowFallback = body.fallback !== false
     const temperature = Number.isFinite(body.temperature)
       ? Math.max(0, Math.min(1, Number(body.temperature)))
       : responseFormat === 'json' ? 0.2 : 0.5
-
-    if (!prompt) return jsonResponse({ error: 'Prompt obrigatório' }, 400)
 
     const providers: Array<'gemini' | 'openai'> = allowFallback
       ? preferredModel === 'gemini' ? ['gemini', 'openai'] : ['openai', 'gemini']
@@ -94,9 +97,7 @@ async function callGemini({
     },
   }
 
-  if (systemPrompt) {
-    requestBody.systemInstruction = { parts: [{ text: systemPrompt }] }
-  }
+  if (systemPrompt) requestBody.systemInstruction = { parts: [{ text: systemPrompt }] }
 
   const response = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`,
@@ -108,9 +109,7 @@ async function callGemini({
   )
 
   const data = await response.json().catch(() => ({}))
-  if (!response.ok) {
-    throw new Error(data?.error?.message || `Gemini retornou HTTP ${response.status}`)
-  }
+  if (!response.ok) throw new Error(data?.error?.message || `Gemini retornou HTTP ${response.status}`)
 
   const text = data?.candidates?.[0]?.content?.parts?.[0]?.text
   if (!text) throw new Error('Gemini não retornou conteúdo')
@@ -151,9 +150,7 @@ async function callOpenAI({
   })
 
   const data = await response.json().catch(() => ({}))
-  if (!response.ok) {
-    throw new Error(data?.error?.message || `OpenAI retornou HTTP ${response.status}`)
-  }
+  if (!response.ok) throw new Error(data?.error?.message || `OpenAI retornou HTTP ${response.status}`)
 
   const text = data?.choices?.[0]?.message?.content
   if (!text) throw new Error('OpenAI não retornou conteúdo')
