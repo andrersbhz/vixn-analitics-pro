@@ -12,6 +12,7 @@ import FacebookPages from "./pages/FacebookPages";
 import FacebookAds from "./pages/FacebookAds";
 import AdSenseAnalytics from "./pages/AdSenseAnalytics";
 import MarketAnalysis from "./pages/MarketAnalysis";
+import MarketIntelligencePro from "./pages/MarketIntelligencePro";
 import Strategy from "./pages/Strategy";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
@@ -38,6 +39,7 @@ const App = () => {
               <Route path="/facebook-ads" element={<FacebookAds />} />
               <Route path="/adsense" element={<AdSenseAnalytics />} />
               <Route path="/market-analysis" element={<MarketAnalysis />} />
+              <Route path="/market-intelligence" element={<MarketIntelligencePro />} />
               <Route path="/strategy" element={<Strategy />} />
               <Route path="/reports" element={<Reports />} />
               <Route path="/settings" element={<Settings />} />
