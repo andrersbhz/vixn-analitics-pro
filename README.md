@@ -52,3 +52,10 @@ Para colocar a atual rodada de correções em produção, publique pelo menos es
 - `adsense-oauth-callback`
 
 O projeto Supabase configurado no repositório é `orifwrskrtafulrmckhw`.
+
+## Status das integrações
+
+- Google AdSense: integração OAuth e sincronização real existentes.
+- YouTube: sincronização pública por Channel ID/RSS existente.
+- WordPress: sincronização REST existente, com suporte a senha de aplicativo e modo Jetpack.
+- Facebook Ads: a interface atual possui cadastro do Ad Account ID, mas a sincronização Meta Graph API ainda não está implementada. A página `FacebookAds` contém dados demonstrativos e não deve ser tratada como fonte de métricas reais até a integração Meta ser concluída.
