@@ -15,7 +15,8 @@ import { Link, useLocation } from "react-router-dom";
     Megaphone,
     Search,
     AlertCircle,
-    Sparkles
+    Sparkles,
+    ListChecks
  } from "lucide-react";
  import { Button } from "@/components/ui/button";
  import { cn } from "@/lib/utils";
@@ -65,6 +66,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     { name: "Estudo de Mercado", href: "/market-analysis", icon: Search },
     { name: "Market Intelligence Pro", href: "/market-intelligence", icon: Sparkles },
     { name: "Estratégia", href: "/strategy", icon: TrendingUp },
+    { name: "Operações", href: "/strategy-operations", icon: ListChecks },
     { name: "Relatórios", href: "/reports", icon: PieChart },
     { name: "Configurações", href: "/settings", icon: Settings },
     { name: "Diagnóstico", href: "/diagnostics", icon: AlertCircle },
