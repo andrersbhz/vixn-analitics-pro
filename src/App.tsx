@@ -14,6 +14,7 @@ import AdSenseAnalytics from "./pages/AdSenseAnalytics";
 import MarketAnalysis from "./pages/MarketAnalysis";
 import MarketIntelligencePro from "./pages/MarketIntelligencePro";
 import Strategy from "./pages/Strategy";
+import StrategyOperations from "./pages/StrategyOperations";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
 import Diagnostics from "./pages/Diagnostics";
@@ -41,6 +42,7 @@ const App = () => {
               <Route path="/market-analysis" element={<MarketAnalysis />} />
               <Route path="/market-intelligence" element={<MarketIntelligencePro />} />
               <Route path="/strategy" element={<Strategy />} />
+              <Route path="/strategy-operations" element={<StrategyOperations />} />
               <Route path="/reports" element={<Reports />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/diagnostics" element={<Diagnostics />} />
