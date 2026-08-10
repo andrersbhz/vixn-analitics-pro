@@ -15,9 +15,9 @@ serve(async (req) => {
       }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
     }
 
-    const url = new URL(req.url)
     const body = await readJsonBody(req)
-    const returnTo = getString(body.return_to) || url.searchParams.get('return_to') || ''
+    const requestedReturnTo = getString(body.return_to)
+    const returnTo = normalizeReturnTo(requestedReturnTo)
     const redirectUri = `${primaryFrontendOrigin}${callbackPath}`
 
     const authUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth')
@@ -54,4 +54,23 @@ async function readJsonBody(req: Request) {
 
 function getString(value: unknown) {
   return typeof value === 'string' ? value : ''
+}
+
+function normalizeReturnTo(value: string) {
+  if (!value) return `${primaryFrontendOrigin}/settings`
+
+  try {
+    if (value.startsWith('/')) {
+      return new URL(value, primaryFrontendOrigin).toString()
+    }
+
+    const url = new URL(value)
+    if (url.origin !== primaryFrontendOrigin) {
+      return `${primaryFrontendOrigin}/settings`
+    }
+
+    return url.toString()
+  } catch {
+    return `${primaryFrontendOrigin}/settings`
+  }
 }
