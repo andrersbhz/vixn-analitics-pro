@@ -6,6 +6,7 @@ import { TooltipProvider } from "./components/ui/tooltip";
 import { ThemeProvider } from "./components/ThemeProvider";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
+import ResetPassword from "./pages/ResetPassword";
 import YouTubeStats from "./pages/YouTubeStats";
 import BlogAnalytics from "./pages/BlogAnalytics";
 import FacebookPages from "./pages/FacebookPages";
@@ -36,6 +37,7 @@ const App = () => {
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/login" element={<Login />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/youtube" element={<YouTubeStats />} />
               <Route path="/blog" element={<BlogAnalytics />} />
               <Route path="/facebook" element={<FacebookPages />} />
