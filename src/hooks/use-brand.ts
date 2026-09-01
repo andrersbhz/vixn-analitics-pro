@@ -36,8 +36,8 @@ export const useBrand = () => {
     const local = readLocal();
     setProfile(local);
     try {
-      const { data: auth } = await supabase.auth.getUser();
-      const user = auth?.user;
+      const { data: auth } = await supabase.auth.getSession();
+      const user = auth?.session?.user;
       if (!user) { setLoading(false); return; }
 
       const [{ data: prof }, { data: settings }] = await Promise.all([
@@ -69,8 +69,8 @@ export const useBrand = () => {
     localStorage.setItem(LS_KEY, JSON.stringify(merged));
     window.dispatchEvent(new CustomEvent("brand:updated", { detail: merged }));
 
-    const { data: auth } = await supabase.auth.getUser();
-    const user = auth?.user;
+    const { data: auth } = await supabase.auth.getSession();
+    const user = auth?.session?.user;
     if (!user) return { ok: false, reason: "not_authenticated" as const };
 
     const { error: pErr } = await supabase.from("profiles").upsert({

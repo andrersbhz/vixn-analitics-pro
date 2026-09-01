@@ -57,17 +57,26 @@ const Login = () => {
   }, [toast]);
 
 
+  // Evita que o botão fique preso em "Processando..." caso a rede/auth trave.
+  const withTimeout = <T,>(promise: Promise<T>, ms = 20000): Promise<T> =>
+    Promise.race([
+      promise,
+      new Promise<T>((_, reject) =>
+        setTimeout(() => reject(new Error("Tempo esgotado ao contatar o servidor de autenticação. Tente novamente.")), ms),
+      ),
+    ]);
+
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
       if (isSignUp) {
-        const { data, error } = await supabase.auth.signUp({
+        const { data, error } = await withTimeout(supabase.auth.signUp({
           email,
           password,
-          options: { emailRedirectTo: `${authOrigin()}/` },
-        });
+          options: { emailRedirectTo: `${authOrigin()}/dashboard` },
+        }));
         if (error) throw error;
 
         if (data.session) {
@@ -78,9 +87,9 @@ const Login = () => {
 
         toast({ title: "Cadastro realizado!", description: "Verifique seu e-mail para confirmar a conta e depois entre normalmente." });
       } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { error } = await withTimeout(supabase.auth.signInWithPassword({ email, password }));
         if (error) throw error;
-        navigate("/dashboard");
+        navigate("/dashboard", { replace: true });
       }
     } catch (error: any) {
       const message = String(error?.message || "");
@@ -121,7 +130,10 @@ const Login = () => {
     setIsGoogleLoading(true);
     try {
       const redirectTo = `${authOrigin()}/login`;
-      const { error } = await supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo } });
+      const { error } = await withTimeout(
+        supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo } }),
+        15000,
+      );
       if (error) throw error;
     } catch (error: any) {
       const message = String(error?.message || "");
