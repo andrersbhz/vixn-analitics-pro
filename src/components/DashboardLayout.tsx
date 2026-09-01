@@ -41,6 +41,18 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
      setMounted(true);
    }, []);
    const { profile } = useBrand();
+
+   const handleLogout = async () => {
+     try {
+       await supabase.auth.signOut();
+     } catch (error) {
+       console.error('Error signing out:', error);
+     }
+     setSidebarOpen(false);
+     navigate('/login');
+     toast.success('Sessão encerrada com sucesso.');
+   };
+
    const brandName = profile.brandName || "GrowthSuite Pro";
    const BrandMark = () => (
     <span className="flex flex-col items-center gap-1 min-w-0 w-full">
