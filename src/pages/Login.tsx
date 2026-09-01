@@ -48,7 +48,7 @@ const Login = () => {
 
         if (data.session) {
           toast({ title: "Conta criada", description: "Acesso liberado com sucesso." });
-          navigate("/");
+          navigate("/dashboard");
           return;
         }
 
@@ -56,7 +56,7 @@ const Login = () => {
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        navigate("/");
+        navigate("/dashboard");
       }
     } catch (error: any) {
       const message = String(error?.message || "");
