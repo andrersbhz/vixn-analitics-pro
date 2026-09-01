@@ -5,6 +5,7 @@ import { Toaster } from "./components/ui/toaster";
 import { TooltipProvider } from "./components/ui/tooltip";
 import { ThemeProvider } from "./components/ThemeProvider";
 import Index from "./pages/Index";
+import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import ResetPassword from "./pages/ResetPassword";
 import YouTubeStats from "./pages/YouTubeStats";
