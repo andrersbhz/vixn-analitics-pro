@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import Seo from "@/components/Seo";
 import { useBrand } from "@/hooks/use-brand";
 import { SITE, checkoutLink } from "@/lib/site";
+import BrandEditor from "@/components/BrandEditor";
 
 const services = [
   { n: "01", icon: BarChart3, title: "Analytics unificado", desc: "Vendas, mídia, conteúdo e operação em uma visão que realmente orienta decisões." },
@@ -46,7 +47,7 @@ const Landing = () => {
     <div className="octo-noise pointer-events-none fixed inset-0 z-[60] opacity-[0.035]" />
     <header className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${scrolled ? "border-b border-white/10 bg-black/80 backdrop-blur-2xl" : "bg-transparent"}`}>
       <div className="mx-auto flex h-20 max-w-[1440px] items-center justify-between px-5 md:px-10">
-        <Link to="/" className="neon-interactive flex items-center gap-3 rounded-full px-2 py-1"><span className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border border-primary/70 bg-primary/15 shadow-[0_0_24px_rgba(247,6,112,.35)]">{profile.logoUrl ? <img src={profile.logoUrl} alt="" className="h-full w-full object-contain" /> : <CircleDot className="h-5 w-5 text-primary" />}</span><span className="text-sm font-black uppercase tracking-[-.03em]">{brandName}</span></Link>
+        <div className="flex items-center gap-1"><Link to="/" className="neon-interactive flex items-center gap-3 rounded-full px-2 py-1"><span className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border border-primary/70 bg-primary/15 shadow-[0_0_24px_rgba(247,6,112,.35)]">{profile.logoUrl ? <img src={profile.logoUrl} alt="" className="h-full w-full object-contain" /> : <CircleDot className="h-5 w-5 text-primary" />}</span><span className="text-sm font-black uppercase tracking-[-.03em]">{brandName}</span></Link><BrandEditor /></div>
         <nav className="hidden items-center gap-9 md:flex">{nav.map(([label, href]) => <a key={href} href={href} className="text-xs font-semibold uppercase tracking-[.12em] text-white/55 transition hover:text-primary">{label}</a>)}</nav>
         <div className="flex items-center gap-2"><Button asChild variant="ghost" className="hidden rounded-full text-white hover:bg-white/10 hover:text-white sm:inline-flex"><Link to="/login"><LogIn className="mr-2 h-4 w-4" />Entrar</Link></Button><Button asChild className="neon-button hidden rounded-full px-6 sm:inline-flex"><Link to="/contato">Falar com especialista <ArrowDownRight className="ml-2 h-4 w-4" /></Link></Button><button onClick={() => setMenuOpen(!menuOpen)} aria-label="Abrir menu" className="neon-interactive rounded-full border border-white/15 p-2.5 md:hidden">{menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}</button></div>
       </div>
