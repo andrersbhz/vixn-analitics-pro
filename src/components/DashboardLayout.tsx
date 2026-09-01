@@ -27,6 +27,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
  import { cn } from "@/lib/utils";
  import { useTheme } from "next-themes";
 import { useBrand } from "@/hooks/use-brand";
+import BrandEditor from "@/components/BrandEditor";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -60,8 +61,9 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       {profile.logoUrl ? (
         <img src={profile.logoUrl} alt={brandName} className="h-10 w-10 rounded object-contain" />
       ) : null}
-      <span className="w-full text-center text-sm font-extralight gradient-text tracking-widest uppercase break-words leading-tight">
-        {brandName}
+      <span className="flex w-full items-center justify-center gap-1">
+        <span className="min-w-0 break-words text-center text-sm font-extralight uppercase leading-tight tracking-widest gradient-text">{brandName}</span>
+        <BrandEditor />
       </span>
     </span>
    );
