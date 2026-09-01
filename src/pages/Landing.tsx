@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   BarChart3, Brain, Users, Headphones, Target, Rocket, ShieldCheck,
-  Sparkles, ArrowRight, Check, Pencil, Upload, Workflow, LineChart, Bot
+  Sparkles, ArrowRight, Check, Pencil, Upload, Workflow, LineChart, Bot, LogIn, Menu, X
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,6 +35,13 @@ const plans = [
   { name: "Start", price: "R$ 2.900", period: "/mês", desc: "Para validar um módulo e provar valor rápido.", items: ["1 módulo SaaS sob medida", "Dashboard de dados", "Integrações essenciais", "Suporte em horário comercial"] },
   { name: "Growth", price: "R$ 6.900", period: "/mês", desc: "Para operações que já rodam e precisam escalar.", items: ["Até 4 módulos", "IA aplicada ao seu contexto", "Análise comportamental e de atendimento", "Estratégias de campanha mensais", "Suporte prioritário"], highlight: true },
   { name: "Enterprise", price: "Sob consulta", period: "", desc: "Plataforma completa, multiempresa e white-label.", items: ["Módulos ilimitados", "Infra dedicada e SSO", "Modelos de IA privados", "Squad dedicado", "SLA contratual"] },
+];
+
+const sections = [
+  { id: "solucoes", label: "Soluções" },
+  { id: "como", label: "Como funciona" },
+  { id: "planos", label: "Planos" },
+  { id: "faq", label: "FAQ" },
 ];
 
 const faqs = [
@@ -106,6 +113,23 @@ const BrandEditor = () => {
 const Landing = () => {
   const { profile } = useBrand();
   const brandName = profile.brandName || "VYXN Digital";
+  const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [active, setActive] = useState("");
+
+  useEffect(() => {
+    const onScroll = () => {
+      setScrolled(window.scrollY > 12);
+      const current = sections
+        .map((s) => ({ id: s.id, el: document.getElementById(s.id) }))
+        .filter((s) => s.el && s.el.getBoundingClientRect().top <= 140)
+        .pop();
+      setActive(current?.id ?? "");
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
     <div className="dark relative min-h-screen overflow-x-hidden bg-background text-foreground">
@@ -117,10 +141,16 @@ const Landing = () => {
         <div className="absolute inset-0 opacity-[0.07] [background-image:linear-gradient(to_right,hsl(var(--primary))_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--primary))_1px,transparent_1px)] [background-size:64px_64px]" />
       </div>
 
-      <div className="relative z-10">
-        {/* Nav */}
-        <header className="sticky top-0 z-50 border-b border-white/5 bg-background/60 backdrop-blur-xl">
-          <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4">
+      <div className="relative z-10 pt-20">
+        {/* Nav fixo */}
+        <header
+          className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
+            scrolled
+              ? "border-b border-primary/20 bg-background/80 shadow-[0_8px_40px_-16px_hsl(var(--primary)/0.8)] backdrop-blur-xl"
+              : "border-b border-transparent bg-background/40 backdrop-blur-md"
+          }`}
+        >
+          <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-3">
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 overflow-hidden rounded-xl border border-primary/40 bg-primary/10 shadow-[0_0_24px_-4px_hsl(var(--primary)/0.7)] flex items-center justify-center">
                 {profile.logoUrl ? <img src={profile.logoUrl} alt={`Ícone ${brandName}`} className="h-full w-full object-contain" /> : <Sparkles className="h-5 w-5 text-primary" />}
@@ -129,22 +159,43 @@ const Landing = () => {
               <BrandEditor />
             </div>
             <nav className="hidden items-center gap-8 text-sm text-muted-foreground md:flex">
-              <a href="#solucoes" className="transition hover:text-foreground">Soluções</a>
-              <a href="#como" className="transition hover:text-foreground">Como funciona</a>
-              <a href="#planos" className="transition hover:text-foreground">Planos</a>
-              <a href="#faq" className="transition hover:text-foreground">FAQ</a>
+              {sections.map((s) => (
+                <a
+                  key={s.id}
+                  href={`#${s.id}`}
+                  className={`transition hover:text-foreground ${active === s.id ? "text-primary" : ""}`}
+                >
+                  {s.label}
+                </a>
+              ))}
             </nav>
             <div className="flex items-center gap-2">
-              <Button asChild variant="ghost" className="hidden sm:inline-flex"><Link to="/login">Entrar</Link></Button>
-              <Button asChild className="rounded-full shadow-[0_0_28px_-6px_hsl(var(--primary)/0.9)]">
+              <Button asChild variant="ghost" className="gap-2">
+                <Link to="/login"><LogIn className="h-4 w-4" /> Entrar</Link>
+              </Button>
+              <Button asChild className="hidden rounded-full shadow-[0_0_28px_-6px_hsl(var(--primary)/0.9)] sm:inline-flex">
                 <a href="#contato">Falar com especialista</a>
+              </Button>
+              <Button variant="ghost" size="icon" className="md:hidden" aria-label="Abrir menu" onClick={() => setMenuOpen((v) => !v)}>
+                {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
               </Button>
             </div>
           </div>
+          {menuOpen && (
+            <nav className="border-t border-white/5 bg-background/95 px-5 py-4 backdrop-blur-xl md:hidden">
+              {sections.map((s) => (
+                <a key={s.id} href={`#${s.id}`} onClick={() => setMenuOpen(false)} className="block py-2 text-sm text-muted-foreground hover:text-foreground">
+                  {s.label}
+                </a>
+              ))}
+              <a href="#contato" onClick={() => setMenuOpen(false)} className="block py-2 text-sm text-primary">Falar com especialista</a>
+            </nav>
+          )}
         </header>
 
         {/* Hero */}
-        <section className="mx-auto max-w-7xl px-5 pb-20 pt-16 md:pt-24">
+        <section className="mx-auto max-w-7xl px-5 pb-20 pt-12 md:pt-20">
+
           <div className="grid items-center gap-14 lg:grid-cols-[1.05fr_0.95fr]">
             <div>
               <span className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs uppercase tracking-[0.2em] text-primary">
@@ -203,7 +254,7 @@ const Landing = () => {
         </section>
 
         {/* Soluções */}
-        <section id="solucoes" className="mx-auto max-w-7xl px-5 py-20">
+        <section id="solucoes" className="scroll-mt-24 mx-auto max-w-7xl px-5 py-20">
           <div className="max-w-2xl">
             <h2 className="text-3xl md:text-4xl">Soluções que resolvem <span className="gradient-text">problemas reais</span></h2>
             <p className="mt-4 text-muted-foreground">Cada módulo é construído a partir da sua operação — nada de software genérico.</p>
@@ -222,7 +273,7 @@ const Landing = () => {
         </section>
 
         {/* Como funciona */}
-        <section id="como" className="mx-auto max-w-7xl px-5 py-20">
+        <section id="como" className="scroll-mt-24 mx-auto max-w-7xl px-5 py-20">
           <div className="glass-card border-primary/15 p-8 md:p-12">
             <h2 className="text-3xl md:text-4xl">Do diagnóstico ao <span className="gradient-text">SaaS rodando</span></h2>
             <div className="mt-12 grid gap-8 md:grid-cols-4">
@@ -238,7 +289,7 @@ const Landing = () => {
         </section>
 
         {/* Planos */}
-        <section id="planos" className="mx-auto max-w-7xl px-5 py-20">
+        <section id="planos" className="scroll-mt-24 mx-auto max-w-7xl px-5 py-20">
           <div className="max-w-2xl">
             <h2 className="text-3xl md:text-4xl">Planos que acompanham <span className="gradient-text">seu crescimento</span></h2>
             <p className="mt-4 text-muted-foreground">Comece pequeno, escale por módulos. Sem fidelidade escondida.</p>
@@ -266,7 +317,7 @@ const Landing = () => {
         </section>
 
         {/* FAQ */}
-        <section id="faq" className="mx-auto max-w-5xl px-5 py-20">
+        <section id="faq" className="scroll-mt-24 mx-auto max-w-5xl px-5 py-20">
           <h2 className="text-3xl md:text-4xl">Perguntas frequentes</h2>
           <div className="mt-10 grid gap-5 md:grid-cols-2">
             {faqs.map((f) => (
@@ -279,7 +330,7 @@ const Landing = () => {
         </section>
 
         {/* CTA */}
-        <section id="contato" className="mx-auto max-w-7xl px-5 pb-24">
+        <section id="contato" className="scroll-mt-24 mx-auto max-w-7xl px-5 pb-24">
           <div className="glass-card sheen relative overflow-hidden border-primary/40 p-10 text-center shadow-[0_0_80px_-24px_hsl(var(--primary))] md:p-16">
             <ShieldCheck className="mx-auto h-10 w-10 text-primary" />
             <h2 className="mt-6 text-3xl md:text-5xl">Vamos construir o SaaS do <span className="gradient-text">seu negócio</span></h2>

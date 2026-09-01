@@ -56,7 +56,7 @@ const ResetPassword = () => {
     }
 
     toast({ title: "Senha atualizada", description: "Sua nova senha foi salva. Você já pode acessar o painel." });
-    navigate("/");
+    navigate("/dashboard");
   };
 
   return (
