@@ -22,7 +22,9 @@ const readLocal = (): BrandProfile => {
   try {
     const raw = localStorage.getItem(LS_KEY);
     if (raw) return { ...DEFAULTS, ...JSON.parse(raw) };
-  } catch {}
+  } catch {
+    localStorage.removeItem(LS_KEY);
+  }
   return DEFAULTS;
 };
 
@@ -43,10 +45,10 @@ export const useBrand = () => {
         supabase.from("user_settings").select("preferences").eq("user_id", user.id).maybeSingle(),
       ]);
 
-      const prefs = (settings?.preferences as any) || {};
+      const prefs = (settings?.preferences as Record<string, unknown> | null) || {};
       const merged: BrandProfile = {
-        brandName: prefs.brandName || local.brandName || DEFAULTS.brandName,
-        logoUrl: prefs.logoUrl || prof?.avatar_url || local.logoUrl || DEFAULTS.logoUrl,
+        brandName: (typeof prefs.brandName === "string" && prefs.brandName) || local.brandName || DEFAULTS.brandName,
+        logoUrl: (typeof prefs.logoUrl === "string" && prefs.logoUrl) || prof?.avatar_url || local.logoUrl || DEFAULTS.logoUrl,
         fullName: prof?.full_name || local.fullName || "",
         email: prof?.email || user.email || "",
       };
@@ -79,9 +81,16 @@ export const useBrand = () => {
       updated_at: new Date().toISOString(),
     });
 
+    const { data: currentSettings } = await supabase
+      .from("user_settings")
+      .select("preferences")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    const currentPreferences = (currentSettings?.preferences as Record<string, unknown> | null) || {};
+
     const { error: sErr } = await supabase.from("user_settings").upsert({
       user_id: user.id,
-      preferences: { brandName: merged.brandName, logoUrl: merged.logoUrl },
+      preferences: { ...currentPreferences, brandName: merged.brandName, logoUrl: merged.logoUrl },
       updated_at: new Date().toISOString(),
     });
 
@@ -90,7 +99,10 @@ export const useBrand = () => {
   }, [profile]);
 
   useEffect(() => {
-    const handler = (e: any) => setProfile(p => ({ ...p, ...e.detail }));
+    const handler = (event: Event) => {
+      const detail = (event as CustomEvent<Partial<BrandProfile>>).detail;
+      setProfile((current) => ({ ...current, ...detail }));
+    };
     window.addEventListener("brand:updated", handler);
     return () => window.removeEventListener("brand:updated", handler);
   }, []);
