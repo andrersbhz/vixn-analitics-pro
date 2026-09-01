@@ -27,7 +27,7 @@ const LeadCapture = () => {
       return;
     }
     setSending(true);
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from("leads")
       .insert({
         name: form.name.trim(),
@@ -36,13 +36,10 @@ const LeadCapture = () => {
         company: form.company.trim() || null,
         message: form.message.trim() || null,
         source: "landing",
-      })
-      .select("id")
-      .maybeSingle();
+      });
 
     if (!error && form.message.trim()) {
       await supabase.from("contact_messages").insert({
-        lead_id: data?.id ?? null,
         name: form.name.trim(),
         email: form.email.trim(),
         subject: "Contato pela landing page",
