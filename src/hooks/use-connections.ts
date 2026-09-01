@@ -100,11 +100,11 @@ export const useConnections = () => {
 
   useEffect(() => {
     let active = true;
+    let loadedForUser: string | null = null;
 
-    const load = async () => {
-      const { data } = await supabase.auth.getSession();
+    const loadWithSession = async (session: { user?: { id?: string } } | null) => {
       if (!active) return;
-      if (!data.session) {
+      if (!session) {
         // Sem sessão as funções de backend retornam 401 — evita quebrar a tela.
         setItems([]);
         setLoading(false);
@@ -113,13 +113,18 @@ export const useConnections = () => {
         }
         return;
       }
+      const uid = session.user?.id ?? 'anon';
+      if (loadedForUser === uid) return;
+      loadedForUser = uid;
       await Promise.all([fetchConnections(), fetchItems()]);
     };
 
-    load();
+    supabase.auth.getSession().then(({ data }) => loadWithSession(data.session));
 
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session) load();
+      // Nunca chamar métodos do auth dentro do callback (causa deadlock):
+      // usa a sessão recebida e adia o trabalho para fora do lock.
+      setTimeout(() => loadWithSession(session), 0);
     });
 
     return () => {
