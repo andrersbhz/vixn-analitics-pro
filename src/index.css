@@ -40,25 +40,25 @@
   }
 
   .dark {
-    --background: 224 30% 4%;
-    --foreground: 210 20% 98%;
-    --card: 224 30% 7%;
-    --card-foreground: 210 20% 98%;
-    --popover: 224 30% 7%;
-    --popover-foreground: 210 20% 98%;
-    --primary: 218 82% 34%;
+    --background: 0 0% 2%;
+    --foreground: 48 33% 97%;
+    --card: 330 8% 6%;
+    --card-foreground: 48 33% 97%;
+    --popover: 330 8% 6%;
+    --popover-foreground: 48 33% 97%;
+    --primary: 333 95% 50%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 224 25% 12%;
+    --secondary: 330 7% 94%;
     --secondary-foreground: 210 20% 98%;
-    --muted: 224 25% 12%;
-    --muted-foreground: 210 10% 65%;
-    --accent: 195 100% 18%;
-    --accent-foreground: 210 100% 90%;
+    --muted: 330 8% 11%;
+    --muted-foreground: 330 5% 62%;
+    --accent: 333 65% 14%;
+    --accent-foreground: 333 100% 92%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 224 25% 14%;
-    --input: 224 25% 14%;
-    --ring: 218 82% 34%;
+    --border: 330 8% 16%;
+    --input: 330 8% 16%;
+    --ring: 333 95% 50%;
   }
 }
 
@@ -70,9 +70,9 @@
     @apply bg-background text-foreground antialiased font-light;
     font-feature-settings: "rlig" 1, "calt" 1;
     background-image:
-      radial-gradient(circle at 15% 10%, hsla(195, 100%, 55%, 0.12) 0px, transparent 45%),
-      radial-gradient(circle at 85% 15%, hsla(262, 83%, 58%, 0.10) 0px, transparent 45%),
-      radial-gradient(circle at 50% 100%, hsla(220, 100%, 45%, 0.10) 0px, transparent 55%);
+      radial-gradient(circle at 15% 10%, hsla(333, 95%, 50%, 0.10) 0px, transparent 45%),
+      radial-gradient(circle at 85% 15%, hsla(345, 90%, 38%, 0.08) 0px, transparent 45%),
+      radial-gradient(circle at 50% 100%, hsla(333, 95%, 50%, 0.08) 0px, transparent 55%);
     background-attachment: fixed;
   }
 }
@@ -95,8 +95,41 @@
 
 .gradient-text {
   @apply bg-clip-text text-transparent;
-  background-image: var(--gradient-primary, linear-gradient(90deg, #67E8F9, hsl(var(--primary)), #818CF8));
+  background-image: var(--gradient-primary, linear-gradient(90deg, #F70670, #ff5eaa));
 }
+
+@layer components {
+  .octo-page { font-family: "Inter", "Arial", system-ui, sans-serif; }
+  .octo-page h1, .octo-page h2, .octo-page h3 { font-family: "Inter", "Arial", system-ui, sans-serif; }
+  .section-kicker { @apply mb-5 text-[10px] font-black uppercase tracking-[.25em] text-primary; }
+  .section-title { @apply text-[clamp(3rem,5.5vw,6.5rem)] font-black leading-[.84] tracking-[-.075em]; }
+  .section-title span { @apply text-primary; }
+  .neon-button { @apply bg-primary text-white transition-all duration-300; box-shadow: 0 0 0 rgba(247,6,112,0); }
+  .neon-button:hover { transform: translateY(-2px); box-shadow: 0 0 18px rgba(247,6,112,.7), 0 0 55px rgba(247,6,112,.38); }
+  .neon-outline { @apply transition-all duration-300; }
+  .neon-outline:hover { @apply border-primary bg-primary/10 text-white; box-shadow: 0 0 20px rgba(247,6,112,.38), inset 0 0 18px rgba(247,6,112,.08); }
+  .neon-card { @apply transition-all duration-500; }
+  .neon-card:hover { transform: translateY(-7px); border-color: rgba(247,6,112,.72); box-shadow: 0 0 0 1px rgba(247,6,112,.12), 0 18px 55px rgba(247,6,112,.2), inset 0 0 36px rgba(247,6,112,.035); }
+  .neon-interactive { @apply transition-all duration-300; }
+  .neon-interactive:hover { color: #f70670; box-shadow: 0 0 24px rgba(247,6,112,.32); }
+}
+
+.octo-orb { border-radius: 48% 52% 55% 45% / 45% 42% 58% 55%; background: radial-gradient(circle at 42% 35%, #ff5eaa 0, #f70670 13%, #75002f 37%, #150008 65%, transparent 70%); filter: drop-shadow(0 0 70px rgba(247,6,112,.34)); animation: octo-float 9s ease-in-out infinite; }
+.octo-orb::before, .octo-orb::after { content: ""; position: absolute; inset: 14%; border-radius: 38% 62% 43% 57%; border: 2px solid rgba(255,255,255,.09); transform: rotate(24deg); }
+.octo-orb::after { inset: 27%; transform: rotate(-34deg); border-color: rgba(247,6,112,.38); box-shadow: 0 0 35px rgba(247,6,112,.25); }
+.octo-ring { border-radius: 50%; border: 1px solid rgba(247,6,112,.12); box-shadow: inset 0 0 90px rgba(247,6,112,.05); animation: octo-spin 28s linear infinite; }
+.octo-ring::before, .octo-ring::after { content: ""; position: absolute; width: 16px; height: 16px; border-radius: 50%; background: #f70670; top: 12%; left: 18%; box-shadow: 0 0 28px #f70670; }
+.octo-ring::after { top: auto; left: auto; bottom: 16%; right: 11%; width: 8px; height: 8px; }
+.octo-noise { background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.8'/%3E%3C/svg%3E"); }
+@keyframes octo-float { 0%,100% { transform: translate(-50%,-50%) rotate(-5deg) scale(1); } 50% { transform: translate(-50%,calc(-50% - 18px)) rotate(4deg) scale(1.035); } }
+@keyframes octo-spin { to { transform: translate(-50%,-50%) rotate(360deg); } }
+
+/* Neon feedback across the authenticated product without changing its structure. */
+.dark button:not([disabled]), .dark a, .dark [role="button"] { transition: color .25s ease, border-color .25s ease, background-color .25s ease, box-shadow .25s ease, transform .25s ease; }
+.dark button:not([disabled]):hover, .dark [role="button"]:hover { border-color: hsl(var(--primary) / .55); box-shadow: 0 0 20px hsl(var(--primary) / .22); }
+.dark input:hover, .dark textarea:hover, .dark select:hover { border-color: hsl(var(--primary) / .55); box-shadow: 0 0 16px hsl(var(--primary) / .14); }
+.dark .glass-card:hover { border-color: hsl(var(--primary) / .58); box-shadow: 0 14px 48px -12px hsl(var(--primary) / .35); }
+@media (prefers-reduced-motion: reduce) { .octo-orb, .octo-ring, .animate-bounce, .animate-pulse { animation: none !important; } }
 
 /* subtle animated sheen for hero cards */
 .sheen::before {
@@ -125,4 +158,3 @@ div[style*="Edit with Lovable"],
   position: absolute !important;
   z-index: -9999 !important;
 }
-
