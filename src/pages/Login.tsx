@@ -66,7 +66,7 @@ const Login = () => {
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
-          options: { emailRedirectTo: `${PRODUCTION_ORIGIN}/` },
+          options: { emailRedirectTo: `${authOrigin()}/` },
         });
         if (error) throw error;
 
@@ -105,7 +105,7 @@ const Login = () => {
 
     setIsRecoveryLoading(true);
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${PRODUCTION_ORIGIN}/reset-password`,
+      redirectTo: `${authOrigin()}/reset-password`,
     });
     setIsRecoveryLoading(false);
 
@@ -120,7 +120,7 @@ const Login = () => {
   const handleGoogleLogin = async () => {
     setIsGoogleLoading(true);
     try {
-      const redirectTo = `${PRODUCTION_ORIGIN}/`;
+      const redirectTo = `${authOrigin()}/`;
       const { error } = await supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo } });
       if (error) throw error;
     } catch (error: any) {
