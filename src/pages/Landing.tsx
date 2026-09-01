@@ -117,10 +117,16 @@ const Landing = () => {
         <div className="absolute inset-0 opacity-[0.07] [background-image:linear-gradient(to_right,hsl(var(--primary))_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--primary))_1px,transparent_1px)] [background-size:64px_64px]" />
       </div>
 
-      <div className="relative z-10">
-        {/* Nav */}
-        <header className="sticky top-0 z-50 border-b border-white/5 bg-background/60 backdrop-blur-xl">
-          <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4">
+      <div className="relative z-10 pt-20">
+        {/* Nav fixo */}
+        <header
+          className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
+            scrolled
+              ? "border-b border-primary/20 bg-background/80 shadow-[0_8px_40px_-16px_hsl(var(--primary)/0.8)] backdrop-blur-xl"
+              : "border-b border-transparent bg-background/40 backdrop-blur-md"
+          }`}
+        >
+          <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-3">
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 overflow-hidden rounded-xl border border-primary/40 bg-primary/10 shadow-[0_0_24px_-4px_hsl(var(--primary)/0.7)] flex items-center justify-center">
                 {profile.logoUrl ? <img src={profile.logoUrl} alt={`Ícone ${brandName}`} className="h-full w-full object-contain" /> : <Sparkles className="h-5 w-5 text-primary" />}
@@ -129,22 +135,43 @@ const Landing = () => {
               <BrandEditor />
             </div>
             <nav className="hidden items-center gap-8 text-sm text-muted-foreground md:flex">
-              <a href="#solucoes" className="transition hover:text-foreground">Soluções</a>
-              <a href="#como" className="transition hover:text-foreground">Como funciona</a>
-              <a href="#planos" className="transition hover:text-foreground">Planos</a>
-              <a href="#faq" className="transition hover:text-foreground">FAQ</a>
+              {sections.map((s) => (
+                <a
+                  key={s.id}
+                  href={`#${s.id}`}
+                  className={`transition hover:text-foreground ${active === s.id ? "text-primary" : ""}`}
+                >
+                  {s.label}
+                </a>
+              ))}
             </nav>
             <div className="flex items-center gap-2">
-              <Button asChild variant="ghost" className="hidden sm:inline-flex"><Link to="/login">Entrar</Link></Button>
-              <Button asChild className="rounded-full shadow-[0_0_28px_-6px_hsl(var(--primary)/0.9)]">
+              <Button asChild variant="ghost" className="gap-2">
+                <Link to="/login"><LogIn className="h-4 w-4" /> Entrar</Link>
+              </Button>
+              <Button asChild className="hidden rounded-full shadow-[0_0_28px_-6px_hsl(var(--primary)/0.9)] sm:inline-flex">
                 <a href="#contato">Falar com especialista</a>
+              </Button>
+              <Button variant="ghost" size="icon" className="md:hidden" aria-label="Abrir menu" onClick={() => setMenuOpen((v) => !v)}>
+                {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
               </Button>
             </div>
           </div>
+          {menuOpen && (
+            <nav className="border-t border-white/5 bg-background/95 px-5 py-4 backdrop-blur-xl md:hidden">
+              {sections.map((s) => (
+                <a key={s.id} href={`#${s.id}`} onClick={() => setMenuOpen(false)} className="block py-2 text-sm text-muted-foreground hover:text-foreground">
+                  {s.label}
+                </a>
+              ))}
+              <a href="#contato" onClick={() => setMenuOpen(false)} className="block py-2 text-sm text-primary">Falar com especialista</a>
+            </nav>
+          )}
         </header>
 
         {/* Hero */}
-        <section className="mx-auto max-w-7xl px-5 pb-20 pt-16 md:pt-24">
+        <section className="mx-auto max-w-7xl px-5 pb-20 pt-12 md:pt-20">
+
           <div className="grid items-center gap-14 lg:grid-cols-[1.05fr_0.95fr]">
             <div>
               <span className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs uppercase tracking-[0.2em] text-primary">
