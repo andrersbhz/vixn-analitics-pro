@@ -1,383 +1,82 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import {
-  BarChart3, Brain, Users, Headphones, Target, Rocket, ShieldCheck,
-  Sparkles, ArrowRight, Check, Pencil, Upload, Workflow, LineChart, Bot, LogIn, Menu, X
-} from "lucide-react";
+import { ArrowDownRight, ArrowRight, BarChart3, Bot, BrainCircuit, Check, ChevronDown, CircleDot, Gauge, LogIn, Menu, MousePointer2, Network, ShieldCheck, Sparkles, Target, Workflow, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter,
-} from "@/components/ui/dialog";
-import { useBrand } from "@/hooks/use-brand";
 import Seo from "@/components/Seo";
+import { useBrand } from "@/hooks/use-brand";
 import { SITE, checkoutLink } from "@/lib/site";
-import { toast } from "sonner";
 
-const solutions = [
-  { icon: BarChart3, title: "Análise de Dados", desc: "Dashboards vivos que unificam vendas, mídia e operação em uma só fonte de verdade." },
-  { icon: Brain, title: "Inteligência Artificial", desc: "Agentes e modelos treinados no contexto do seu negócio para decidir mais rápido." },
-  { icon: Users, title: "Análise Comportamental", desc: "Entenda jornada, intenção e churn antes que eles aconteçam." },
-  { icon: Headphones, title: "Análise de Atendimento", desc: "Leitura automática de conversas, sentimento, SLA e qualidade do time." },
-  { icon: Target, title: "Análise de Mercado", desc: "Tamanho de mercado, concorrência e CAC médio com pesquisa assistida por IA." },
-  { icon: Rocket, title: "Estratégias de Campanha", desc: "Planos de mídia, copies e funis prontos para Google, Meta, TikTok e LinkedIn." },
-  { icon: Workflow, title: "Automação de Processos", desc: "Fluxos sob medida que eliminam trabalho manual e reduzem custo operacional." },
-  { icon: LineChart, title: "Previsão e Forecast", desc: "Projeções de receita e demanda baseadas no histórico real da sua operação." },
-];
-
-const steps = [
-  { n: "01", t: "Diagnóstico", d: "Mapeamos processos, dados e gargalos do seu negócio." },
-  { n: "02", t: "Arquitetura", d: "Desenhamos o SaaS sob medida: módulos, integrações e IA." },
-  { n: "03", t: "Construção", d: "Entregas semanais, ambiente seguro e escalável na nuvem." },
-  { n: "04", t: "Escala", d: "Monitoramento, evolução contínua e novos módulos sob demanda." },
+const services = [
+  { n: "01", icon: BarChart3, title: "Analytics unificado", desc: "Vendas, mídia, conteúdo e operação em uma visão que realmente orienta decisões." },
+  { n: "02", icon: BrainCircuit, title: "Inteligência artificial", desc: "Agentes treinados no contexto do seu negócio para analisar, prever e agir." },
+  { n: "03", icon: Target, title: "Mercado e campanhas", desc: "Concorrência, oportunidades, funis e campanhas transformados em plano de ação." },
+  { n: "04", icon: Workflow, title: "Automação operacional", desc: "Processos conectados para eliminar tarefas repetitivas e acelerar o crescimento." },
+  { n: "05", icon: Network, title: "Integrações sob medida", desc: "Google, Meta, YouTube, WordPress, CRMs, ERPs e APIs trabalhando juntos." },
+  { n: "06", icon: ShieldCheck, title: "Plataforma segura", desc: "Dados protegidos, acessos controlados e arquitetura preparada para escalar." },
 ];
 
 const plans = [
-  { name: "Start", price: "R$ 2.900", period: "/mês", desc: "Para validar um módulo e provar valor rápido.", items: ["1 módulo SaaS sob medida", "Dashboard de dados", "Integrações essenciais", "Suporte em horário comercial"] },
-  { name: "Growth", price: "R$ 6.900", period: "/mês", desc: "Para operações que já rodam e precisam escalar.", items: ["Até 4 módulos", "IA aplicada ao seu contexto", "Análise comportamental e de atendimento", "Estratégias de campanha mensais", "Suporte prioritário"], highlight: true },
-  { name: "Enterprise", price: "Sob consulta", period: "", desc: "Plataforma completa, multiempresa e white-label.", items: ["Módulos ilimitados", "Infra dedicada e SSO", "Modelos de IA privados", "Squad dedicado", "SLA contratual"] },
-];
-
-const sections = [
-  { id: "solucoes", label: "Soluções" },
-  { id: "como", label: "Como funciona" },
-  { id: "planos", label: "Planos" },
-  { id: "faq", label: "FAQ" },
+  { name: "Start", price: "R$ 2.900", period: "/mês", desc: "Valide um módulo e prove valor rápido.", items: ["1 módulo sob medida", "Dashboard conectado", "Integrações essenciais", "Suporte comercial"] },
+  { name: "Growth", price: "R$ 6.900", period: "/mês", desc: "Conecte a operação e acelere a escala.", items: ["Até 4 módulos", "IA aplicada ao negócio", "Análises avançadas", "Suporte prioritário"], highlight: true },
+  { name: "Enterprise", price: "Sob consulta", period: "", desc: "Ecossistema completo e personalizado.", items: ["Módulos ilimitados", "Infraestrutura dedicada", "Modelos privados de IA", "SLA contratual"] },
 ];
 
 const faqs = [
-  { q: "Vocês criam do zero ou usam template?", a: "Do zero, sobre uma base própria já validada. Isso reduz o prazo sem engessar o produto." },
-  { q: "Em quanto tempo eu vejo resultado?", a: "A primeira entrega útil costuma ir ao ar entre 2 e 4 semanas, com dados reais da sua operação." },
-  { q: "Meus dados ficam seguros?", a: "Sim. Isolamento por empresa, autenticação, criptografia e políticas de acesso por usuário." },
-  { q: "Consigo integrar com o que já uso?", a: "Sim: ERPs, CRMs, WhatsApp, Google, Meta, planilhas e APIs internas." },
+  ["O sistema é criado do zero?", "A solução parte de uma base tecnológica validada e recebe módulos, regras, integrações e identidade específicos para o seu negócio."],
+  ["Quando recebo a primeira entrega?", "A primeira versão útil costuma ficar pronta entre 2 e 4 semanas, dependendo do escopo e das integrações."],
+  ["Posso conectar as ferramentas que já uso?", "Sim. Integramos APIs, planilhas, CRMs, ERPs, plataformas de mídia, WordPress e serviços internos."],
+  ["A plataforma cresce junto com a empresa?", "Sim. A arquitetura modular permite adicionar usuários, fontes de dados, automações e novos produtos."],
 ];
-
-const BrandEditor = () => {
-  const { profile, save } = useBrand();
-  const [open, setOpen] = useState(false);
-  const [name, setName] = useState(profile.brandName);
-  const [logo, setLogo] = useState(profile.logoUrl);
-  const [saving, setSaving] = useState(false);
-
-  const onFile = (file?: File | null) => {
-    if (!file) return;
-    if (file.size > 2 * 1024 * 1024) { toast.error("Imagem muito grande (máx. 2MB)"); return; }
-    const reader = new FileReader();
-    reader.onload = () => setLogo(String(reader.result));
-    reader.readAsDataURL(file);
-  };
-
-  const onSave = async () => {
-    setSaving(true);
-    const res = await save({ brandName: name, logoUrl: logo });
-    setSaving(false);
-    if (res?.ok) toast.success("Marca atualizada.");
-    else toast.message("Salvo neste dispositivo. Entre na sua conta para sincronizar.");
-    setOpen(false);
-  };
-
-  return (
-    <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (v) { setName(profile.brandName); setLogo(profile.logoUrl); } }}>
-      <DialogTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label="Editar nome e ícone da marca" className="h-8 w-8 text-muted-foreground hover:text-primary">
-          <Pencil className="h-4 w-4" />
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="glass-card border-primary/20">
-        <DialogHeader><DialogTitle>Nome e ícone do sistema</DialogTitle></DialogHeader>
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="brand-name">Nome</Label>
-            <Input id="brand-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Nome do sistema" />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="brand-icon">Ícone / logomarca</Label>
-            <div className="flex items-center gap-3">
-              <div className="h-14 w-14 rounded-xl border border-primary/30 bg-primary/10 flex items-center justify-center overflow-hidden">
-                {logo ? <img src={logo} alt="Prévia do ícone" className="h-full w-full object-contain" /> : <Sparkles className="h-6 w-6 text-primary" />}
-              </div>
-              <Input id="brand-icon" type="file" accept="image/*" onChange={(e) => onFile(e.target.files?.[0])} className="cursor-pointer" />
-            </div>
-            <Input value={logo} onChange={(e) => setLogo(e.target.value)} placeholder="ou cole a URL do ícone" className="text-xs" />
-          </div>
-        </div>
-        <DialogFooter>
-          <Button onClick={onSave} disabled={saving} className="gap-2">
-            <Upload className="h-4 w-4" /> {saving ? "Salvando..." : "Salvar"}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-};
+const nav = [["Soluções", "#solucoes"], ["Método", "#metodo"], ["Planos", "#planos"], ["FAQ", "#faq"]];
 
 const Landing = () => {
   const { profile } = useBrand();
   const brandName = profile.brandName || SITE.name;
-  const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [active, setActive] = useState("");
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => {
-      setScrolled(window.scrollY > 12);
-      const current = sections
-        .map((s) => ({ id: s.id, el: document.getElementById(s.id) }))
-        .filter((s) => s.el && s.el.getBoundingClientRect().top <= 140)
-        .pop();
-      setActive(current?.id ?? "");
-    };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
+    const onScroll = () => setScrolled(window.scrollY > 18);
+    onScroll(); window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  return (
-    <div className="dark relative min-h-screen overflow-x-hidden bg-background text-foreground">
-      <Seo
-        title={`${brandName} — Soluções SaaS sob medida com dados e IA`}
-        description="Desenvolvemos plataformas SaaS sob medida: análise de dados, inteligência artificial, comportamento, atendimento, mercado e estratégias de campanha para o seu negócio."
-        path="/"
-        jsonLd={{
-          "@type": "Organization",
-          name: brandName,
-          url: SITE.domain,
-          description: "Soluções SaaS sob medida com dados, IA e automação.",
-        }}
-      />
-      {/* ambient background */}
-      <div className="pointer-events-none fixed inset-0 z-0">
-        <div className="absolute -top-40 -left-32 h-[38rem] w-[38rem] rounded-full bg-primary/20 blur-[160px]" />
-        <div className="absolute top-1/3 -right-40 h-[34rem] w-[34rem] rounded-full bg-cyan-400/15 blur-[160px]" />
-        <div className="absolute bottom-0 left-1/3 h-[30rem] w-[30rem] rounded-full bg-indigo-500/15 blur-[170px]" />
-        <div className="absolute inset-0 opacity-[0.07] [background-image:linear-gradient(to_right,hsl(var(--primary))_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--primary))_1px,transparent_1px)] [background-size:64px_64px]" />
+  return <div className="octo-page dark min-h-screen overflow-x-hidden bg-[#030303] text-[#f8f7f2] selection:bg-primary selection:text-white">
+    <Seo title={`${brandName} — Dados e IA para decisões melhores`} description="Plataformas SaaS sob medida que conectam dados, inteligência artificial, automação e crescimento." path="/" jsonLd={{ "@type": "Organization", name: brandName, url: SITE.domain }} />
+    <div className="octo-noise pointer-events-none fixed inset-0 z-[60] opacity-[0.035]" />
+    <header className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${scrolled ? "border-b border-white/10 bg-black/80 backdrop-blur-2xl" : "bg-transparent"}`}>
+      <div className="mx-auto flex h-20 max-w-[1440px] items-center justify-between px-5 md:px-10">
+        <Link to="/" className="neon-interactive flex items-center gap-3 rounded-full px-2 py-1"><span className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border border-primary/70 bg-primary/15 shadow-[0_0_24px_rgba(247,6,112,.35)]">{profile.logoUrl ? <img src={profile.logoUrl} alt="" className="h-full w-full object-contain" /> : <CircleDot className="h-5 w-5 text-primary" />}</span><span className="text-sm font-black uppercase tracking-[-.03em]">{brandName}</span></Link>
+        <nav className="hidden items-center gap-9 md:flex">{nav.map(([label, href]) => <a key={href} href={href} className="text-xs font-semibold uppercase tracking-[.12em] text-white/55 transition hover:text-primary">{label}</a>)}</nav>
+        <div className="flex items-center gap-2"><Button asChild variant="ghost" className="hidden rounded-full text-white hover:bg-white/10 hover:text-white sm:inline-flex"><Link to="/login"><LogIn className="mr-2 h-4 w-4" />Entrar</Link></Button><Button asChild className="neon-button hidden rounded-full px-6 sm:inline-flex"><Link to="/contato">Falar com especialista <ArrowDownRight className="ml-2 h-4 w-4" /></Link></Button><button onClick={() => setMenuOpen(!menuOpen)} aria-label="Abrir menu" className="neon-interactive rounded-full border border-white/15 p-2.5 md:hidden">{menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}</button></div>
       </div>
+      {menuOpen && <nav className="border-t border-white/10 bg-black/95 px-5 py-5 backdrop-blur-2xl md:hidden">{nav.map(([label, href]) => <a key={href} href={href} onClick={() => setMenuOpen(false)} className="block border-b border-white/10 py-4 text-lg font-bold">{label}</a>)}<Link to="/contato" className="mt-4 inline-flex text-primary">Falar com especialista <ArrowRight className="ml-2" /></Link></nav>}
+    </header>
 
-      <div className="relative z-10 pt-20">
-        {/* Nav fixo */}
-        <header
-          className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
-            scrolled
-              ? "border-b border-primary/20 bg-background/80 shadow-[0_8px_40px_-16px_hsl(var(--primary)/0.8)] backdrop-blur-xl"
-              : "border-b border-transparent bg-background/40 backdrop-blur-md"
-          }`}
-        >
-          <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-3">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 overflow-hidden rounded-xl border border-primary/40 bg-primary/10 shadow-[0_0_24px_-4px_hsl(var(--primary)/0.7)] flex items-center justify-center">
-                {profile.logoUrl ? <img src={profile.logoUrl} alt={`Ícone ${brandName}`} className="h-full w-full object-contain" /> : <Sparkles className="h-5 w-5 text-primary" />}
-              </div>
-              <span className="text-lg tracking-wide gradient-text">{brandName}</span>
-              <BrandEditor />
-            </div>
-            <nav className="hidden items-center gap-8 text-sm text-muted-foreground md:flex">
-              {sections.map((s) => (
-                <a
-                  key={s.id}
-                  href={`#${s.id}`}
-                  className={`transition hover:text-foreground ${active === s.id ? "text-primary" : ""}`}
-                >
-                  {s.label}
-                </a>
-              ))}
-            </nav>
-            <div className="flex items-center gap-2">
-              <Button asChild variant="ghost" className="gap-2">
-                <Link to="/login"><LogIn className="h-4 w-4" /> Entrar</Link>
-              </Button>
-              <Button asChild className="hidden rounded-full shadow-[0_0_28px_-6px_hsl(var(--primary)/0.9)] sm:inline-flex">
-                <Link to="/contato">Falar com especialista</Link>
-              </Button>
-              <Button variant="ghost" size="icon" className="md:hidden" aria-label="Abrir menu" onClick={() => setMenuOpen((v) => !v)}>
-                {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-              </Button>
-            </div>
+    <main>
+      <section className="relative min-h-[900px] overflow-hidden pt-32 md:min-h-screen md:pt-40"><div className="octo-orb absolute left-1/2 top-[42%] h-[510px] w-[510px] -translate-x-1/2 -translate-y-1/2 md:h-[760px] md:w-[760px]"/><div className="octo-ring absolute left-1/2 top-[42%] h-[610px] w-[610px] -translate-x-1/2 -translate-y-1/2 md:h-[920px] md:w-[920px]"/>
+        <div className="relative z-10 mx-auto max-w-[1440px] px-5 md:px-10"><div className="grid items-start gap-12 lg:grid-cols-[.82fr_1.18fr]">
+          <div className="pt-7"><div className="mb-7 flex items-center gap-3 text-[10px] font-bold uppercase tracking-[.26em] text-white/45"><span className="h-px w-10 bg-primary"/> VYXN intelligence platform</div><h1 className="max-w-[690px] text-[clamp(3.7rem,7.6vw,8.7rem)] font-black leading-[.79] tracking-[-.085em]">dados<br/><span className="text-primary">que viram</span><br/>decisão.</h1><p className="mt-9 max-w-md text-base leading-relaxed text-white/55 md:text-lg">Criamos plataformas SaaS que conectam seus dados, sua operação e inteligência artificial em um único motor de crescimento.</p><div className="mt-9 flex flex-wrap gap-3"><Button asChild size="lg" className="neon-button h-14 rounded-full px-8 text-xs font-black uppercase tracking-[.08em]"><Link to="/contato">Criar minha plataforma <ArrowRight className="ml-3 h-4 w-4"/></Link></Button><Button asChild size="lg" variant="outline" className="neon-outline h-14 rounded-full border-white/20 bg-black/30 px-8 text-xs font-black uppercase tracking-[.08em] text-white"><a href="#solucoes">Explorar soluções</a></Button></div></div>
+          <div className="relative min-h-[570px]"><div className="absolute right-0 top-3 w-[82%] rotate-[2deg] rounded-[2.4rem] border border-white/15 bg-[#0c0c0d]/90 p-5 shadow-[0_40px_100px_rgba(0,0,0,.7)] backdrop-blur-2xl md:p-7"><div className="flex items-center justify-between border-b border-white/10 pb-5"><div><p className="text-[10px] uppercase tracking-[.2em] text-white/35">Central de inteligência</p><p className="mt-1 text-sm font-bold">Visão executiva</p></div><span className="flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-primary"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary shadow-[0_0_10px_#f70670]"/> ao vivo</span></div>
+            <div className="grid grid-cols-2 gap-3 py-5 md:grid-cols-3">{[["Receita","R$ 482k","+18,4%"],["Leads","12.480","+9,1%"],["Conversão","8,7%","+2,3%"]].map(([a,b,c])=><div key={a} className="neon-card rounded-2xl border border-white/10 bg-white/[.025] p-4"><p className="text-[9px] uppercase tracking-[.16em] text-white/35">{a}</p><p className="mt-2 text-xl font-black tracking-tight md:text-2xl">{b}</p><p className="mt-1 text-xs font-bold text-primary">{c}</p></div>)}</div>
+            <div className="relative h-52 overflow-hidden rounded-2xl border border-white/10 bg-black/40 p-4"><div className="absolute inset-x-0 bottom-0 h-4/5 bg-[linear-gradient(180deg,transparent,rgba(247,6,112,.16))]"/><svg viewBox="0 0 600 180" className="relative h-full w-full" preserveAspectRatio="none"><defs><linearGradient id="chart" x1="0" y1="0" x2="1" y2="0"><stop stopColor="#f70670"/><stop offset="1" stopColor="#ff5eaa"/></linearGradient></defs><path d="M0 145 C65 135,72 106,125 116 S205 158,250 102 S330 50,380 83 S460 125,505 55 S560 34,600 18" fill="none" stroke="url(#chart)" strokeWidth="5"/></svg></div><div className="mt-4 flex items-start gap-3 rounded-2xl border border-primary/25 bg-primary/[.07] p-4"><Bot className="mt-0.5 h-5 w-5 shrink-0 text-primary"/><p className="text-xs leading-relaxed text-white/60"><b className="text-white">Insight VYXN:</b> realoque 15% do orçamento para retargeting. O CPA está 22% abaixo da meta.</p></div></div>
+            <div className="neon-card absolute bottom-12 left-0 w-48 -rotate-6 rounded-[1.8rem] border border-white/15 bg-[#f8f7f2] p-5 text-black shadow-2xl md:w-56"><MousePointer2 className="h-5 w-5 text-primary"/><p className="mt-8 text-[10px] font-bold uppercase tracking-[.16em] text-black/45">Automação ativa</p><p className="mt-1 text-3xl font-black tracking-[-.06em]">24/7</p><p className="mt-2 text-xs text-black/55">Decisões que não esperam o próximo relatório.</p></div>
           </div>
-          {menuOpen && (
-            <nav className="border-t border-white/5 bg-background/95 px-5 py-4 backdrop-blur-xl md:hidden">
-              {sections.map((s) => (
-                <a key={s.id} href={`#${s.id}`} onClick={() => setMenuOpen(false)} className="block py-2 text-sm text-muted-foreground hover:text-foreground">
-                  {s.label}
-                </a>
-              ))}
-              <a href="#contato" onClick={() => setMenuOpen(false)} className="block py-2 text-sm text-primary">Falar com especialista</a>
-            </nav>
-          )}
-        </header>
+        </div></div><div className="absolute bottom-7 left-1/2 z-20 -translate-x-1/2 text-center text-[9px] font-bold uppercase tracking-[.25em] text-white/30"><ChevronDown className="mx-auto mb-2 h-4 w-4 animate-bounce text-primary"/> role para descobrir</div>
+      </section>
 
-        {/* Hero */}
-        <section className="mx-auto max-w-7xl px-5 pb-20 pt-12 md:pt-20">
+      <section id="solucoes" className="relative scroll-mt-24 py-28 md:py-40"><div className="absolute inset-y-0 right-0 w-1/2 bg-[radial-gradient(circle_at_right,rgba(247,6,112,.13),transparent_65%)]"/><div className="relative mx-auto max-w-[1280px] px-5 md:px-10"><div className="grid gap-10 lg:grid-cols-[.7fr_1.3fr] lg:items-end"><div><p className="section-kicker">O que construímos</p><h2 className="section-title">uma plataforma.<br/><span>múltiplas forças.</span></h2></div><p className="max-w-xl pb-2 text-lg leading-relaxed text-white/50 lg:ml-auto">Cada módulo resolve um problema real e conversa com todos os outros. O resultado é uma operação conectada, mensurável e pronta para crescer.</p></div><div className="mt-16 grid gap-3 md:grid-cols-2 lg:grid-cols-3">{services.map(({n,icon:Icon,title,desc},i)=><article key={n} className={`neon-card group relative min-h-64 overflow-hidden rounded-[2rem] border p-7 ${i===1||i===4?"border-primary/35 bg-primary/[.09]":"border-white/10 bg-[#0b0b0c]"}`}><span className="absolute right-5 top-3 text-6xl font-black tracking-[-.08em] text-white/[.035]">{n}</span><Icon className="h-7 w-7 text-primary transition duration-500 group-hover:scale-125"/><div className="mt-20"><h3 className="text-2xl font-black tracking-[-.045em]">{title}</h3><p className="mt-3 text-sm leading-relaxed text-white/45">{desc}</p></div></article>)}</div></div></section>
 
-          <div className="grid items-center gap-14 lg:grid-cols-[1.05fr_0.95fr]">
-            <div>
-              <span className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs uppercase tracking-[0.2em] text-primary">
-                <Sparkles className="h-3.5 w-3.5" /> SaaS sob medida
-              </span>
-              <h1 className="mt-6 text-4xl leading-[1.08] md:text-6xl">
-                Soluções <span className="gradient-text">SaaS criadas para o seu negócio</span> — dados, IA e crescimento no mesmo lugar.
-              </h1>
-              <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground md:text-lg">
-                Desenvolvemos plataformas próprias para empresas de todos os portes: análise de dados, inteligência artificial,
-                comportamento do cliente, atendimento, mercado e estratégias de campanha — tudo em um sistema com a sua marca.
-              </p>
-              <div className="mt-9 flex flex-wrap items-center gap-4">
-                <Button asChild size="lg" className="rounded-full px-8 shadow-[0_0_36px_-6px_hsl(var(--primary)/0.9)]">
-                  <Link to="/contato" className="gap-2">Quero minha solução <ArrowRight className="h-4 w-4" /></Link>
-                </Button>
-                <Button asChild size="lg" variant="outline" className="rounded-full border-primary/30 px-8 hover:border-primary/60">
-                  <a href="#solucoes">Ver soluções</a>
-                </Button>
-              </div>
-              <dl className="mt-12 grid max-w-lg grid-cols-3 gap-6">
-                {[["+120", "projetos entregues"], ["4x", "velocidade de decisão"], ["98%", "retenção de clientes"]].map(([k, v]) => (
-                  <div key={v}>
-                    <dt className="text-2xl text-primary md:text-3xl">{k}</dt>
-                    <dd className="mt-1 text-xs uppercase tracking-wider text-muted-foreground">{v}</dd>
-                  </div>
-                ))}
-              </dl>
-            </div>
+      <section id="metodo" className="scroll-mt-24 py-28 md:py-40"><div className="mx-auto max-w-[1280px] px-5 md:px-10"><p className="section-kicker">Nosso método</p><h2 className="section-title max-w-4xl">do desafio ao<br/><span>sistema em movimento.</span></h2><div className="mt-16 grid gap-px overflow-hidden rounded-[2rem] border border-white/10 bg-white/10 md:grid-cols-4">{[["01","Diagnóstico","Dados, processos e gargalos mapeados."],["02","Arquitetura","Módulos, integrações e jornada definidos."],["03","Construção","Entregas rápidas em ambiente seguro."],["04","Evolução","Monitoramento e novos ciclos de escala."]].map(([n,t,d],i)=><div key={n} className={`neon-card min-h-72 bg-[#070708] p-7 ${i===1?"md:rounded-tr-[5rem]":""}`}><span className="text-5xl font-black text-primary">{n}</span><Gauge className="mt-16 h-5 w-5 text-white/30"/><h3 className="mt-4 text-xl font-black">{t}</h3><p className="mt-2 text-sm text-white/40">{d}</p></div>)}</div></div></section>
 
-            <div className="relative">
-              <div className="glass-card sheen neon-glow border-primary/20 p-6">
-                <div className="flex items-center justify-between">
-                  <p className="text-sm text-muted-foreground">Painel inteligente</p>
-                  <span className="rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[10px] uppercase tracking-widest text-primary">ao vivo</span>
-                </div>
-                <div className="mt-6 grid grid-cols-2 gap-4">
-                  {[["Receita", "R$ 482.9k", "+18,4%"], ["Leads", "12.480", "+9,1%"], ["Churn", "1,8%", "-0,6%"], ["CAC", "R$ 74", "-12%"]].map(([l, v, d]) => (
-                    <div key={l} className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-                      <p className="text-[11px] uppercase tracking-wider text-muted-foreground">{l}</p>
-                      <p className="mt-2 text-xl text-foreground">{v}</p>
-                      <p className="mt-1 text-xs text-primary">{d}</p>
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-5 h-32 rounded-2xl border border-primary/20 bg-gradient-to-t from-primary/25 to-transparent" />
-                <div className="mt-5 flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-                  <Bot className="h-5 w-5 shrink-0 text-primary" />
-                  <p className="text-xs text-muted-foreground">
-                    IA: “Aumente 15% do orçamento na campanha de retargeting — CPA 22% abaixo da meta.”
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+      <section id="planos" className="relative scroll-mt-24 py-28 md:py-40"><div className="absolute left-0 top-1/3 h-96 w-96 rounded-full bg-primary/15 blur-[140px]"/><div className="relative mx-auto max-w-[1280px] px-5 md:px-10"><div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between"><div><p className="section-kicker">Escolha o ritmo</p><h2 className="section-title">planos para<br/><span>cada estágio.</span></h2></div><Link to="/planos" className="mb-2 inline-flex items-center text-sm font-bold text-primary hover:underline">Comparar todos os planos <ArrowRight className="ml-2 h-4 w-4"/></Link></div><div className="mt-16 grid gap-4 lg:grid-cols-3">{plans.map(p=><article key={p.name} className={`neon-card relative flex min-h-[520px] flex-col rounded-[2rem] border p-8 ${p.highlight?"border-primary bg-primary text-white shadow-[0_0_80px_rgba(247,6,112,.2)]":"border-white/10 bg-[#0b0b0c]"}`}>{p.highlight&&<span className="absolute right-6 top-6 rounded-full bg-white px-3 py-1 text-[9px] font-black uppercase tracking-widest text-black">mais escolhido</span>}<p className="text-xs font-bold uppercase tracking-[.2em] opacity-60">{p.name}</p><h3 className="mt-8 text-4xl font-black tracking-[-.06em]">{p.price}<span className="text-sm font-medium opacity-55">{p.period}</span></h3><p className="mt-3 text-sm opacity-60">{p.desc}</p><ul className="mt-10 space-y-4">{p.items.map(item=><li key={item} className="flex gap-3 text-sm"><Check className={`h-5 w-5 shrink-0 ${p.highlight?"text-white":"text-primary"}`}/><span className="opacity-75">{item}</span></li>)}</ul><Button asChild variant={p.highlight?"secondary":"outline"} className="mt-auto h-13 rounded-full border-white/20 font-black uppercase tracking-wider"><a href={checkoutLink(p.name.toLowerCase())} target="_blank" rel="noreferrer">Começar agora <ArrowRight className="ml-2 h-4 w-4"/></a></Button></article>)}</div></div></section>
 
-        {/* Soluções */}
-        <section id="solucoes" className="scroll-mt-24 mx-auto max-w-7xl px-5 py-20">
-          <div className="max-w-2xl">
-            <h2 className="text-3xl md:text-4xl">Soluções que resolvem <span className="gradient-text">problemas reais</span></h2>
-            <p className="mt-4 text-muted-foreground">Cada módulo é construído a partir da sua operação — nada de software genérico.</p>
-          </div>
-          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {solutions.map(({ icon: Icon, title, desc }) => (
-              <article key={title} className="glass-card group border-primary/10 p-6 hover:border-primary/50 hover:shadow-[0_0_40px_-10px_hsl(var(--primary)/0.65)]">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-primary/30 bg-primary/10 text-primary shadow-[0_0_22px_-6px_hsl(var(--primary)/0.8)]">
-                  <Icon className="h-5 w-5" />
-                </div>
-                <h3 className="mt-5 text-lg">{title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{desc}</p>
-              </article>
-            ))}
-          </div>
-        </section>
+      <section id="faq" className="scroll-mt-24 py-28 md:py-40"><div className="mx-auto grid max-w-[1280px] gap-14 px-5 md:px-10 lg:grid-cols-[.75fr_1.25fr]"><div><p className="section-kicker">Dúvidas</p><h2 className="section-title">antes de<br/><span>começar.</span></h2></div><div className="border-t border-white/15">{faqs.map(([q,a],i)=><details key={q} className="group border-b border-white/15 py-6"><summary className="flex cursor-pointer list-none items-center justify-between gap-6 text-lg font-black md:text-xl"><span><span className="mr-4 text-xs text-primary">0{i+1}</span>{q}</span><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/15 text-primary transition group-open:rotate-45 group-hover:border-primary">+</span></summary><p className="max-w-2xl pb-2 pl-9 pt-5 text-sm leading-relaxed text-white/50">{a}</p></details>)}</div></div></section>
 
-        {/* Como funciona */}
-        <section id="como" className="scroll-mt-24 mx-auto max-w-7xl px-5 py-20">
-          <div className="glass-card border-primary/15 p-8 md:p-12">
-            <h2 className="text-3xl md:text-4xl">Do diagnóstico ao <span className="gradient-text">SaaS rodando</span></h2>
-            <div className="mt-12 grid gap-8 md:grid-cols-4">
-              {steps.map((s) => (
-                <div key={s.n} className="relative rounded-2xl border border-white/10 bg-white/[0.02] p-6">
-                  <span className="text-sm tracking-[0.3em] text-primary">{s.n}</span>
-                  <h3 className="mt-3 text-lg">{s.t}</h3>
-                  <p className="mt-2 text-sm text-muted-foreground">{s.d}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Planos */}
-        <section id="planos" className="scroll-mt-24 mx-auto max-w-7xl px-5 py-20">
-          <div className="max-w-2xl">
-            <h2 className="text-3xl md:text-4xl">Planos que acompanham <span className="gradient-text">seu crescimento</span></h2>
-            <p className="mt-4 text-muted-foreground">Comece pequeno, escale por módulos. Sem fidelidade escondida.</p>
-            <Link to="/planos" className="mt-4 inline-flex items-center gap-2 text-sm text-primary hover:underline">
-              Ver página completa de planos <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-          <div className="mt-12 grid gap-6 lg:grid-cols-3">
-            {plans.map((p) => (
-              <div key={p.name} className={`glass-card p-8 ${p.highlight ? "border-primary/50 shadow-[0_0_60px_-16px_hsl(var(--primary)/0.9)]" : "border-primary/10"}`}>
-                {p.highlight && <span className="mb-4 inline-block rounded-full bg-primary/15 px-3 py-1 text-[10px] uppercase tracking-widest text-primary">mais escolhido</span>}
-                <h3 className="text-xl">{p.name}</h3>
-                <p className="mt-1 text-sm text-muted-foreground">{p.desc}</p>
-                <p className="mt-6 text-3xl">{p.price}<span className="text-sm text-muted-foreground">{p.period}</span></p>
-                <ul className="mt-6 space-y-3">
-                  {p.items.map((i) => (
-                    <li key={i} className="flex items-start gap-3 text-sm text-muted-foreground">
-                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" /> {i}
-                    </li>
-                  ))}
-                </ul>
-                <Button asChild className="mt-8 w-full rounded-full" variant={p.highlight ? "default" : "outline"}>
-                  <a href={checkoutLink(p.name.toLowerCase())} target="_blank" rel="noopener noreferrer">Assinar agora</a>
-                </Button>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* FAQ */}
-        <section id="faq" className="scroll-mt-24 mx-auto max-w-5xl px-5 py-20">
-          <h2 className="text-3xl md:text-4xl">Perguntas frequentes</h2>
-          <div className="mt-10 grid gap-5 md:grid-cols-2">
-            {faqs.map((f) => (
-              <div key={f.q} className="glass-card border-primary/10 p-6">
-                <h3 className="text-base">{f.q}</h3>
-                <p className="mt-2 text-sm text-muted-foreground">{f.a}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* CTA */}
-        <section id="contato" className="scroll-mt-24 mx-auto max-w-7xl px-5 pb-24">
-          <div className="glass-card sheen relative overflow-hidden border-primary/40 p-10 text-center shadow-[0_0_80px_-24px_hsl(var(--primary))] md:p-16">
-            <ShieldCheck className="mx-auto h-10 w-10 text-primary" />
-            <h2 className="mt-6 text-3xl md:text-5xl">Vamos construir o SaaS do <span className="gradient-text">seu negócio</span></h2>
-            <p className="mx-auto mt-5 max-w-2xl text-muted-foreground">
-              Conte o seu desafio. Em até 48h você recebe um diagnóstico com escopo, prazo e o impacto esperado.
-            </p>
-            <div className="mt-9 flex flex-wrap justify-center gap-4">
-              <Button asChild size="lg" className="rounded-full px-10 shadow-[0_0_40px_-6px_hsl(var(--primary))]">
-                <Link to="/contato">Solicitar diagnóstico</Link>
-              </Button>
-              <Button asChild size="lg" variant="outline" className="rounded-full border-primary/30 px-10">
-                <Link to="/login">Acessar plataforma</Link>
-              </Button>
-            </div>
-          </div>
-        </section>
-
-        <footer className="border-t border-white/5 py-10">
-          <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-5 text-sm text-muted-foreground md:flex-row">
-            <div className="flex items-center gap-3">
-              <div className="h-8 w-8 overflow-hidden rounded-lg border border-primary/30 bg-primary/10 flex items-center justify-center">
-                {profile.logoUrl ? <img src={profile.logoUrl} alt={brandName} className="h-full w-full object-contain" /> : <Sparkles className="h-4 w-4 text-primary" />}
-              </div>
-              <span>{brandName}</span>
-            </div>
-            <p>© {new Date().getFullYear()} {brandName}. Todos os direitos reservados.</p>
-          </div>
-        </footer>
-      </div>
-    </div>
-  );
+      <section className="px-4 pb-5 md:px-6"><div className="relative mx-auto min-h-[620px] max-w-[1440px] overflow-hidden rounded-[2.5rem] border border-primary/30 bg-[#090406] px-6 py-20 text-center md:px-12 md:py-28"><div className="octo-orb absolute left-1/2 top-1/2 h-[620px] w-[620px] -translate-x-1/2 -translate-y-1/2 opacity-70"/><div className="relative z-10 mx-auto max-w-4xl"><Sparkles className="mx-auto h-7 w-7 text-primary"/><h2 className="mt-8 text-[clamp(3.3rem,7vw,7.5rem)] font-black leading-[.84] tracking-[-.08em]">seu próximo<br/><span className="text-primary">salto começa</span><br/>aqui.</h2><p className="mx-auto mt-8 max-w-xl text-white/55">Conte o seu desafio. Em até 48 horas, você recebe uma visão inicial de escopo, prazo e impacto esperado.</p><div className="mt-9 flex flex-wrap justify-center gap-3"><Button asChild size="lg" className="neon-button h-14 rounded-full px-9"><Link to="/contato">Solicitar diagnóstico <ArrowRight className="ml-2 h-4 w-4"/></Link></Button><Button asChild size="lg" variant="outline" className="neon-outline h-14 rounded-full border-white/20 bg-black/20 px-9 text-white"><Link to="/login">Acessar plataforma</Link></Button></div></div></div></section>
+    </main>
+    <footer className="mx-auto flex max-w-[1440px] flex-col gap-8 px-6 py-12 text-xs text-white/35 md:flex-row md:items-center md:justify-between md:px-10"><div className="flex items-center gap-3"><span className="h-2 w-2 rounded-full bg-primary shadow-[0_0_12px_#f70670]"/><b className="uppercase tracking-[.15em] text-white">{brandName}</b></div><p>© {new Date().getFullYear()} {brandName}. Todos os direitos reservados.</p><div className="flex gap-6"><Link to="/planos" className="hover:text-primary">Planos</Link><Link to="/contato" className="hover:text-primary">Contato</Link><Link to="/login" className="hover:text-primary">Entrar</Link></div></footer>
+  </div>;
 };
 
 export default Landing;
