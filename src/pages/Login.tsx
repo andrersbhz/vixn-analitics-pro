@@ -6,7 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 
-const PRODUCTION_ORIGIN = "https://analitics.a3solucoesdigitais.com";
+const FALLBACK_ORIGIN = "https://analitics.a3solucoesdigitais.com";
+
+// Usa sempre a origem atual (preview, domínio custom ou produção) para que o
+// retorno do OAuth/recuperação volte para o mesmo lugar de onde saiu.
+const authOrigin = () =>
+  typeof window !== "undefined" && window.location.origin ? window.location.origin : FALLBACK_ORIGIN;
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -17,6 +22,24 @@ const Login = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Se já existe sessão (ou ela chega via callback do Google), vai direto ao painel.
+  useEffect(() => {
+    let active = true;
+
+    supabase.auth.getSession().then(({ data }) => {
+      if (active && data.session) navigate("/dashboard", { replace: true });
+    });
+
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) navigate("/dashboard", { replace: true });
+    });
+
+    return () => {
+      active = false;
+      sub.subscription.unsubscribe();
+    };
+  }, [navigate]);
 
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
@@ -33,6 +56,7 @@ const Login = () => {
     }
   }, [toast]);
 
+
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -42,7 +66,7 @@ const Login = () => {
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
-          options: { emailRedirectTo: `${PRODUCTION_ORIGIN}/` },
+          options: { emailRedirectTo: `${authOrigin()}/` },
         });
         if (error) throw error;
 
@@ -81,7 +105,7 @@ const Login = () => {
 
     setIsRecoveryLoading(true);
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${PRODUCTION_ORIGIN}/reset-password`,
+      redirectTo: `${authOrigin()}/reset-password`,
     });
     setIsRecoveryLoading(false);
 
@@ -96,7 +120,7 @@ const Login = () => {
   const handleGoogleLogin = async () => {
     setIsGoogleLoading(true);
     try {
-      const redirectTo = `${PRODUCTION_ORIGIN}/`;
+      const redirectTo = `${authOrigin()}/login`;
       const { error } = await supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo } });
       if (error) throw error;
     } catch (error: any) {
