@@ -251,6 +251,231 @@ export type Database = {
         }
         Relationships: []
       }
+      strategy_funnel_stages: {
+        Row: {
+          channels: string[]
+          content: string | null
+          copy: string | null
+          created_at: string
+          due_date: string | null
+          funnel_id: string
+          id: string
+          kpi: string | null
+          notes: string | null
+          objective: string | null
+          offer: string | null
+          owner: string | null
+          position: number
+          stage_type: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          channels?: string[]
+          content?: string | null
+          copy?: string | null
+          created_at?: string
+          due_date?: string | null
+          funnel_id: string
+          id?: string
+          kpi?: string | null
+          notes?: string | null
+          objective?: string | null
+          offer?: string | null
+          owner?: string | null
+          position?: number
+          stage_type?: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          channels?: string[]
+          content?: string | null
+          copy?: string | null
+          created_at?: string
+          due_date?: string | null
+          funnel_id?: string
+          id?: string
+          kpi?: string | null
+          notes?: string | null
+          objective?: string | null
+          offer?: string | null
+          owner?: string | null
+          position?: number
+          stage_type?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "strategy_funnel_stages_funnel_id_fkey"
+            columns: ["funnel_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_funnels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      strategy_funnels: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          market_analysis_id: string | null
+          name: string
+          source_snapshot: Json
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          market_analysis_id?: string | null
+          name: string
+          source_snapshot?: Json
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          market_analysis_id?: string | null
+          name?: string
+          source_snapshot?: Json
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "strategy_funnels_market_analysis_id_fkey"
+            columns: ["market_analysis_id"]
+            isOneToOne: false
+            referencedRelation: "market_analyses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      strategy_progress_history: {
+        Row: {
+          blocked_tasks: number
+          completed_tasks: number
+          funnel_id: string
+          id: string
+          overdue_tasks: number
+          progress: number
+          recorded_at: string
+          total_tasks: number
+          user_id: string
+        }
+        Insert: {
+          blocked_tasks?: number
+          completed_tasks?: number
+          funnel_id: string
+          id?: string
+          overdue_tasks?: number
+          progress?: number
+          recorded_at?: string
+          total_tasks?: number
+          user_id: string
+        }
+        Update: {
+          blocked_tasks?: number
+          completed_tasks?: number
+          funnel_id?: string
+          id?: string
+          overdue_tasks?: number
+          progress?: number
+          recorded_at?: string
+          total_tasks?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "strategy_progress_history_funnel_id_fkey"
+            columns: ["funnel_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_funnels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      strategy_tasks: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          description: string | null
+          due_date: string | null
+          funnel_id: string
+          id: string
+          metadata: Json
+          owner: string | null
+          position: number
+          priority: string
+          stage_id: string | null
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          funnel_id: string
+          id?: string
+          metadata?: Json
+          owner?: string | null
+          position?: number
+          priority?: string
+          stage_id?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          funnel_id?: string
+          id?: string
+          metadata?: Json
+          owner?: string | null
+          position?: number
+          priority?: string
+          stage_id?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "strategy_tasks_funnel_id_fkey"
+            columns: ["funnel_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_funnels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "strategy_tasks_stage_id_fkey"
+            columns: ["stage_id"]
+            isOneToOne: false
+            referencedRelation: "strategy_funnel_stages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sync_history: {
         Row: {
           created_at: string
@@ -275,6 +500,27 @@ export type Database = {
           platform_id?: string
           status?: string
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          role: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          role?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          role?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -313,7 +559,11 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      capture_strategy_progress_snapshot: {
+        Args: { p_funnel_id: string }
+        Returns: undefined
+      }
+      is_admin: { Args: never; Returns: boolean }
     }
     Enums: {
       [_ in never]: never
