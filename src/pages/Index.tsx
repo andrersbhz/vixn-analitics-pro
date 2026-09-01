@@ -1,4 +1,5 @@
 import DashboardLayout from "@/components/DashboardLayout";
+import ContactsOverview from "@/components/ContactsOverview";
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, BarChart, Bar, Cell } from 'recharts';
 import { 
   Card, 
@@ -411,6 +412,8 @@ const Index = () => {
             </Card>
           </>
         )}
+
+        <ContactsOverview />
       </div>
 
       <Dialog open={isNewProjectOpen} onOpenChange={setIsNewProjectOpen}>
