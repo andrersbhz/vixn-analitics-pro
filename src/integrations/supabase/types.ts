@@ -14,6 +14,92 @@ export type Database = {
   }
   public: {
     Tables: {
+      contact_messages: {
+        Row: {
+          channel: string
+          content: string
+          created_at: string
+          email: string | null
+          id: string
+          is_read: boolean
+          lead_id: string | null
+          name: string
+          subject: string | null
+          updated_at: string
+        }
+        Insert: {
+          channel?: string
+          content: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_read?: boolean
+          lead_id?: string | null
+          name: string
+          subject?: string | null
+          updated_at?: string
+        }
+        Update: {
+          channel?: string
+          content?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_read?: boolean
+          lead_id?: string | null
+          name?: string
+          subject?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contact_messages_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leads: {
+        Row: {
+          company: string | null
+          created_at: string
+          email: string
+          id: string
+          message: string | null
+          name: string
+          phone: string | null
+          source: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          company?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          message?: string | null
+          name: string
+          phone?: string | null
+          source?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          company?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string | null
+          name?: string
+          phone?: string | null
+          source?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       market_analyses: {
         Row: {
           created_at: string
@@ -46,6 +132,56 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      meetings: {
+        Row: {
+          contact_email: string | null
+          contact_name: string | null
+          created_at: string
+          duration_minutes: number
+          id: string
+          lead_id: string | null
+          notes: string | null
+          scheduled_at: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          contact_email?: string | null
+          contact_name?: string | null
+          created_at?: string
+          duration_minutes?: number
+          id?: string
+          lead_id?: string | null
+          notes?: string | null
+          scheduled_at: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          contact_email?: string | null
+          contact_name?: string | null
+          created_at?: string
+          duration_minutes?: number
+          id?: string
+          lead_id?: string | null
+          notes?: string | null
+          scheduled_at?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meetings_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       platform_connections: {
         Row: {

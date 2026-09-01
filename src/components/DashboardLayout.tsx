@@ -20,7 +20,8 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
     Sparkles,
     KanbanSquare,
     Gauge,
-    CalendarDays
+    CalendarDays,
+    Contact
  } from "lucide-react";
  import { Button } from "@/components/ui/button";
  import { cn } from "@/lib/utils";
@@ -53,7 +54,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
      toast.success('Sessão encerrada com sucesso.');
    };
 
-   const brandName = profile.brandName || "GrowthSuite Pro";
+   const brandName = profile.brandName || "VYXN Digital";
    const BrandMark = () => (
     <span className="flex flex-col items-center gap-1 min-w-0 w-full">
       {profile.logoUrl ? (
@@ -86,6 +87,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     { name: "Operações", href: "/strategy-operations", icon: KanbanSquare },
     { name: "Cockpit", href: "/strategy-cockpit", icon: Gauge },
     { name: "Calendário", href: "/strategy-calendar", icon: CalendarDays },
+    { name: "Contatos", href: "/contatos", icon: Contact },
     { name: "Relatórios", href: "/reports", icon: PieChart },
     { name: "Configurações", href: "/settings", icon: Settings },
     { name: "Diagnóstico", href: "/diagnostics", icon: AlertCircle },

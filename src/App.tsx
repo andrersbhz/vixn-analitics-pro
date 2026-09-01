@@ -6,6 +6,9 @@ import { TooltipProvider } from "./components/ui/tooltip";
 import { ThemeProvider } from "./components/ThemeProvider";
 import Index from "./pages/Index";
 import Landing from "./pages/Landing";
+import Plans from "./pages/Plans";
+import LeadCapture from "./pages/LeadCapture";
+import Contacts from "./pages/Contacts";
 import Login from "./pages/Login";
 import ResetPassword from "./pages/ResetPassword";
 import YouTubeStats from "./pages/YouTubeStats";
@@ -37,7 +40,11 @@ const App = () => {
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Landing />} />
+              <Route path="/solucoes" element={<Landing />} />
+              <Route path="/planos" element={<Plans />} />
+              <Route path="/contato" element={<LeadCapture />} />
               <Route path="/dashboard" element={<Index />} />
+              <Route path="/contatos" element={<Contacts />} />
 
               <Route path="/login" element={<Login />} />
               <Route path="/reset-password" element={<ResetPassword />} />

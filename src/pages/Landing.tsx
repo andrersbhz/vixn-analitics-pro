@@ -11,6 +11,8 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter,
 } from "@/components/ui/dialog";
 import { useBrand } from "@/hooks/use-brand";
+import Seo from "@/components/Seo";
+import { SITE, checkoutLink } from "@/lib/site";
 import { toast } from "sonner";
 
 const solutions = [
@@ -112,7 +114,7 @@ const BrandEditor = () => {
 
 const Landing = () => {
   const { profile } = useBrand();
-  const brandName = profile.brandName || "VYXN Digital";
+  const brandName = profile.brandName || SITE.name;
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [active, setActive] = useState("");
@@ -133,6 +135,17 @@ const Landing = () => {
 
   return (
     <div className="dark relative min-h-screen overflow-x-hidden bg-background text-foreground">
+      <Seo
+        title={`${brandName} — Soluções SaaS sob medida com dados e IA`}
+        description="Desenvolvemos plataformas SaaS sob medida: análise de dados, inteligência artificial, comportamento, atendimento, mercado e estratégias de campanha para o seu negócio."
+        path="/"
+        jsonLd={{
+          "@type": "Organization",
+          name: brandName,
+          url: SITE.domain,
+          description: "Soluções SaaS sob medida com dados, IA e automação.",
+        }}
+      />
       {/* ambient background */}
       <div className="pointer-events-none fixed inset-0 z-0">
         <div className="absolute -top-40 -left-32 h-[38rem] w-[38rem] rounded-full bg-primary/20 blur-[160px]" />
@@ -174,7 +187,7 @@ const Landing = () => {
                 <Link to="/login"><LogIn className="h-4 w-4" /> Entrar</Link>
               </Button>
               <Button asChild className="hidden rounded-full shadow-[0_0_28px_-6px_hsl(var(--primary)/0.9)] sm:inline-flex">
-                <a href="#contato">Falar com especialista</a>
+                <Link to="/contato">Falar com especialista</Link>
               </Button>
               <Button variant="ghost" size="icon" className="md:hidden" aria-label="Abrir menu" onClick={() => setMenuOpen((v) => !v)}>
                 {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -210,7 +223,7 @@ const Landing = () => {
               </p>
               <div className="mt-9 flex flex-wrap items-center gap-4">
                 <Button asChild size="lg" className="rounded-full px-8 shadow-[0_0_36px_-6px_hsl(var(--primary)/0.9)]">
-                  <a href="#contato" className="gap-2">Quero minha solução <ArrowRight className="h-4 w-4" /></a>
+                  <Link to="/contato" className="gap-2">Quero minha solução <ArrowRight className="h-4 w-4" /></Link>
                 </Button>
                 <Button asChild size="lg" variant="outline" className="rounded-full border-primary/30 px-8 hover:border-primary/60">
                   <a href="#solucoes">Ver soluções</a>
@@ -293,6 +306,9 @@ const Landing = () => {
           <div className="max-w-2xl">
             <h2 className="text-3xl md:text-4xl">Planos que acompanham <span className="gradient-text">seu crescimento</span></h2>
             <p className="mt-4 text-muted-foreground">Comece pequeno, escale por módulos. Sem fidelidade escondida.</p>
+            <Link to="/planos" className="mt-4 inline-flex items-center gap-2 text-sm text-primary hover:underline">
+              Ver página completa de planos <ArrowRight className="h-4 w-4" />
+            </Link>
           </div>
           <div className="mt-12 grid gap-6 lg:grid-cols-3">
             {plans.map((p) => (
@@ -309,7 +325,7 @@ const Landing = () => {
                   ))}
                 </ul>
                 <Button asChild className="mt-8 w-full rounded-full" variant={p.highlight ? "default" : "outline"}>
-                  <a href="#contato">Começar agora</a>
+                  <a href={checkoutLink(p.name.toLowerCase())} target="_blank" rel="noopener noreferrer">Assinar agora</a>
                 </Button>
               </div>
             ))}
@@ -339,7 +355,7 @@ const Landing = () => {
             </p>
             <div className="mt-9 flex flex-wrap justify-center gap-4">
               <Button asChild size="lg" className="rounded-full px-10 shadow-[0_0_40px_-6px_hsl(var(--primary))]">
-                <a href="mailto:contato@vyxndigital.com?subject=Quero%20uma%20solu%C3%A7%C3%A3o%20SaaS">Solicitar diagnóstico</a>
+                <Link to="/contato">Solicitar diagnóstico</Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="rounded-full border-primary/30 px-10">
                 <Link to="/login">Acessar plataforma</Link>

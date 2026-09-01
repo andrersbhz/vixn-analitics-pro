@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import brandIcon from "@/assets/brand-icon.png";
 
 export interface BrandProfile {
   brandName: string;
@@ -9,8 +10,8 @@ export interface BrandProfile {
 }
 
 const DEFAULTS: BrandProfile = {
-  brandName: "GrowthSuite Pro",
-  logoUrl: "",
+  brandName: "VYXN Digital",
+  logoUrl: brandIcon,
   fullName: "",
   email: "",
 };
@@ -45,7 +46,7 @@ export const useBrand = () => {
       const prefs = (settings?.preferences as any) || {};
       const merged: BrandProfile = {
         brandName: prefs.brandName || local.brandName || DEFAULTS.brandName,
-        logoUrl: prefs.logoUrl || prof?.avatar_url || local.logoUrl || "",
+        logoUrl: prefs.logoUrl || prof?.avatar_url || local.logoUrl || DEFAULTS.logoUrl,
         fullName: prof?.full_name || local.fullName || "",
         email: prof?.email || user.email || "",
       };
