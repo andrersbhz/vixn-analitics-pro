@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   BarChart3, Brain, Users, Headphones, Target, Rocket, ShieldCheck,
-  Sparkles, ArrowRight, Check, Pencil, Upload, Workflow, LineChart, Bot
+  Sparkles, ArrowRight, Check, Pencil, Upload, Workflow, LineChart, Bot, LogIn, Menu, X
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,6 +35,13 @@ const plans = [
   { name: "Start", price: "R$ 2.900", period: "/mês", desc: "Para validar um módulo e provar valor rápido.", items: ["1 módulo SaaS sob medida", "Dashboard de dados", "Integrações essenciais", "Suporte em horário comercial"] },
   { name: "Growth", price: "R$ 6.900", period: "/mês", desc: "Para operações que já rodam e precisam escalar.", items: ["Até 4 módulos", "IA aplicada ao seu contexto", "Análise comportamental e de atendimento", "Estratégias de campanha mensais", "Suporte prioritário"], highlight: true },
   { name: "Enterprise", price: "Sob consulta", period: "", desc: "Plataforma completa, multiempresa e white-label.", items: ["Módulos ilimitados", "Infra dedicada e SSO", "Modelos de IA privados", "Squad dedicado", "SLA contratual"] },
+];
+
+const sections = [
+  { id: "solucoes", label: "Soluções" },
+  { id: "como", label: "Como funciona" },
+  { id: "planos", label: "Planos" },
+  { id: "faq", label: "FAQ" },
 ];
 
 const faqs = [
@@ -106,6 +113,23 @@ const BrandEditor = () => {
 const Landing = () => {
   const { profile } = useBrand();
   const brandName = profile.brandName || "VYXN Digital";
+  const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [active, setActive] = useState("");
+
+  useEffect(() => {
+    const onScroll = () => {
+      setScrolled(window.scrollY > 12);
+      const current = sections
+        .map((s) => ({ id: s.id, el: document.getElementById(s.id) }))
+        .filter((s) => s.el && s.el.getBoundingClientRect().top <= 140)
+        .pop();
+      setActive(current?.id ?? "");
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
     <div className="dark relative min-h-screen overflow-x-hidden bg-background text-foreground">
@@ -230,7 +254,7 @@ const Landing = () => {
         </section>
 
         {/* Soluções */}
-        <section id="solucoes" className="mx-auto max-w-7xl px-5 py-20">
+        <section id="solucoes" className="scroll-mt-24 mx-auto max-w-7xl px-5 py-20">
           <div className="max-w-2xl">
             <h2 className="text-3xl md:text-4xl">Soluções que resolvem <span className="gradient-text">problemas reais</span></h2>
             <p className="mt-4 text-muted-foreground">Cada módulo é construído a partir da sua operação — nada de software genérico.</p>
@@ -249,7 +273,7 @@ const Landing = () => {
         </section>
 
         {/* Como funciona */}
-        <section id="como" className="mx-auto max-w-7xl px-5 py-20">
+        <section id="como" className="scroll-mt-24 mx-auto max-w-7xl px-5 py-20">
           <div className="glass-card border-primary/15 p-8 md:p-12">
             <h2 className="text-3xl md:text-4xl">Do diagnóstico ao <span className="gradient-text">SaaS rodando</span></h2>
             <div className="mt-12 grid gap-8 md:grid-cols-4">
@@ -265,7 +289,7 @@ const Landing = () => {
         </section>
 
         {/* Planos */}
-        <section id="planos" className="mx-auto max-w-7xl px-5 py-20">
+        <section id="planos" className="scroll-mt-24 mx-auto max-w-7xl px-5 py-20">
           <div className="max-w-2xl">
             <h2 className="text-3xl md:text-4xl">Planos que acompanham <span className="gradient-text">seu crescimento</span></h2>
             <p className="mt-4 text-muted-foreground">Comece pequeno, escale por módulos. Sem fidelidade escondida.</p>
@@ -293,7 +317,7 @@ const Landing = () => {
         </section>
 
         {/* FAQ */}
-        <section id="faq" className="mx-auto max-w-5xl px-5 py-20">
+        <section id="faq" className="scroll-mt-24 mx-auto max-w-5xl px-5 py-20">
           <h2 className="text-3xl md:text-4xl">Perguntas frequentes</h2>
           <div className="mt-10 grid gap-5 md:grid-cols-2">
             {faqs.map((f) => (
@@ -306,7 +330,7 @@ const Landing = () => {
         </section>
 
         {/* CTA */}
-        <section id="contato" className="mx-auto max-w-7xl px-5 pb-24">
+        <section id="contato" className="scroll-mt-24 mx-auto max-w-7xl px-5 pb-24">
           <div className="glass-card sheen relative overflow-hidden border-primary/40 p-10 text-center shadow-[0_0_80px_-24px_hsl(var(--primary))] md:p-16">
             <ShieldCheck className="mx-auto h-10 w-10 text-primary" />
             <h2 className="mt-6 text-3xl md:text-5xl">Vamos construir o SaaS do <span className="gradient-text">seu negócio</span></h2>
