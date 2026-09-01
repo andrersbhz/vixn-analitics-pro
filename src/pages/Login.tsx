@@ -57,6 +57,15 @@ const Login = () => {
   }, [toast]);
 
 
+  // Evita que o botão fique preso em "Processando..." caso a rede/auth trave.
+  const withTimeout = <T,>(promise: Promise<T>, ms = 20000): Promise<T> =>
+    Promise.race([
+      promise,
+      new Promise<T>((_, reject) =>
+        setTimeout(() => reject(new Error("Tempo esgotado ao contatar o servidor de autenticação. Tente novamente.")), ms),
+      ),
+    ]);
+
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
