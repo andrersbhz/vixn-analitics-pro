@@ -20,7 +20,9 @@ import {
   Info,
   CheckCircle2,
   XCircle,
-  DollarSign
+  DollarSign,
+  Sparkles,
+  Bot
 } from "lucide-react";
 
 const WordPressIcon = Globe;
