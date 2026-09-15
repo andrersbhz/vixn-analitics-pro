@@ -77,7 +77,7 @@ serve(async (req) => {
       // browser (OAuth tokens, application passwords, secrets) are never
       // erased when the user saves unrelated settings.
       update.config = {
-        ...(existing.config || {}),
+        ...(current.config || {}),
         ...(config as Record<string, unknown>),
       };
     }
