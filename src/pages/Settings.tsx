@@ -249,7 +249,11 @@ const ConnectionItem = ({ conn, onUpdate, onTestSync, onRefresh, autoSyncTrigger
             <div className="flex flex-col sm:flex-row gap-3">
               {conn.id !== 'adsense' && (
                 <Button onClick={handleConnect} className="flex-1 h-11">
-                  {conn.id === 'wordpress' ? 'Conectar via API' : 'Conectar com ID'}
+                  {conn.id === 'wordpress'
+                    ? 'Conectar via API'
+                    : conn.id === 'openai' || conn.id === 'gemini'
+                      ? 'Conectar com Chave de API'
+                      : 'Conectar com ID'}
                 </Button>
               )}
               {conn.id === 'wordpress' && (
