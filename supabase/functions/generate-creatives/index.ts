@@ -167,8 +167,8 @@ Retorne APENAS JSON puro (sem markdown) com esta forma:
     }
   }
 
-  if (!geminiKey && !openAIKey) {
-    throw new Error('Configure GEMINI_API_KEY ou OPENAI_API_KEY nos secrets do Supabase.');
+  if (!hasLovableAi() && !geminiKey && !openAIKey) {
+    throw new Error('Nenhum provedor de IA está disponível no servidor.');
   }
 
   throw new Error(`Falha ao gerar plano de criativos. ${errors.join(' | ')}`);
