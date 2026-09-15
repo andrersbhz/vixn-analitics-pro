@@ -49,7 +49,43 @@
  
      let channelName = ''
  
-      if (platformId === 'adsense') {
+      if (platformId === 'openai' || platformId === 'gemini') {
+        const apiKey = (config as any)?.api_key
+        if (!apiKey) throw new Error('Chave de API não configurada.')
+
+        const res = platformId === 'openai'
+          ? await fetch('https://api.openai.com/v1/models', {
+              headers: { Authorization: `Bearer ${apiKey}` },
+              signal: AbortSignal.timeout(15000),
+            })
+          : await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(apiKey)}`, {
+              signal: AbortSignal.timeout(15000),
+            })
+
+        const body = await res.text()
+        if (!res.ok) throw new Error(`Falha na validação (${res.status}): ${body.substring(0, 160)}`)
+
+        let models = 0
+        try {
+          const parsed = JSON.parse(body)
+          models = (parsed.data?.length ?? parsed.models?.length ?? 0)
+        } catch (_e) { /* resposta sem lista de modelos */ }
+
+        await supabaseClient.from('platform_connections')
+          .update({
+            last_sync_at: new Date().toISOString(),
+            is_connected: true,
+            cached_data: { models, validated_at: new Date().toISOString() },
+          })
+          .eq('id', platformId)
+          .eq('user_id', userId)
+
+        return new Response(JSON.stringify({
+          success: true,
+          count: 0,
+          warning: `Chave válida. ${models} modelos disponíveis.`,
+        }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 })
+      } else if (platformId === 'adsense') {
         const oauth = (config as any).oauth
         if (!oauth?.access_token) {
           await supabaseClient.from('platform_connections')

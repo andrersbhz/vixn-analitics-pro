@@ -20,7 +20,9 @@ import {
   Info,
   CheckCircle2,
   XCircle,
-  DollarSign
+  DollarSign,
+  Sparkles,
+  Bot
 } from "lucide-react";
 
 const WordPressIcon = Globe;
@@ -56,6 +58,11 @@ const ConnectionItem = ({ conn, onUpdate, onTestSync, onRefresh, autoSyncTrigger
     if (conn.id === 'wordpress') {
       if (!config.url || !config.user || !config.password) {
         toast.error("Por favor, preencha todos os campos do WordPress");
+        return;
+      }
+    } else if (conn.id === 'openai' || conn.id === 'gemini') {
+      if (!config.api_key) {
+        toast.error(`Por favor, insira a chave de API do ${conn.name}`);
         return;
       }
     } else if (!config.id) {
@@ -223,7 +230,16 @@ const ConnectionItem = ({ conn, onUpdate, onTestSync, onRefresh, autoSyncTrigger
                   />
                 </div>
               </>
-            ) : conn.id === 'adsense' ? null : (
+            ) : conn.id === 'adsense' ? null : conn.id === 'openai' || conn.id === 'gemini' ? (
+              <input
+                type="password"
+                value={config.api_key || ""}
+                onChange={(e) => updateConfig('api_key', e.target.value)}
+                placeholder={conn.placeholder}
+                autoComplete="off"
+                className="bg-background border border-input rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/40 outline-none transition-all focus:bg-primary/5"
+              />
+            ) : (
                 <input 
                 type="text" 
                 value={config.id || ""}
@@ -235,7 +251,11 @@ const ConnectionItem = ({ conn, onUpdate, onTestSync, onRefresh, autoSyncTrigger
             <div className="flex flex-col sm:flex-row gap-3">
               {conn.id !== 'adsense' && (
                 <Button onClick={handleConnect} className="flex-1 h-11">
-                  {conn.id === 'wordpress' ? 'Conectar via API' : 'Conectar com ID'}
+                  {conn.id === 'wordpress'
+                    ? 'Conectar via API'
+                    : conn.id === 'openai' || conn.id === 'gemini'
+                      ? 'Conectar com Chave de API'
+                      : 'Conectar com ID'}
                 </Button>
               )}
               {conn.id === 'wordpress' && (
@@ -401,6 +421,26 @@ const Settings = () => {
       placeholder: "Ex: pub-xxxxxxxxxxxxxxxx",
       helpUrl: "https://developers.google.com/adsense/management/getting-started",
       shortHelp: "Cadastre a URL de callback no Google Cloud. Se aparecer 403, deixe o consentimento como Externo e adicione seu e-mail como usuário de teste."
+    },
+    {
+      id: "openai",
+      name: "OpenAI",
+      icon: <Sparkles className="h-6 w-6 text-emerald-500" />,
+      link: "https://platform.openai.com/api-keys",
+      instructions: "Acesse platform.openai.com → API keys, gere uma chave secreta e cole aqui. A chave fica guardada com segurança no servidor.",
+      placeholder: "sk-...",
+      helpUrl: "https://platform.openai.com/docs/quickstart",
+      shortHelp: "Crie a chave em API keys e confirme que sua conta tem créditos ativos."
+    },
+    {
+      id: "gemini",
+      name: "Google Gemini",
+      icon: <Bot className="h-6 w-6 text-sky-500" />,
+      link: "https://aistudio.google.com/app/apikey",
+      instructions: "Acesse o Google AI Studio → Get API key, gere a chave e cole aqui. A chave fica guardada com segurança no servidor.",
+      placeholder: "AIza...",
+      helpUrl: "https://ai.google.dev/gemini-api/docs/api-key",
+      shortHelp: "Gere a chave no Google AI Studio com o mesmo projeto do Google Cloud."
     },
   ];
 
