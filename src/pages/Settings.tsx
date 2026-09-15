@@ -228,7 +228,16 @@ const ConnectionItem = ({ conn, onUpdate, onTestSync, onRefresh, autoSyncTrigger
                   />
                 </div>
               </>
-            ) : conn.id === 'adsense' ? null : (
+            ) : conn.id === 'adsense' ? null : conn.id === 'openai' || conn.id === 'gemini' ? (
+              <input
+                type="password"
+                value={config.api_key || ""}
+                onChange={(e) => updateConfig('api_key', e.target.value)}
+                placeholder={conn.placeholder}
+                autoComplete="off"
+                className="bg-background border border-input rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/40 outline-none transition-all focus:bg-primary/5"
+              />
+            ) : (
                 <input 
                 type="text" 
                 value={config.id || ""}
