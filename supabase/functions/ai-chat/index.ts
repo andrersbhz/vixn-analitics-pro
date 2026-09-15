@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { callLovableText, hasLovableAi } from "../_shared/lovable-ai.ts"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -11,9 +12,11 @@ const jsonResponse = (body: unknown, status = 200) =>
     headers: { ...corsHeaders, 'Content-Type': 'application/json' },
   })
 
+type Provider = 'lovable' | 'gemini' | 'openai'
+
 type RequestBody = {
   prompt?: string
-  model?: 'gemini' | 'openai'
+  model?: 'gemini' | 'openai' | 'lovable'
   system_prompt?: string
   response_format?: 'text' | 'json'
   fallback?: boolean
