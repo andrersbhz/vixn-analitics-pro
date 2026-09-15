@@ -58,6 +58,11 @@ const ConnectionItem = ({ conn, onUpdate, onTestSync, onRefresh, autoSyncTrigger
         toast.error("Por favor, preencha todos os campos do WordPress");
         return;
       }
+    } else if (conn.id === 'openai' || conn.id === 'gemini') {
+      if (!config.api_key) {
+        toast.error(`Por favor, insira a chave de API do ${conn.name}`);
+        return;
+      }
     } else if (!config.id) {
       toast.error(`Por favor, insira o identificador do ${conn.name}`);
       return;
