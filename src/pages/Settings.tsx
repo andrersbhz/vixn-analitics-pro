@@ -420,6 +420,26 @@ const Settings = () => {
       helpUrl: "https://developers.google.com/adsense/management/getting-started",
       shortHelp: "Cadastre a URL de callback no Google Cloud. Se aparecer 403, deixe o consentimento como Externo e adicione seu e-mail como usuário de teste."
     },
+    {
+      id: "openai",
+      name: "OpenAI",
+      icon: <Sparkles className="h-6 w-6 text-emerald-500" />,
+      link: "https://platform.openai.com/api-keys",
+      instructions: "Acesse platform.openai.com → API keys, gere uma chave secreta e cole aqui. A chave fica guardada com segurança no servidor.",
+      placeholder: "sk-...",
+      helpUrl: "https://platform.openai.com/docs/quickstart",
+      shortHelp: "Crie a chave em API keys e confirme que sua conta tem créditos ativos."
+    },
+    {
+      id: "gemini",
+      name: "Google Gemini",
+      icon: <Bot className="h-6 w-6 text-sky-500" />,
+      link: "https://aistudio.google.com/app/apikey",
+      instructions: "Acesse o Google AI Studio → Get API key, gere a chave e cole aqui. A chave fica guardada com segurança no servidor.",
+      placeholder: "AIza...",
+      helpUrl: "https://ai.google.dev/gemini-api/docs/api-key",
+      shortHelp: "Gere a chave no Google AI Studio com o mesmo projeto do Google Cloud."
+    },
   ];
 
   return (
