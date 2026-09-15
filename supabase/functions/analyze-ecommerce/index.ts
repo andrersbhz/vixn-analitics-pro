@@ -1,3 +1,5 @@
+import { callLovableText, hasLovableAi } from '../_shared/lovable-ai.ts';
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -246,15 +248,29 @@ CONTEÚDO (extrato): ${text}`;
     const geminiKey = Deno.env.get('GEMINI_API_KEY');
     const openAIKey = Deno.env.get('OPENAI_API_KEY');
 
-    if (!geminiKey && !openAIKey) {
-      return jsonResponse({ error: 'Nenhuma chave de IA está configurada no backend. Configure GEMINI_API_KEY ou OPENAI_API_KEY nos secrets do Supabase.' }, 500);
+    if (!hasLovableAi() && !geminiKey && !openAIKey) {
+      return jsonResponse({ error: 'Nenhum provedor de IA está disponível no servidor.' }, 500);
     }
 
     let raw = '';
     let provider = '';
     const providerErrors: string[] = [];
 
-    if (geminiKey) {
+    if (hasLovableAi()) {
+      try {
+        raw = await callLovableText({
+          prompt,
+          systemPrompt: 'Responda somente com JSON puro válido, sem markdown.',
+          responseFormat: 'json',
+          temperature: 0.2,
+        });
+        provider = 'lovable';
+      } catch (error) {
+        providerErrors.push(`IA da plataforma: ${error instanceof Error ? error.message : String(error)}`);
+      }
+    }
+
+    if (!raw && geminiKey) {
       try {
         raw = await analyzeWithGemini(prompt, geminiKey);
         provider = 'gemini';

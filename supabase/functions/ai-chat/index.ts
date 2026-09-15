@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { callLovableText, hasLovableAi } from "../_shared/lovable-ai.ts"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -11,9 +12,11 @@ const jsonResponse = (body: unknown, status = 200) =>
     headers: { ...corsHeaders, 'Content-Type': 'application/json' },
   })
 
+type Provider = 'lovable' | 'gemini' | 'openai'
+
 type RequestBody = {
   prompt?: string
-  model?: 'gemini' | 'openai'
+  model?: 'gemini' | 'openai' | 'lovable'
   system_prompt?: string
   response_format?: 'text' | 'json'
   fallback?: boolean
@@ -26,7 +29,7 @@ serve(async (req) => {
   try {
     const body = await req.json() as RequestBody
     const rawPrompt = typeof body.prompt === 'string' ? body.prompt.trim() : ''
-    const preferredModel = body.model === 'openai' ? 'openai' : 'gemini'
+    const preferredModel: Provider = body.model === 'openai' ? 'openai' : body.model === 'gemini' ? 'gemini' : 'lovable'
     const systemPrompt = typeof body.system_prompt === 'string' ? body.system_prompt.trim() : ''
 
     if (!rawPrompt) return jsonResponse({ error: 'Prompt obrigatório' }, 400)
@@ -40,17 +43,22 @@ serve(async (req) => {
       ? Math.max(0, Math.min(1, Number(body.temperature)))
       : responseFormat === 'json' ? 0.2 : 0.5
 
-    const providers: Array<'gemini' | 'openai'> = allowFallback
-      ? preferredModel === 'gemini' ? ['gemini', 'openai'] : ['openai', 'gemini']
+    const order: Provider[] = ['lovable', 'gemini', 'openai']
+    const providers: Provider[] = allowFallback
+      ? [preferredModel, ...order.filter((p) => p !== preferredModel)]
       : [preferredModel]
 
     const errors: Array<{ provider: string; error: string }> = []
 
     for (const provider of providers) {
+      if (provider === 'lovable' && !hasLovableAi()) continue
       try {
-        const text = provider === 'gemini'
-          ? await callGemini({ prompt, systemPrompt, responseFormat, temperature })
-          : await callOpenAI({ prompt, systemPrompt, responseFormat, temperature })
+        const text = provider === 'lovable'
+          ? await callLovableText({ prompt, systemPrompt, responseFormat, temperature })
+          : provider === 'gemini'
+            ? await callGemini({ prompt, systemPrompt, responseFormat, temperature })
+            : await callOpenAI({ prompt, systemPrompt, responseFormat, temperature })
+
 
         return jsonResponse({
           text,
