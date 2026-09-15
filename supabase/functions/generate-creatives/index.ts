@@ -193,24 +193,31 @@ Deno.serve(async (req) => {
       briefs.slice(0, 4).map(async (brief) => {
         const prompt = `${brief.visualPrompt}. Produto: ${productName}. ${productDescription}. Estilo: ${brief.style}. High-quality advertising creative, professional photography, sharp focus, e-commerce ready. Include the product prominently based on the reference image if provided.`;
 
-        if (!geminiKey) {
-          return {
-            ...brief,
-            imageUrl: null,
-            error: 'GEMINI_API_KEY necessária para gerar imagens. Os textos foram gerados normalmente.',
-          };
+        const imageErrors: string[] = [];
+
+        if (hasLovableAi()) {
+          try {
+            const url = await callLovableImage(prompt);
+            return { ...brief, imageUrl: url };
+          } catch (error) {
+            imageErrors.push(error instanceof Error ? error.message : String(error));
+          }
         }
 
-        try {
-          const url = await generateImage(prompt, images.slice(0, 2), geminiKey);
-          return { ...brief, imageUrl: url };
-        } catch (error) {
-          return {
-            ...brief,
-            imageUrl: null,
-            error: error instanceof Error ? error.message : String(error),
-          };
+        if (geminiKey) {
+          try {
+            const url = await generateImage(prompt, images.slice(0, 2), geminiKey);
+            return { ...brief, imageUrl: url };
+          } catch (error) {
+            imageErrors.push(error instanceof Error ? error.message : String(error));
+          }
         }
+
+        return {
+          ...brief,
+          imageUrl: null,
+          error: imageErrors.join(' | ') || 'Não foi possível gerar a imagem. Os textos foram gerados normalmente.',
+        };
       }),
     );
 
