@@ -1,3 +1,5 @@
+import { callLovableImage, callLovableText, hasLovableAi } from '../_shared/lovable-ai.ts';
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -134,6 +136,20 @@ Retorne APENAS JSON puro (sem markdown) com esta forma:
   const geminiKey = Deno.env.get('GEMINI_API_KEY');
   const openAIKey = Deno.env.get('OPENAI_API_KEY');
   const errors: string[] = [];
+
+  if (hasLovableAi()) {
+    try {
+      const text = await callLovableText({
+        prompt,
+        systemPrompt: 'Responda somente com JSON puro válido, sem markdown.',
+        responseFormat: 'json',
+        temperature: 0.4,
+      });
+      return JSON.parse(cleanJson(text));
+    } catch (error) {
+      errors.push(`IA da plataforma: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
 
   if (geminiKey) {
     try {
