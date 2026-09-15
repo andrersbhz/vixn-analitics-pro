@@ -699,7 +699,6 @@ export type Database = {
         Args: { p_funnel_id: string }
         Returns: undefined
       }
-      is_admin: { Args: never; Returns: boolean }
     }
     Enums: {
       [_ in never]: never
