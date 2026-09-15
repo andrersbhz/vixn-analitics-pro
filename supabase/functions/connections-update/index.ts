@@ -46,7 +46,27 @@ serve(async (req) => {
       .maybeSingle();
 
     if (readError) throw readError;
-    if (!existing) return jsonResponse({ error: 'Conexão não encontrada.' }, 404);
+
+    let current = existing;
+    if (!current) {
+      // Cria a linha da conexão na primeira vez que o usuário a configura
+      // (ex.: novas integrações como OpenAI e Gemini).
+      const defaultNames: Record<string, string> = {
+        openai: 'OpenAI',
+        gemini: 'Google Gemini',
+        youtube: 'YouTube',
+        wordpress: 'WordPress',
+        facebook: 'Facebook Ads',
+        adsense: 'Google AdSense',
+      };
+      const { data: created, error: createError } = await supabase
+        .from('platform_connections')
+        .insert({ id, name: defaultNames[id] ?? id, is_connected: false, config: {}, user_id: userId })
+        .select('*')
+        .single();
+      if (createError) throw createError;
+      current = created;
+    }
 
     const update: Record<string, unknown> = {
       updated_at: new Date().toISOString(),
