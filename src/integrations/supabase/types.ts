@@ -14,6 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      catalog_plans: {
+        Row: {
+          checkout_url: string | null
+          created_at: string
+          description: string | null
+          features: string[]
+          id: string
+          is_active: boolean
+          is_highlight: boolean
+          name: string
+          period: string
+          price: string
+          slug: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          checkout_url?: string | null
+          created_at?: string
+          description?: string | null
+          features?: string[]
+          id?: string
+          is_active?: boolean
+          is_highlight?: boolean
+          name: string
+          period?: string
+          price?: string
+          slug: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          checkout_url?: string | null
+          created_at?: string
+          description?: string | null
+          features?: string[]
+          id?: string
+          is_active?: boolean
+          is_highlight?: boolean
+          name?: string
+          period?: string
+          price?: string
+          slug?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       contact_messages: {
         Row: {
           channel: string
@@ -285,6 +333,54 @@ export type Database = {
           updated_at?: string | null
           user_id?: string | null
           views?: number | null
+        }
+        Relationships: []
+      }
+      products: {
+        Row: {
+          category: string | null
+          checkout_url: string | null
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string | null
+          is_active: boolean
+          price: number
+          short_description: string | null
+          slug: string
+          sort_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          checkout_url?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          price?: number
+          short_description?: string | null
+          slug: string
+          sort_order?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          checkout_url?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          price?: number
+          short_description?: string | null
+          slug?: string
+          sort_order?: number
+          title?: string
+          updated_at?: string
         }
         Relationships: []
       }

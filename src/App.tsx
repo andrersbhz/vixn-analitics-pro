@@ -27,6 +27,8 @@ import Settings from "./pages/Settings";
 import Diagnostics from "./pages/Diagnostics";
 import AdSenseOAuthCallback from "./pages/AdSenseOAuthCallback";
 import NotFound from "./pages/NotFound";
+import Catalog from "./pages/Catalog";
+import ProductPage from "./pages/ProductPage";
 
 const queryClient = new QueryClient();
 
@@ -45,6 +47,8 @@ const App = () => {
               <Route path="/contato" element={<LeadCapture />} />
               <Route path="/dashboard" element={<Index />} />
               <Route path="/contatos" element={<Contacts />} />
+              <Route path="/catalogo" element={<Catalog />} />
+              <Route path="/produto/:slug" element={<ProductPage />} />
 
               <Route path="/login" element={<Login />} />
               <Route path="/reset-password" element={<ResetPassword />} />

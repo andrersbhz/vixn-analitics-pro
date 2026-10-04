@@ -21,7 +21,8 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
     KanbanSquare,
     Gauge,
     CalendarDays,
-    Contact
+    Contact,
+    ShoppingBag
  } from "lucide-react";
  import { Button } from "@/components/ui/button";
  import { cn } from "@/lib/utils";
@@ -90,6 +91,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     { name: "Cockpit", href: "/strategy-cockpit", icon: Gauge },
     { name: "Calendário", href: "/strategy-calendar", icon: CalendarDays },
     { name: "Contatos", href: "/contatos", icon: Contact },
+    { name: "Produtos & Planos", href: "/catalogo", icon: ShoppingBag },
     { name: "Relatórios", href: "/reports", icon: PieChart },
     { name: "Configurações", href: "/settings", icon: Settings },
     { name: "Diagnóstico", href: "/diagnostics", icon: AlertCircle },
