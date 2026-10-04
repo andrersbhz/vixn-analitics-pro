@@ -1,0 +1,2 @@
+- [x] Restore contrast for the Growth checkout button and secondary badges.
+- [x] Generate creatives from uploaded product photos when references are supplied.

@@ -1,0 +1,1 @@
+Use a reference-capable image provider whenever a creative request includes uploaded product photos; text-only generation cannot preserve the supplied product.
