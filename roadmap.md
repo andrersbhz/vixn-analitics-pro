@@ -1,2 +1,5 @@
 - [x] Restore contrast for the Growth checkout button and secondary badges.
 - [x] Generate creatives from uploaded product photos when references are supplied.
+- [x] Produtos e planos editáveis no painel + página do produto + novos blocos na home
+- [ ] NowHubPay via API (aguardando chave/documentação da API do usuário; hoje usa link de pagamento)
+- [ ] Supabase próprio (gtjnjvbayzzuwqeoelts): configurar variáveis na hospedagem externa
