@@ -22,7 +22,7 @@ async function generateImage(prompt: string, refs: ProductImage[], apiKey: strin
   }
 
   const response = await fetch(
-    'https://generativelanguage.googleapis.com/v1/models/gemini-3.1-flash-image:generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-image:generateContent',
     {
       method: 'POST',
       headers: {
@@ -33,12 +33,6 @@ async function generateImage(prompt: string, refs: ProductImage[], apiKey: strin
         contents: [{ parts }],
         generationConfig: {
           responseModalities: ['IMAGE'],
-          responseFormat: {
-            image: {
-              aspectRatio: '1:1',
-              imageSize: '1K',
-            },
-          },
         },
       }),
     },
