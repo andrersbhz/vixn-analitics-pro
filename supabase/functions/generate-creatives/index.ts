@@ -195,6 +195,22 @@ Deno.serve(async (req) => {
 
         const imageErrors: string[] = [];
 
+        // O gateway de geração por texto não recebe as fotos enviadas pelo usuário.
+        // Com referências, use somente o caminho que envia os bytes das imagens.
+        if (images.length > 0) {
+          if (geminiKey) {
+            try {
+              const url = await generateImage(prompt, images.slice(0, 2), geminiKey);
+              return { ...brief, imageUrl: url };
+            } catch (error) {
+              imageErrors.push(error instanceof Error ? error.message : String(error));
+            }
+          } else {
+            imageErrors.push('Para gerar imagens com a foto do produto, conecte uma chave Gemini com acesso à geração de imagens.');
+          }
+          return { ...brief, imageUrl: null, error: imageErrors.join(' | ') };
+        }
+
         if (hasLovableAi()) {
           try {
             const url = await callLovableImage(prompt);
