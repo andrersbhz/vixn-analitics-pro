@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowDownRight, ArrowRight, BarChart3, Bot, BrainCircuit, Check, ChevronDown, CircleDot, Gauge, LogIn, Menu, MousePointer2, Network, ShieldCheck, Sparkles, Target, Workflow, X } from "lucide-react";
+import { ArrowDownRight, ArrowRight, BarChart3, Bot, BrainCircuit, Check, ChevronDown, CircleDot, Gauge, LogIn, Menu, MessageCircle, MousePointer2, Network, ShieldCheck, Sparkles, Target, Workflow, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Seo from "@/components/Seo";
 import { useBrand } from "@/hooks/use-brand";
