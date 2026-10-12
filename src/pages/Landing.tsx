@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowDownRight, ArrowRight, BarChart3, Bot, BrainCircuit, Check, ChevronDown, CircleDot, Gauge, LogIn, Menu, MousePointer2, Network, ShieldCheck, Sparkles, Target, Workflow, X } from "lucide-react";
+import { ArrowDownRight, ArrowRight, BarChart3, Bot, BrainCircuit, Check, ChevronDown, CircleDot, Gauge, LogIn, Menu, MessageCircle, MousePointer2, Network, ShieldCheck, Sparkles, Target, Workflow, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Seo from "@/components/Seo";
 import { useBrand } from "@/hooks/use-brand";
@@ -20,6 +20,8 @@ const services = [
   { n: "08", icon: Store, title: "Lojas virtuais completas", desc: "E-commerce com controle total de estoque, financeiro e métricas de venda em tempo real." },
   { n: "09", icon: Radar, title: "Análise de mercado e concorrentes", desc: "Comparação com concorrentes e funis estratégicos gerados por IA, prontos para execução." },
   { n: "10", icon: ShieldCheck, title: "Plataforma segura", desc: "Dados protegidos, acessos controlados e arquitetura preparada para escalar." },
+  { n: "11", icon: MousePointer2, title: "Landing pages de alta conversão", desc: "Páginas de venda rápidas, otimizadas e integradas ao seu funil para converter visitantes em clientes." },
+  { n: "12", icon: MessageCircle, title: "Disparos em massa via WhatsApp", desc: "Campanhas de mensagens em escala com segmentação, automação e métricas de entrega e resposta." },
 ];
 
 const fallbackPlans = [
